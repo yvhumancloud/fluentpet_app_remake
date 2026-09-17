@@ -1,0 +1,2717 @@
+{
+  "generatedAt": "2026-08-21T10:24:36.231Z",
+  "generatedBy": "scripts/build-screen-map.mjs",
+  "source": "fluentpet_app/src/navigation",
+  "counts": {
+    "enumTotal": 47,
+    "inScope": 36,
+    "retired": 11,
+    "registered": 35,
+    "navigators": 13,
+    "navigatorsInScope": 10,
+    "deepLinks": 35,
+    "annotated": 12,
+    "annotations": 11,
+    "invented": 6,
+    "routed": 42
+  },
+  "navigators": [
+    {
+      "key": "AUTHENTICATION",
+      "route": "AuthenticationNav",
+      "file": "src/navigation/navigators/AuthenticationNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "HOME_NAV",
+      "route": "HomeNav",
+      "file": "src/navigation/navigators/HomeNavigator.tsx",
+      "kind": "drawer",
+      "retired": false
+    },
+    {
+      "key": "MODAL",
+      "route": "ModalNav",
+      "file": "src/navigation/navigators/ModalNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "TAB_NAV",
+      "route": "TabNav",
+      "file": "src/navigation/navigators/TabNavigator.tsx",
+      "kind": "tabs",
+      "retired": false
+    },
+    {
+      "key": "HOUSEHOLD",
+      "route": "HouseholdNav",
+      "file": "src/navigation/navigators/HouseholdNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "LANDING_NAV",
+      "route": "LandingNav",
+      "file": "src/navigation/navigators/LandingNavigator.tsx",
+      "kind": "stack",
+      "retired": true
+    },
+    {
+      "key": "MODULE_NAV",
+      "route": "ModuleNav",
+      "file": "src/navigation/navigators/ModuleNavigator.tsx",
+      "kind": "stack",
+      "retired": true
+    },
+    {
+      "key": "ACTIVITY",
+      "route": "ActivityNav",
+      "file": "src/navigation/navigators/DashboardNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "BASE",
+      "route": "HardwareNav",
+      "file": "src/navigation/navigators/BaseNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "BASE_REGISTRATION",
+      "route": "BaseRegistrationNav",
+      "file": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "LOG_DETAILS",
+      "route": "LogDetailsNav",
+      "file": "src/navigation/navigators/LogDetailsNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "LOG_ENTRY_EDIT",
+      "route": "LogEntryEditNav",
+      "file": "src/navigation/navigators/LogEntryEditNavigator.tsx",
+      "kind": "stack",
+      "retired": false
+    },
+    {
+      "key": "ONBOARDING_NAV",
+      "route": "OnboardingNav",
+      "file": "src/navigation/navigators/OnboardingNavigator.tsx",
+      "kind": "stack",
+      "retired": true
+    }
+  ],
+  "tree": {
+    "type": "navigator",
+    "key": "__ROOT__",
+    "route": "RootNav",
+    "file": "src/navigation/navigators/RootNavigator.tsx",
+    "kind": "stack",
+    "deepLink": null,
+    "retired": false,
+    "children": [
+      {
+        "type": "navigator",
+        "key": "AUTHENTICATION",
+        "route": "AuthenticationNav",
+        "file": "src/navigation/navigators/AuthenticationNavigator.tsx",
+        "kind": "stack",
+        "deepLink": null,
+        "retired": false,
+        "children": [
+          {
+            "type": "screen",
+            "key": "WELCOME",
+            "route": "Welcome",
+            "title": null,
+            "presentation": "Stack",
+            "headerShown": true,
+            "impl": "src/Authentication/Welcome/Welcome.tsx",
+            "deepLink": "/welcome",
+            "retired": false
+          }
+        ],
+        "presentation": "Root",
+        "alphaGated": false
+      },
+      {
+        "type": "navigator",
+        "key": "HOME_NAV",
+        "route": "HomeNav",
+        "file": "src/navigation/navigators/HomeNavigator.tsx",
+        "kind": "drawer",
+        "deepLink": "/home/home_nav",
+        "retired": false,
+        "children": [
+          {
+            "type": "navigator",
+            "key": "MODAL",
+            "route": "ModalNav",
+            "file": "src/navigation/navigators/ModalNavigator.tsx",
+            "kind": "stack",
+            "deepLink": "/home/home_nav/modal_nav",
+            "retired": false,
+            "children": [
+              {
+                "type": "navigator",
+                "key": "TAB_NAV",
+                "route": "TabNav",
+                "file": "src/navigation/navigators/TabNavigator.tsx",
+                "kind": "tabs",
+                "deepLink": "/home/home_nav/modal_nav/tab_nav",
+                "retired": false,
+                "children": [
+                  {
+                    "type": "navigator",
+                    "key": "HOUSEHOLD",
+                    "route": "HouseholdNav",
+                    "file": "src/navigation/navigators/HouseholdNavigator.tsx",
+                    "kind": "stack",
+                    "deepLink": "/home/home_nav/modal_nav/tab_nav/household_tab",
+                    "retired": false,
+                    "children": [
+                      {
+                        "type": "screen",
+                        "key": "HOUSEHOLD",
+                        "route": "Household",
+                        "title": "HOUSEHOLD",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Household/Household.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/household_tab/household",
+                        "retired": false
+                      }
+                    ],
+                    "presentation": "Tab",
+                    "alphaGated": false
+                  },
+                  {
+                    "type": "navigator",
+                    "key": "LANDING_NAV",
+                    "route": "LandingNav",
+                    "file": "src/navigation/navigators/LandingNavigator.tsx",
+                    "kind": "stack",
+                    "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab",
+                    "retired": true,
+                    "children": [
+                      {
+                        "type": "screen",
+                        "key": "LANDING",
+                        "route": "Landing",
+                        "title": null,
+                        "presentation": "Stack",
+                        "headerShown": false,
+                        "impl": "src/HomeScreens/HomeScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab/landing",
+                        "retired": true
+                      },
+                      {
+                        "type": "screen",
+                        "key": "MODULE_SCREEN",
+                        "route": "Module",
+                        "title": null,
+                        "presentation": "Stack",
+                        "headerShown": false,
+                        "impl": "src/HomeScreens/ModuleScreens/ModuleScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab/module",
+                        "retired": true
+                      }
+                    ],
+                    "presentation": "Tab",
+                    "alphaGated": true
+                  },
+                  {
+                    "type": "navigator",
+                    "key": "MODULE_NAV",
+                    "route": "ModuleNav",
+                    "file": "src/navigation/navigators/ModuleNavigator.tsx",
+                    "kind": "stack",
+                    "deepLink": "/home/home_nav/modal_nav/tab_nav/module_tab",
+                    "retired": true,
+                    "children": [
+                      {
+                        "type": "screen",
+                        "key": "MODULE_SCREEN",
+                        "route": "Module",
+                        "title": null,
+                        "presentation": "Stack",
+                        "headerShown": false,
+                        "impl": "src/HomeScreens/ModuleScreens/ModuleScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/module_tab/module",
+                        "retired": true
+                      }
+                    ],
+                    "presentation": "Tab",
+                    "alphaGated": true
+                  },
+                  {
+                    "type": "navigator",
+                    "key": "ACTIVITY",
+                    "route": "ActivityNav",
+                    "file": "src/navigation/navigators/DashboardNavigator.tsx",
+                    "kind": "stack",
+                    "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab",
+                    "retired": false,
+                    "children": [
+                      {
+                        "type": "screen",
+                        "key": "DASHBOARD",
+                        "route": "Dashboard",
+                        "title": "ACTIVITY FEED",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Dashboard/Dashboard.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "DASHBOARD_PUSHER",
+                        "route": "DashboardPusher",
+                        "title": "ACTIVITY",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Dashboard/DashboardPusher.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_pusher",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "DASHBOARD_BUTTON",
+                        "route": "DashboardButton",
+                        "title": "BUTTON ACTIVITY",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Dashboard/DashboardButton.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_button",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "DASHBOARD_CONTEXT",
+                        "route": "DashboardContext",
+                        "title": "CONTEXT ACTIVITY",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Dashboard/DashboardContext.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_context",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "DASHBOARD_MEANING",
+                        "route": "DashboardMeaning",
+                        "title": "MEANING ACTIVITY",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Dashboard/DashboardMeaning.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_meaning",
+                        "retired": false
+                      }
+                    ],
+                    "presentation": "Tab",
+                    "alphaGated": false
+                  },
+                  {
+                    "type": "navigator",
+                    "key": "BASE",
+                    "route": "HardwareNav",
+                    "file": "src/navigation/navigators/BaseNavigator.tsx",
+                    "kind": "stack",
+                    "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav",
+                    "retired": false,
+                    "children": [
+                      {
+                        "type": "screen",
+                        "key": "BASES",
+                        "route": "Bases",
+                        "title": "HARDWARE",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Base/BasesScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/bases",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "BASE_EDIT",
+                        "route": "BaseEdit",
+                        "title": "EDIT BASE",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Base/BaseEditScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/base_edit",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "CLASSIC_BUTTONS",
+                        "route": "ClassicButtons",
+                        "title": "BUTTONS",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Base/ClassicButtonsScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/classic_buttons",
+                        "retired": false
+                      },
+                      {
+                        "type": "screen",
+                        "key": "BASE_EDIT_INTERACTION_TIMING",
+                        "route": "INTERACTION TIMING",
+                        "title": "INTERACTION TIMING",
+                        "presentation": "Stack",
+                        "headerShown": true,
+                        "impl": "src/Home/Base/BaseEditInteractionTimingScreen.tsx",
+                        "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/base_edit_interaction_timing",
+                        "retired": false
+                      }
+                    ],
+                    "presentation": "Tab",
+                    "alphaGated": false
+                  }
+                ],
+                "presentation": "Modal stack",
+                "alphaGated": false
+              },
+              {
+                "type": "navigator",
+                "key": "BASE_REGISTRATION",
+                "route": "BaseRegistrationNav",
+                "file": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+                "kind": "stack",
+                "deepLink": "/home/home_nav/modal_nav/base_registration_nav",
+                "retired": false,
+                "children": [
+                  {
+                    "type": "screen",
+                    "key": "BASE_REGISTRATION",
+                    "route": "BaseRegistration",
+                    "title": "CONNECT SETUP",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/BaseRegistration/BaseRegistration.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_registration",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "SYSTEM_SELECTION",
+                    "route": "SystemSelection",
+                    "title": "SET UP SYSTEM",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/SystemSelection/SystemSelection.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/base_registration_nav/system_selection",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "BASE_SETUP_PERMISSIONS",
+                    "route": "BaseSetupPermissions",
+                    "title": "CONNECT SETUP",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/BaseSetupPermissions/BaseSetupPermissions.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_permissions",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "BASE_FIRMWARE_UPDATE",
+                    "route": "BaseFirmwareUpdate",
+                    "title": "CONNECT SETUP",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/BaseFirmwareUpdate/BaseFirmwareUpdateScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_firmware_update",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "BUTTON_PAIRING",
+                    "route": "ButtonPairing",
+                    "title": "LINK BUTTON",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/ButtonPairing/ButtonPairing.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/base_registration_nav/link_button",
+                    "retired": false
+                  }
+                ],
+                "presentation": "Modal stack",
+                "alphaGated": false
+              },
+              {
+                "type": "navigator",
+                "key": "LOG_DETAILS",
+                "route": "LogDetailsNav",
+                "file": "src/navigation/navigators/LogDetailsNavigator.tsx",
+                "kind": "stack",
+                "deepLink": "/home/home_nav/modal_nav/log_details_nav",
+                "retired": false,
+                "children": [
+                  {
+                    "type": "screen",
+                    "key": "LOG_DETAILS",
+                    "route": "LogDetails",
+                    "title": "LOG DETAILS",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/LogDetails/LogDetailsNewScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/log_details_nav/event_add",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "LOG_DETAILS_EDIT_BUTTONS",
+                    "route": "LogDetailsEditButtons",
+                    "title": "EDIT BUTTON",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/log_details_nav/edit_buttons",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "LOG_DETAILS_EDIT_PUSHER",
+                    "route": "LogDetailsEdit",
+                    "title": "EDIT MEMBER",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/log_details_nav/edit_pusher",
+                    "retired": false
+                  }
+                ],
+                "presentation": "Modal stack",
+                "alphaGated": false
+              },
+              {
+                "type": "navigator",
+                "key": "LOG_ENTRY_EDIT",
+                "route": "LogEntryEditNav",
+                "file": "src/navigation/navigators/LogEntryEditNavigator.tsx",
+                "kind": "stack",
+                "deepLink": "/home/home_nav/modal_nav/log_edit_nav",
+                "retired": false,
+                "children": [
+                  {
+                    "type": "screen",
+                    "key": "LOG_ENTRY_EDIT",
+                    "route": "LogEntryEdit",
+                    "title": "EDIT LOG ENTRY",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/LogDetails/LogDetailsEditScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/log_edit_nav/event_edit",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "LOG_ENTRY_EDIT_BUTTONS",
+                    "route": "LogEntryEditButtons",
+                    "title": "EDIT BUTTONS PRESSED",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/log_edit_nav/edit_buttons",
+                    "retired": false
+                  },
+                  {
+                    "type": "screen",
+                    "key": "LOG_ENTRY_EDIT_PUSHER",
+                    "route": "LogEntryEditPusher",
+                    "title": "EDIT MEMBER",
+                    "presentation": "Stack",
+                    "headerShown": true,
+                    "impl": "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/log_edit_nav/edit_pusher",
+                    "retired": false
+                  }
+                ],
+                "presentation": "Modal stack",
+                "alphaGated": false
+              },
+              {
+                "type": "screen",
+                "key": "LOG",
+                "route": "Log",
+                "title": "LOG",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/Log/LogScreen.tsx",
+                "deepLink": "/home/home_nav/modal_nav/log",
+                "retired": false
+              },
+              {
+                "type": "navigator",
+                "key": "ONBOARDING_NAV",
+                "route": "OnboardingNav",
+                "file": "src/navigation/navigators/OnboardingNavigator.tsx",
+                "kind": "stack",
+                "deepLink": "/home/home_nav/modal_nav/onboard_nav",
+                "retired": true,
+                "children": [
+                  {
+                    "type": "screen",
+                    "key": "PROFILE_SCREEN",
+                    "route": "ProfileScreen",
+                    "title": null,
+                    "presentation": "Stack",
+                    "headerShown": false,
+                    "impl": "src/QuizeScreens/ProfileScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/profile_screen",
+                    "retired": true
+                  },
+                  {
+                    "type": "screen",
+                    "key": "INFORMATION_SCREEN",
+                    "route": "InformationScreen",
+                    "title": null,
+                    "presentation": "Stack",
+                    "headerShown": false,
+                    "impl": "src/QuizeScreens/InformationScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/information_screen",
+                    "retired": true
+                  },
+                  {
+                    "type": "screen",
+                    "key": "LEARNING_SCREEN",
+                    "route": "LearningSpaceScreen",
+                    "title": null,
+                    "presentation": "Stack",
+                    "headerShown": false,
+                    "impl": "src/QuizeScreens/LearningSpaceScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/learning_screen",
+                    "retired": true
+                  },
+                  {
+                    "type": "screen",
+                    "key": "GOAL_SCREEN",
+                    "route": "GoalScreen",
+                    "title": null,
+                    "presentation": "Stack",
+                    "headerShown": false,
+                    "impl": "src/QuizeScreens/GoalScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/goal_screen",
+                    "retired": true
+                  },
+                  {
+                    "type": "screen",
+                    "key": "TEST_SCREEN",
+                    "route": "TestScreen",
+                    "title": null,
+                    "presentation": "Stack",
+                    "headerShown": false,
+                    "impl": "src/QuizeScreens/TestScreen.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/test_screen",
+                    "retired": true
+                  },
+                  {
+                    "type": "screen",
+                    "key": "SETUP_SCREEN",
+                    "route": "SetupFinish",
+                    "title": null,
+                    "presentation": "Stack",
+                    "headerShown": false,
+                    "impl": "src/QuizeScreens/SetupFinish.tsx",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/setupFinish_screen",
+                    "retired": true
+                  },
+                  {
+                    "type": "navigator",
+                    "key": "TAB_NAV",
+                    "route": "TabNav",
+                    "file": "src/navigation/navigators/TabNavigator.tsx",
+                    "kind": "tabs",
+                    "deepLink": "/home/home_nav/modal_nav/onboard_nav/tab_nav",
+                    "cycle": true,
+                    "retired": true,
+                    "children": [],
+                    "presentation": "Stack"
+                  }
+                ],
+                "presentation": "Modal stack",
+                "alphaGated": false
+              },
+              {
+                "type": "screen",
+                "key": "BUTTON_CONVERSION",
+                "route": "ButtonConversion",
+                "title": "MERGE BUTTONS",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/ButtonConversion/ButtonConversionScreen.tsx",
+                "deepLink": "/home/home_nav/modal_nav/button_conversion",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "HOUSEHOLD_ADD",
+                "route": "HouseholdAdd",
+                "title": "ADD MEMBER",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/HouseholdAdd/HouseholdAdd.tsx",
+                "deepLink": "/home/home_nav/modal_nav/household_add",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "HOUSEHOLD_EDIT",
+                "route": "HouseholdEdit",
+                "title": "EDIT MEMBER",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/HouseholdEdit/HouseholdEdit.tsx",
+                "deepLink": "/home/home_nav/modal_nav/household_edit",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "COURSE_SCREEN",
+                "route": "Course",
+                "title": null,
+                "presentation": "Modal",
+                "headerShown": false,
+                "impl": "src/HomeScreens/ModuleScreens/CourseScreen.tsx",
+                "deepLink": "/home/home_nav/modal_nav/course",
+                "retired": true
+              },
+              {
+                "type": "screen",
+                "key": "LESSON_SCREEN",
+                "route": "LessonScreen",
+                "title": null,
+                "presentation": "Modal",
+                "headerShown": false,
+                "impl": "src/HomeScreens/LessonScreens/LessonScreen.tsx",
+                "deepLink": "/home/home_nav/modal_nav/lesson",
+                "retired": true
+              },
+              {
+                "type": "screen",
+                "key": "BUTTON_ADD",
+                "route": "ButtonAdd",
+                "title": "ADD BUTTON",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/ButtonAdd/ButtonAdd.tsx",
+                "deepLink": "/home/home_nav/modal_nav/button_add",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "BUTTON_EDIT",
+                "route": "ButtonEdit",
+                "title": "EDIT BUTTON",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/ButtonEdit/ButtonEdit.tsx",
+                "deepLink": "/home/home_nav/modal_nav/button_edit",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "DOWNLOAD_SOUND",
+                "route": "DownloadSound",
+                "title": "EDIT BUTTON",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/DownloadSound/DownloadSound.tsx",
+                "deepLink": "/home/home_nav/modal_nav/button_download_sound",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "RESYNC_BASE",
+                "route": "ResyncBase",
+                "title": "RESYNC BASE",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/ResyncBase/ResyncBase.tsx",
+                "deepLink": "/home/home_nav/modal_nav/resync_base",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "DASHBOARD_FILTERS",
+                "route": "DashboardFilters",
+                "title": "ACTIVITY FILTERS",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/DashboardFilters/DashboardFilters.tsx",
+                "deepLink": "/home/home_nav/modal_nav/activity_filters",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "BUG_REPORT",
+                "route": "BugReport",
+                "title": "REPORT A BUG",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/BugReport/BugReport.tsx",
+                "deepLink": "/home/home_nav/modal_nav/bug_report",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "PETCUBE_VIDEOS_SCREEN",
+                "route": "PETCUBE VIDEOS",
+                "title": "INTERACTION VIDEOS",
+                "presentation": "Modal",
+                "headerShown": true,
+                "impl": "src/Home/Settings/PetCubeIntegration/PetCubeVideosScreen.tsx",
+                "deepLink": "/home/home_nav/modal_nav/petcube_videos",
+                "retired": false
+              },
+              {
+                "type": "screen",
+                "key": "PETCUBE_SHOP_SCREEN",
+                "route": "PetCubeShopScreen",
+                "title": null,
+                "presentation": "Modal",
+                "headerShown": false,
+                "impl": "src/Home/Settings/PetCubeIntegration/PetCubeShopScreen.tsx",
+                "deepLink": "/home/home_nav/modal_nav/petcube_shop",
+                "retired": false
+              }
+            ],
+            "presentation": "Drawer stack",
+            "alphaGated": false
+          },
+          {
+            "type": "screen",
+            "key": "SETTINGS",
+            "route": "Tools",
+            "title": "ADVANCED TOOLS",
+            "presentation": "Drawer",
+            "headerShown": true,
+            "impl": "src/Home/Settings/Settings.tsx",
+            "deepLink": "/home/home_nav/tools",
+            "retired": false
+          }
+        ],
+        "presentation": "Root",
+        "alphaGated": false
+      }
+    ]
+  },
+  "screens": [
+    {
+      "key": "WELCOME",
+      "route": "Welcome",
+      "titleKey": "WELCOME",
+      "title": "Welcome",
+      "deepLink": "/welcome",
+      "impl": "src/Authentication/Welcome/Welcome.tsx",
+      "component": "Welcome",
+      "registrations": [
+        {
+          "navigator": "AUTHENTICATION",
+          "navigatorRoute": "AuthenticationNav",
+          "navFile": "src/navigation/navigators/AuthenticationNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": true,
+          "component": "Welcome",
+          "wrapped": false,
+          "impl": "src/Authentication/Welcome/Welcome.tsx",
+          "deepLink": "/welcome",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BASE_REGISTRATION",
+      "route": "BaseRegistration",
+      "titleKey": "BASE_REGISTRATION",
+      "title": "CONNECT SETUP",
+      "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_registration",
+      "impl": "src/Home/BaseRegistration/BaseRegistration.tsx",
+      "component": "BaseRegistration",
+      "registrations": [
+        {
+          "navigator": "BASE_REGISTRATION",
+          "navigatorRoute": "BaseRegistrationNav",
+          "navFile": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BASE_REGISTRATION",
+          "title": "CONNECT SETUP",
+          "headerShown": true,
+          "component": "BaseRegistration",
+          "wrapped": false,
+          "impl": "src/Home/BaseRegistration/BaseRegistration.tsx",
+          "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_registration",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BASE_EDIT",
+      "route": "BaseEdit",
+      "titleKey": "BASE_EDIT",
+      "title": "EDIT BASE",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/base_edit",
+      "impl": "src/Home/Base/BaseEditScreen.tsx",
+      "component": "BaseEditScreen",
+      "registrations": [
+        {
+          "navigator": "BASE",
+          "navigatorRoute": "HardwareNav",
+          "navFile": "src/navigation/navigators/BaseNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BASE_EDIT",
+          "title": "EDIT BASE",
+          "headerShown": true,
+          "component": "BaseEditScreen",
+          "wrapped": false,
+          "impl": "src/Home/Base/BaseEditScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/base_edit",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "CLASSIC_BUTTONS",
+      "route": "ClassicButtons",
+      "titleKey": "CLASSIC_BUTTONS",
+      "title": "BUTTONS",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/classic_buttons",
+      "impl": "src/Home/Base/ClassicButtonsScreen.tsx",
+      "component": "ClassicButtonsScreen",
+      "registrations": [
+        {
+          "navigator": "BASE",
+          "navigatorRoute": "HardwareNav",
+          "navFile": "src/navigation/navigators/BaseNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "CLASSIC_BUTTONS",
+          "title": "BUTTONS",
+          "headerShown": true,
+          "component": "ClassicButtonsScreen",
+          "wrapped": false,
+          "impl": "src/Home/Base/ClassicButtonsScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/classic_buttons",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BASE_EDIT_INTERACTION_TIMING",
+      "route": "INTERACTION TIMING",
+      "titleKey": "BASE_EDIT_INTERACTION_TIMING",
+      "title": "INTERACTION TIMING",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/base_edit_interaction_timing",
+      "impl": "src/Home/Base/BaseEditInteractionTimingScreen.tsx",
+      "component": "BaseEditInteractionTimingScreen",
+      "registrations": [
+        {
+          "navigator": "BASE",
+          "navigatorRoute": "HardwareNav",
+          "navFile": "src/navigation/navigators/BaseNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BASE_EDIT_INTERACTION_TIMING",
+          "title": "INTERACTION TIMING",
+          "headerShown": true,
+          "component": "BaseEditInteractionTimingScreen",
+          "wrapped": false,
+          "impl": "src/Home/Base/BaseEditInteractionTimingScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/base_edit_interaction_timing",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "route-value-is-a-title"
+      ]
+    },
+    {
+      "key": "BASE_FIRMWARE_UPDATE",
+      "route": "BaseFirmwareUpdate",
+      "titleKey": "BASE_FIRMWARE_UPDATE",
+      "title": "CONNECT SETUP",
+      "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_firmware_update",
+      "impl": "src/Home/BaseFirmwareUpdate/BaseFirmwareUpdateScreen.tsx",
+      "component": "BaseFirmwareUpdate",
+      "registrations": [
+        {
+          "navigator": "BASE_REGISTRATION",
+          "navigatorRoute": "BaseRegistrationNav",
+          "navFile": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BASE_FIRMWARE_UPDATE",
+          "title": "CONNECT SETUP",
+          "headerShown": true,
+          "component": "BaseFirmwareUpdate",
+          "wrapped": false,
+          "impl": "src/Home/BaseFirmwareUpdate/BaseFirmwareUpdateScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_firmware_update",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BASE_SETUP_PERMISSIONS",
+      "route": "BaseSetupPermissions",
+      "titleKey": "BASE_SETUP_PERMISSIONS",
+      "title": "CONNECT SETUP",
+      "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_permissions",
+      "impl": "src/Home/BaseSetupPermissions/BaseSetupPermissions.tsx",
+      "component": "BaseSetupPermissions",
+      "registrations": [
+        {
+          "navigator": "BASE_REGISTRATION",
+          "navigatorRoute": "BaseRegistrationNav",
+          "navFile": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BASE_SETUP_PERMISSIONS",
+          "title": "CONNECT SETUP",
+          "headerShown": true,
+          "component": "BaseSetupPermissions",
+          "wrapped": false,
+          "impl": "src/Home/BaseSetupPermissions/BaseSetupPermissions.tsx",
+          "deepLink": "/home/home_nav/modal_nav/base_registration_nav/base_permissions",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BASES",
+      "route": "Bases",
+      "titleKey": "BASES",
+      "title": "HARDWARE",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/bases",
+      "impl": "src/Home/Base/BasesScreen.tsx",
+      "component": "BasesScreen",
+      "registrations": [
+        {
+          "navigator": "BASE",
+          "navigatorRoute": "HardwareNav",
+          "navFile": "src/navigation/navigators/BaseNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BASES",
+          "title": "HARDWARE",
+          "headerShown": true,
+          "component": "BasesScreen",
+          "wrapped": false,
+          "impl": "src/Home/Base/BasesScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/bases_nav/bases",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "base-hardware"
+      ]
+    },
+    {
+      "key": "BUG_REPORT",
+      "route": "BugReport",
+      "titleKey": "BUG_REPORT",
+      "title": "REPORT A BUG",
+      "deepLink": "/home/home_nav/modal_nav/bug_report",
+      "impl": "src/Home/BugReport/BugReport.tsx",
+      "component": "BugReport",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "BUG_REPORT",
+          "title": "REPORT A BUG",
+          "headerShown": true,
+          "component": "BugReport",
+          "wrapped": false,
+          "impl": "src/Home/BugReport/BugReport.tsx",
+          "deepLink": "/home/home_nav/modal_nav/bug_report",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BUTTON_ADD",
+      "route": "ButtonAdd",
+      "titleKey": "BUTTON_ADD",
+      "title": "ADD BUTTON",
+      "deepLink": "/home/home_nav/modal_nav/button_add",
+      "impl": "src/Home/ButtonAdd/ButtonAdd.tsx",
+      "component": "ButtonAdd",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "BUTTON_ADD",
+          "title": "ADD BUTTON",
+          "headerShown": true,
+          "component": "ButtonAdd",
+          "wrapped": false,
+          "impl": "src/Home/ButtonAdd/ButtonAdd.tsx",
+          "deepLink": "/home/home_nav/modal_nav/button_add",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BUTTON_CONVERSION",
+      "route": "ButtonConversion",
+      "titleKey": "BUTTON_CONVERSION",
+      "title": "MERGE BUTTONS",
+      "deepLink": "/home/home_nav/modal_nav/button_conversion",
+      "impl": "src/Home/ButtonConversion/ButtonConversionScreen.tsx",
+      "component": "ButtonConversionScreen",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "BUTTON_CONVERSION",
+          "title": "MERGE BUTTONS",
+          "headerShown": true,
+          "component": "ButtonConversionScreen",
+          "wrapped": false,
+          "impl": "src/Home/ButtonConversion/ButtonConversionScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/button_conversion",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BUTTON_EDIT",
+      "route": "ButtonEdit",
+      "titleKey": "BUTTON_EDIT",
+      "title": "EDIT BUTTON",
+      "deepLink": "/home/home_nav/modal_nav/button_edit",
+      "impl": "src/Home/ButtonEdit/ButtonEdit.tsx",
+      "component": "ButtonEdit",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "BUTTON_EDIT",
+          "title": "EDIT BUTTON",
+          "headerShown": true,
+          "component": "ButtonEdit",
+          "wrapped": false,
+          "impl": "src/Home/ButtonEdit/ButtonEdit.tsx",
+          "deepLink": "/home/home_nav/modal_nav/button_edit",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "BUTTON_PAIRING",
+      "route": "ButtonPairing",
+      "titleKey": "BUTTON_PAIRING",
+      "title": "LINK BUTTON",
+      "deepLink": "/home/home_nav/modal_nav/base_registration_nav/link_button",
+      "impl": "src/Home/ButtonPairing/ButtonPairing.tsx",
+      "component": "ButtonPairing",
+      "registrations": [
+        {
+          "navigator": "BASE_REGISTRATION",
+          "navigatorRoute": "BaseRegistrationNav",
+          "navFile": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "BUTTON_PAIRING",
+          "title": "LINK BUTTON",
+          "headerShown": true,
+          "component": "ButtonPairing",
+          "wrapped": false,
+          "impl": "src/Home/ButtonPairing/ButtonPairing.tsx",
+          "deepLink": "/home/home_nav/modal_nav/base_registration_nav/link_button",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "DASHBOARD",
+      "route": "Dashboard",
+      "titleKey": "DASHBOARD",
+      "title": "ACTIVITY FEED",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity",
+      "impl": "src/Home/Dashboard/Dashboard.tsx",
+      "component": "Dashboard",
+      "registrations": [
+        {
+          "navigator": "ACTIVITY",
+          "navigatorRoute": "ActivityNav",
+          "navFile": "src/navigation/navigators/DashboardNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "DASHBOARD",
+          "title": "ACTIVITY FEED",
+          "headerShown": true,
+          "component": "Dashboard",
+          "wrapped": false,
+          "impl": "src/Home/Dashboard/Dashboard.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "three-names-dashboard"
+      ]
+    },
+    {
+      "key": "DASHBOARD_BUTTON",
+      "route": "DashboardButton",
+      "titleKey": "DASHBOARD_BUTTON",
+      "title": "BUTTON ACTIVITY",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_button",
+      "impl": "src/Home/Dashboard/DashboardButton.tsx",
+      "component": "DashboardButton",
+      "registrations": [
+        {
+          "navigator": "ACTIVITY",
+          "navigatorRoute": "ActivityNav",
+          "navFile": "src/navigation/navigators/DashboardNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "DASHBOARD_BUTTON",
+          "title": "BUTTON ACTIVITY",
+          "headerShown": true,
+          "component": "DashboardButton",
+          "wrapped": false,
+          "impl": "src/Home/Dashboard/DashboardButton.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_button",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "DASHBOARD_CONTEXT",
+      "route": "DashboardContext",
+      "titleKey": "DASHBOARD_CONTEXT",
+      "title": "CONTEXT ACTIVITY",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_context",
+      "impl": "src/Home/Dashboard/DashboardContext.tsx",
+      "component": "DashboardContext",
+      "registrations": [
+        {
+          "navigator": "ACTIVITY",
+          "navigatorRoute": "ActivityNav",
+          "navFile": "src/navigation/navigators/DashboardNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "DASHBOARD_CONTEXT",
+          "title": "CONTEXT ACTIVITY",
+          "headerShown": true,
+          "component": "DashboardContext",
+          "wrapped": false,
+          "impl": "src/Home/Dashboard/DashboardContext.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_context",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "DASHBOARD_FILTERS",
+      "route": "DashboardFilters",
+      "titleKey": "DASHBOARD_FILTERS",
+      "title": "ACTIVITY FILTERS",
+      "deepLink": "/home/home_nav/modal_nav/activity_filters",
+      "impl": "src/Home/DashboardFilters/DashboardFilters.tsx",
+      "component": "DashboardFilters",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "DASHBOARD_FILTERS",
+          "title": "ACTIVITY FILTERS",
+          "headerShown": true,
+          "component": "DashboardFilters",
+          "wrapped": false,
+          "impl": "src/Home/DashboardFilters/DashboardFilters.tsx",
+          "deepLink": "/home/home_nav/modal_nav/activity_filters",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "DASHBOARD_MEANING",
+      "route": "DashboardMeaning",
+      "titleKey": "DASHBOARD_MEANING",
+      "title": "MEANING ACTIVITY",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_meaning",
+      "impl": "src/Home/Dashboard/DashboardMeaning.tsx",
+      "component": "DashboardMeaning",
+      "registrations": [
+        {
+          "navigator": "ACTIVITY",
+          "navigatorRoute": "ActivityNav",
+          "navFile": "src/navigation/navigators/DashboardNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "DASHBOARD_MEANING",
+          "title": "MEANING ACTIVITY",
+          "headerShown": true,
+          "component": "DashboardMeaning",
+          "wrapped": false,
+          "impl": "src/Home/Dashboard/DashboardMeaning.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_meaning",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "DASHBOARD_PUSHER",
+      "route": "DashboardPusher",
+      "titleKey": "DASHBOARD_PUSHER",
+      "title": "ACTIVITY",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_pusher",
+      "impl": "src/Home/Dashboard/DashboardPusher.tsx",
+      "component": "DashboardPusher",
+      "registrations": [
+        {
+          "navigator": "ACTIVITY",
+          "navigatorRoute": "ActivityNav",
+          "navFile": "src/navigation/navigators/DashboardNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "DASHBOARD_PUSHER",
+          "title": "ACTIVITY",
+          "headerShown": true,
+          "component": "DashboardPusher",
+          "wrapped": false,
+          "impl": "src/Home/Dashboard/DashboardPusher.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/activity_tab/activity_pusher",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "DOWNLOAD_SOUND",
+      "route": "DownloadSound",
+      "titleKey": "DOWNLOAD_SOUND",
+      "title": "EDIT BUTTON",
+      "deepLink": "/home/home_nav/modal_nav/button_download_sound",
+      "impl": "src/Home/DownloadSound/DownloadSound.tsx",
+      "component": "DownloadSound",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "DOWNLOAD_SOUND",
+          "title": "EDIT BUTTON",
+          "headerShown": true,
+          "component": "DownloadSound",
+          "wrapped": false,
+          "impl": "src/Home/DownloadSound/DownloadSound.tsx",
+          "deepLink": "/home/home_nav/modal_nav/button_download_sound",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "RESYNC_BASE",
+      "route": "ResyncBase",
+      "titleKey": "RESYNC_BASE",
+      "title": "RESYNC BASE",
+      "deepLink": "/home/home_nav/modal_nav/resync_base",
+      "impl": "src/Home/ResyncBase/ResyncBase.tsx",
+      "component": "ResyncBase",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "RESYNC_BASE",
+          "title": "RESYNC BASE",
+          "headerShown": true,
+          "component": "ResyncBase",
+          "wrapped": false,
+          "impl": "src/Home/ResyncBase/ResyncBase.tsx",
+          "deepLink": "/home/home_nav/modal_nav/resync_base",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "HOUSEHOLD",
+      "route": "Household",
+      "titleKey": "HOUSEHOLD",
+      "title": "HOUSEHOLD",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/household_tab/household",
+      "impl": "src/Home/Household/Household.tsx",
+      "component": "Household",
+      "registrations": [
+        {
+          "navigator": "HOUSEHOLD",
+          "navigatorRoute": "HouseholdNav",
+          "navFile": "src/navigation/navigators/HouseholdNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "HOUSEHOLD",
+          "title": "HOUSEHOLD",
+          "headerShown": true,
+          "component": "Household",
+          "wrapped": false,
+          "impl": "src/Home/Household/Household.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/household_tab/household",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "HOUSEHOLD_ADD",
+      "route": "HouseholdAdd",
+      "titleKey": "HOUSEHOLD_ADD",
+      "title": "ADD MEMBER",
+      "deepLink": "/home/home_nav/modal_nav/household_add",
+      "impl": "src/Home/HouseholdAdd/HouseholdAdd.tsx",
+      "component": "HouseholdAdd",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "HOUSEHOLD_ADD",
+          "title": "ADD MEMBER",
+          "headerShown": true,
+          "component": "HouseholdAdd",
+          "wrapped": false,
+          "impl": "src/Home/HouseholdAdd/HouseholdAdd.tsx",
+          "deepLink": "/home/home_nav/modal_nav/household_add",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "HOUSEHOLD_EDIT",
+      "route": "HouseholdEdit",
+      "titleKey": "HOUSEHOLD_EDIT",
+      "title": "EDIT MEMBER",
+      "deepLink": "/home/home_nav/modal_nav/household_edit",
+      "impl": "src/Home/HouseholdEdit/HouseholdEdit.tsx",
+      "component": "HouseholdEdit",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "HOUSEHOLD_EDIT",
+          "title": "EDIT MEMBER",
+          "headerShown": true,
+          "component": "HouseholdEdit",
+          "wrapped": false,
+          "impl": "src/Home/HouseholdEdit/HouseholdEdit.tsx",
+          "deepLink": "/home/home_nav/modal_nav/household_edit",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "LOG",
+      "route": "Log",
+      "titleKey": "LOG",
+      "title": "LOG",
+      "deepLink": "/home/home_nav/modal_nav/log",
+      "impl": "src/Home/Log/LogScreen.tsx",
+      "component": "LogScreen",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "LOG",
+          "title": "LOG",
+          "headerShown": true,
+          "component": "LogScreen",
+          "wrapped": false,
+          "impl": "src/Home/Log/LogScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "three-names-dashboard"
+      ]
+    },
+    {
+      "key": "LOG_DETAILS",
+      "route": "LogDetails",
+      "titleKey": "LOG_DETAILS",
+      "title": "LOG DETAILS",
+      "deepLink": "/home/home_nav/modal_nav/log_details_nav/event_add",
+      "impl": "src/Home/LogDetails/LogDetailsNewScreen.tsx",
+      "component": "LogDetailsNewScreen",
+      "registrations": [
+        {
+          "navigator": "LOG_DETAILS",
+          "navigatorRoute": "LogDetailsNav",
+          "navFile": "src/navigation/navigators/LogDetailsNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "LOG_DETAILS",
+          "title": "LOG DETAILS",
+          "headerShown": true,
+          "component": "LogDetailsNewScreen",
+          "wrapped": false,
+          "impl": "src/Home/LogDetails/LogDetailsNewScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log_details_nav/event_add",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "LOG_DETAILS_EDIT_BUTTONS",
+      "route": "LogDetailsEditButtons",
+      "titleKey": "LOG_DETAILS_EDIT_BUTTONS",
+      "title": "EDIT BUTTON",
+      "deepLink": "/home/home_nav/modal_nav/log_details_nav/edit_buttons",
+      "impl": "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx",
+      "component": "LogEntryEditButtons",
+      "registrations": [
+        {
+          "navigator": "LOG_DETAILS",
+          "navigatorRoute": "LogDetailsNav",
+          "navFile": "src/navigation/navigators/LogDetailsNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "LOG_DETAILS_EDIT_BUTTONS",
+          "title": "EDIT BUTTON",
+          "headerShown": true,
+          "component": "LogEntryEditButtons",
+          "wrapped": true,
+          "impl": "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log_details_nav/edit_buttons",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "one-component-many-routes"
+      ]
+    },
+    {
+      "key": "LOG_DETAILS_EDIT_PUSHER",
+      "route": "LogDetailsEdit",
+      "titleKey": "LOG_DETAILS_EDIT_PUSHER",
+      "title": "EDIT MEMBER",
+      "deepLink": "/home/home_nav/modal_nav/log_details_nav/edit_pusher",
+      "impl": "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx",
+      "component": "LogEntryEditPusher",
+      "registrations": [
+        {
+          "navigator": "LOG_DETAILS",
+          "navigatorRoute": "LogDetailsNav",
+          "navFile": "src/navigation/navigators/LogDetailsNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "LOG_DETAILS_EDIT_PUSHER",
+          "title": "EDIT MEMBER",
+          "headerShown": true,
+          "component": "LogEntryEditPusher",
+          "wrapped": true,
+          "impl": "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log_details_nav/edit_pusher",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "log-details-edit-pusher-value",
+        "one-component-many-routes"
+      ]
+    },
+    {
+      "key": "LOG_ENTRY_EDIT",
+      "route": "LogEntryEdit",
+      "titleKey": "LOG_ENTRY_EDIT",
+      "title": "EDIT LOG ENTRY",
+      "deepLink": "/home/home_nav/modal_nav/log_edit_nav/event_edit",
+      "impl": "src/Home/LogDetails/LogDetailsEditScreen.tsx",
+      "component": "LogDetailsEditScreen",
+      "registrations": [
+        {
+          "navigator": "LOG_ENTRY_EDIT",
+          "navigatorRoute": "LogEntryEditNav",
+          "navFile": "src/navigation/navigators/LogEntryEditNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "LOG_ENTRY_EDIT",
+          "title": "EDIT LOG ENTRY",
+          "headerShown": true,
+          "component": "LogDetailsEditScreen",
+          "wrapped": false,
+          "impl": "src/Home/LogDetails/LogDetailsEditScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log_edit_nav/event_edit",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "LOG_ENTRY_EDIT_BUTTONS",
+      "route": "LogEntryEditButtons",
+      "titleKey": "LOG_ENTRY_EDIT_BUTTONS",
+      "title": "EDIT BUTTONS PRESSED",
+      "deepLink": "/home/home_nav/modal_nav/log_edit_nav/edit_buttons",
+      "impl": "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx",
+      "component": "LogEntryEditButtons",
+      "registrations": [
+        {
+          "navigator": "LOG_ENTRY_EDIT",
+          "navigatorRoute": "LogEntryEditNav",
+          "navFile": "src/navigation/navigators/LogEntryEditNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "LOG_ENTRY_EDIT_BUTTONS",
+          "title": "EDIT BUTTONS PRESSED",
+          "headerShown": true,
+          "component": "LogEntryEditButtons",
+          "wrapped": false,
+          "impl": "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log_edit_nav/edit_buttons",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "one-component-many-routes"
+      ]
+    },
+    {
+      "key": "LOG_ENTRY_EDIT_PUSHER",
+      "route": "LogEntryEditPusher",
+      "titleKey": "LOG_ENTRY_EDIT_PUSHER",
+      "title": "EDIT MEMBER",
+      "deepLink": "/home/home_nav/modal_nav/log_edit_nav/edit_pusher",
+      "impl": "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx",
+      "component": "LogEntryEditPusher",
+      "registrations": [
+        {
+          "navigator": "LOG_ENTRY_EDIT",
+          "navigatorRoute": "LogEntryEditNav",
+          "navFile": "src/navigation/navigators/LogEntryEditNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "LOG_ENTRY_EDIT_PUSHER",
+          "title": "EDIT MEMBER",
+          "headerShown": true,
+          "component": "LogEntryEditPusher",
+          "wrapped": false,
+          "impl": "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx",
+          "deepLink": "/home/home_nav/modal_nav/log_edit_nav/edit_pusher",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "one-component-many-routes"
+      ]
+    },
+    {
+      "key": "SETTINGS",
+      "route": "Tools",
+      "titleKey": "SETTINGS",
+      "title": "ADVANCED TOOLS",
+      "deepLink": "/home/home_nav/tools",
+      "impl": "src/Home/Settings/Settings.tsx",
+      "component": "Settings",
+      "registrations": [
+        {
+          "navigator": "HOME_NAV",
+          "navigatorRoute": "HomeNav",
+          "navFile": "src/navigation/navigators/HomeNavigator.tsx",
+          "navKind": "drawer",
+          "presentation": "Drawer",
+          "titleKey": "SETTINGS",
+          "title": "ADVANCED TOOLS",
+          "headerShown": true,
+          "component": "Settings",
+          "wrapped": false,
+          "impl": "src/Home/Settings/Settings.tsx",
+          "deepLink": "/home/home_nav/tools",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Drawer",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "settings-tools"
+      ]
+    },
+    {
+      "key": "SYSTEM_SELECTION",
+      "route": "SystemSelection",
+      "titleKey": "SYSTEM_SELECTION",
+      "title": "SET UP SYSTEM",
+      "deepLink": "/home/home_nav/modal_nav/base_registration_nav/system_selection",
+      "impl": "src/Home/SystemSelection/SystemSelection.tsx",
+      "component": "SystemSelection",
+      "registrations": [
+        {
+          "navigator": "BASE_REGISTRATION",
+          "navigatorRoute": "BaseRegistrationNav",
+          "navFile": "src/navigation/navigators/BaseRegistrationNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": "SYSTEM_SELECTION",
+          "title": "SET UP SYSTEM",
+          "headerShown": true,
+          "component": "SystemSelection",
+          "wrapped": false,
+          "impl": "src/Home/SystemSelection/SystemSelection.tsx",
+          "deepLink": "/home/home_nav/modal_nav/base_registration_nav/system_selection",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "UNKNOWN",
+      "route": "Unknown",
+      "titleKey": "UNKNOWN",
+      "title": "UNKNOWN",
+      "deepLink": null,
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "presentation": null,
+      "headerShown": null,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "unregistered"
+      ]
+    },
+    {
+      "key": "PETCUBE_VIDEOS_SCREEN",
+      "route": "PETCUBE VIDEOS",
+      "titleKey": "PETCUBE_VIDEOS_SCREEN",
+      "title": "INTERACTION VIDEOS",
+      "deepLink": "/home/home_nav/modal_nav/petcube_videos",
+      "impl": "src/Home/Settings/PetCubeIntegration/PetCubeVideosScreen.tsx",
+      "component": "PetCubeVideosScreen",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": "PETCUBE_VIDEOS_SCREEN",
+          "title": "INTERACTION VIDEOS",
+          "headerShown": true,
+          "component": "PetCubeVideosScreen",
+          "wrapped": true,
+          "impl": "src/Home/Settings/PetCubeIntegration/PetCubeVideosScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/petcube_videos",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": true,
+      "belowAlphaComment": true,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "route-value-is-a-title",
+        "alpha-comment-false-positive"
+      ]
+    },
+    {
+      "key": "PETCUBE_SHOP_SCREEN",
+      "route": "PetCubeShopScreen",
+      "titleKey": "PETCUBE_SHOP_SCREEN",
+      "title": "PETCUBE SHOP",
+      "deepLink": "/home/home_nav/modal_nav/petcube_shop",
+      "impl": "src/Home/Settings/PetCubeIntegration/PetCubeShopScreen.tsx",
+      "component": "PetCubeShopScreen",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "PetCubeShopScreen",
+          "wrapped": false,
+          "impl": "src/Home/Settings/PetCubeIntegration/PetCubeShopScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/petcube_shop",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": false,
+      "retiredReason": null,
+      "invented": false,
+      "annotations": [
+        "alpha-comment-false-positive"
+      ]
+    },
+    {
+      "key": "SIGN_IN",
+      "route": "SignIn",
+      "titleKey": null,
+      "title": "SIGN IN",
+      "deepLink": "/sign_in",
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": true,
+      "note": "Email and password, the route to account creation, and the route to password recovery. The RN app has no such screen: sign-in there is Auth0 Universal Login opened in a system browser against https://auth.fluent.pet/authorize, so there is nothing to port.",
+      "annotations": [
+        "invented-screens"
+      ]
+    },
+    {
+      "key": "SIGN_UP",
+      "route": "SignUp",
+      "titleKey": null,
+      "title": "CREATE ACCOUNT",
+      "deepLink": "/sign_up",
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": true,
+      "note": "Email and one password field with a reveal toggle and a live requirement list. Leads to VERIFY_EMAIL.",
+      "annotations": [
+        "invented-screens"
+      ]
+    },
+    {
+      "key": "FORGOT_PASSWORD",
+      "route": "ForgotPassword",
+      "titleKey": null,
+      "title": "RESET PASSWORD",
+      "deepLink": "/forgot_password",
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": true,
+      "note": "One email field. Asks for the reset mail to be sent; leads to CHECK_YOUR_EMAIL.",
+      "annotations": [
+        "invented-screens"
+      ]
+    },
+    {
+      "key": "CHECK_YOUR_EMAIL",
+      "route": "CheckYourEmail",
+      "titleKey": null,
+      "title": "CHECK YOUR EMAIL",
+      "deepLink": "/check_your_email",
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": true,
+      "note": "Confirmation that a reset link was sent, with a rate-limited resend. Never claims the address exists — only the mail server knows that.",
+      "annotations": [
+        "invented-screens"
+      ]
+    },
+    {
+      "key": "SET_NEW_PASSWORD",
+      "route": "SetNewPassword",
+      "titleKey": null,
+      "title": "NEW PASSWORD",
+      "deepLink": "/set_new_password",
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": true,
+      "note": "Where the emailed reset link lands. Takes the address and the link's token as query parameters, so the deep link is the whole entry point.",
+      "annotations": [
+        "invented-screens"
+      ]
+    },
+    {
+      "key": "VERIFY_EMAIL",
+      "route": "VerifyEmail",
+      "titleKey": null,
+      "title": "VERIFY EMAIL",
+      "deepLink": "/verify_email",
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "belowAlphaComment": false,
+      "retired": false,
+      "retiredReason": null,
+      "invented": true,
+      "note": "Where sign-up lands: waiting for the verification link to be opened, and the confirmed state the link returns to.",
+      "annotations": [
+        "invented-screens"
+      ]
+    }
+  ],
+  "retired": [
+    {
+      "key": "LANDING",
+      "route": "Landing",
+      "titleKey": "LANDING",
+      "title": "LANDING",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab/landing",
+      "impl": "src/HomeScreens/HomeScreen.tsx",
+      "component": "HomeScreen",
+      "registrations": [
+        {
+          "navigator": "LANDING_NAV",
+          "navigatorRoute": "LandingNav",
+          "navFile": "src/navigation/navigators/LandingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "HomeScreen",
+          "wrapped": false,
+          "impl": "src/HomeScreens/HomeScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab/landing",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": false,
+      "retired": true,
+      "retiredReason": "Registered in LandingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": [
+        "retired-above-alpha-comment"
+      ]
+    },
+    {
+      "key": "PROFILE_SCREEN",
+      "route": "ProfileScreen",
+      "titleKey": "PROFILE_SCREEN",
+      "title": "PROFILE",
+      "deepLink": "/home/home_nav/modal_nav/onboard_nav/profile_screen",
+      "impl": "src/QuizeScreens/ProfileScreen.tsx",
+      "component": "ProfileScreen",
+      "registrations": [
+        {
+          "navigator": "ONBOARDING_NAV",
+          "navigatorRoute": "OnboardingNav",
+          "navFile": "src/navigation/navigators/OnboardingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "ProfileScreen",
+          "wrapped": false,
+          "impl": "src/QuizeScreens/ProfileScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/onboard_nav/profile_screen",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in OnboardingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "INFORMATION_SCREEN",
+      "route": "InformationScreen",
+      "titleKey": "INFORMATION_SCREEN",
+      "title": "INFORMATION",
+      "deepLink": "/home/home_nav/modal_nav/onboard_nav/information_screen",
+      "impl": "src/QuizeScreens/InformationScreen.tsx",
+      "component": "InformationScreen",
+      "registrations": [
+        {
+          "navigator": "ONBOARDING_NAV",
+          "navigatorRoute": "OnboardingNav",
+          "navFile": "src/navigation/navigators/OnboardingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "InformationScreen",
+          "wrapped": false,
+          "impl": "src/QuizeScreens/InformationScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/onboard_nav/information_screen",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in OnboardingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "LEARNING_SCREEN",
+      "route": "LearningSpaceScreen",
+      "titleKey": "LEARNING_SCREEN",
+      "title": "LEARNING",
+      "deepLink": "/home/home_nav/modal_nav/onboard_nav/learning_screen",
+      "impl": "src/QuizeScreens/LearningSpaceScreen.tsx",
+      "component": "LearningSpaceScreen",
+      "registrations": [
+        {
+          "navigator": "ONBOARDING_NAV",
+          "navigatorRoute": "OnboardingNav",
+          "navFile": "src/navigation/navigators/OnboardingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "LearningSpaceScreen",
+          "wrapped": false,
+          "impl": "src/QuizeScreens/LearningSpaceScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/onboard_nav/learning_screen",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in OnboardingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "GOAL_SCREEN",
+      "route": "GoalScreen",
+      "titleKey": "GOAL_SCREEN",
+      "title": "GOAL",
+      "deepLink": "/home/home_nav/modal_nav/onboard_nav/goal_screen",
+      "impl": "src/QuizeScreens/GoalScreen.tsx",
+      "component": "GoalScreen",
+      "registrations": [
+        {
+          "navigator": "ONBOARDING_NAV",
+          "navigatorRoute": "OnboardingNav",
+          "navFile": "src/navigation/navigators/OnboardingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "GoalScreen",
+          "wrapped": false,
+          "impl": "src/QuizeScreens/GoalScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/onboard_nav/goal_screen",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in OnboardingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "TEST_SCREEN",
+      "route": "TestScreen",
+      "titleKey": "TEST_SCREEN",
+      "title": "TEST",
+      "deepLink": "/home/home_nav/modal_nav/onboard_nav/test_screen",
+      "impl": "src/QuizeScreens/TestScreen.tsx",
+      "component": "TestScreen",
+      "registrations": [
+        {
+          "navigator": "ONBOARDING_NAV",
+          "navigatorRoute": "OnboardingNav",
+          "navFile": "src/navigation/navigators/OnboardingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "TestScreen",
+          "wrapped": false,
+          "impl": "src/QuizeScreens/TestScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/onboard_nav/test_screen",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in OnboardingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "SETUP_SCREEN",
+      "route": "SetupFinish",
+      "titleKey": "SETUP_SCREEN",
+      "title": "SETUP",
+      "deepLink": "/home/home_nav/modal_nav/onboard_nav/setupFinish_screen",
+      "impl": "src/QuizeScreens/SetupFinish.tsx",
+      "component": "SetupFinish",
+      "registrations": [
+        {
+          "navigator": "ONBOARDING_NAV",
+          "navigatorRoute": "OnboardingNav",
+          "navFile": "src/navigation/navigators/OnboardingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "SetupFinish",
+          "wrapped": false,
+          "impl": "src/QuizeScreens/SetupFinish.tsx",
+          "deepLink": "/home/home_nav/modal_nav/onboard_nav/setupFinish_screen",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in OnboardingNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "HOME_SCREEN",
+      "route": "Home",
+      "titleKey": "HOME_SCREEN",
+      "title": "Home",
+      "deepLink": null,
+      "impl": null,
+      "component": null,
+      "registrations": [],
+      "registered": false,
+      "presentation": null,
+      "headerShown": null,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in no navigator. Appears only in the isAlpha onboarding block of linking.ts (path onboard_nav/home_screen).",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "MODULE_SCREEN",
+      "route": "Module",
+      "titleKey": "MODULE_SCREEN",
+      "title": "MODULE",
+      "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab/module",
+      "impl": "src/HomeScreens/ModuleScreens/ModuleScreen.tsx",
+      "component": "ModuleScreen",
+      "registrations": [
+        {
+          "navigator": "LANDING_NAV",
+          "navigatorRoute": "LandingNav",
+          "navFile": "src/navigation/navigators/LandingNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "ModuleScreen",
+          "wrapped": false,
+          "impl": "src/HomeScreens/ModuleScreens/ModuleScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/landing_tab/module",
+          "alphaGated": false
+        },
+        {
+          "navigator": "MODULE_NAV",
+          "navigatorRoute": "ModuleNav",
+          "navFile": "src/navigation/navigators/ModuleNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Stack",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "ModuleScreen",
+          "wrapped": false,
+          "impl": "src/HomeScreens/ModuleScreens/ModuleScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/tab_nav/module_tab/module",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Stack",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Registered in LandingNavigator.tsx, which is reachable only behind the isAlpha flag. Registered in ModuleNavigator.tsx, which is reachable only behind the isAlpha flag.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "COURSE_SCREEN",
+      "route": "Course",
+      "titleKey": "COURSE_SCREEN",
+      "title": "COURSE",
+      "deepLink": "/home/home_nav/modal_nav/course",
+      "impl": "src/HomeScreens/ModuleScreens/CourseScreen.tsx",
+      "component": "CourseScreen",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "CourseScreen",
+          "wrapped": false,
+          "impl": "src/HomeScreens/ModuleScreens/CourseScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/course",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Implemented in src/HomeScreens/ModuleScreens/CourseScreen.tsx — part of the retired learning product.",
+      "invented": false,
+      "annotations": []
+    },
+    {
+      "key": "LESSON_SCREEN",
+      "route": "LessonScreen",
+      "titleKey": "LESSON_SCREEN",
+      "title": "LESSON",
+      "deepLink": "/home/home_nav/modal_nav/lesson",
+      "impl": "src/HomeScreens/LessonScreens/LessonScreen.tsx",
+      "component": "LessonScreen",
+      "registrations": [
+        {
+          "navigator": "MODAL",
+          "navigatorRoute": "ModalNav",
+          "navFile": "src/navigation/navigators/ModalNavigator.tsx",
+          "navKind": "stack",
+          "presentation": "Modal",
+          "titleKey": null,
+          "title": null,
+          "headerShown": false,
+          "component": "LessonScreen",
+          "wrapped": false,
+          "impl": "src/HomeScreens/LessonScreens/LessonScreen.tsx",
+          "deepLink": "/home/home_nav/modal_nav/lesson",
+          "alphaGated": false
+        }
+      ],
+      "registered": true,
+      "presentation": "Modal",
+      "headerShown": false,
+      "belowAlphaComment": true,
+      "retired": true,
+      "retiredReason": "Implemented in src/HomeScreens/LessonScreens/LessonScreen.tsx — part of the retired learning product.",
+      "invented": false,
+      "annotations": []
+    }
+  ],
+  "annotations": [
+    {
+      "id": "three-names-dashboard",
+      "kind": "naming",
+      "title": "Three names for one concept",
+      "body": "The filtered view over Activities is called Dashboard in the route enum, Activity in the tab bar, and its neighbouring screen is called Log. CONTEXT.md keeps all three deliberately; the Flutter rewrite inherits all three.",
+      "evidence": [
+        "Screen.DASHBOARD = \"Dashboard\"",
+        "Navigator.ACTIVITY = \"ActivityNav\" — TabBar.tsx labels tabs with route.name.replace(\"Nav\", \"\"), so the tab reads \"Activity\"",
+        "ScreenTitle.DASHBOARD = \"ACTIVITY FEED\"",
+        "Screen.LOG = \"Log\", a separate screen in ModalNavigator"
+      ],
+      "screens": [
+        "DASHBOARD",
+        "LOG"
+      ]
+    },
+    {
+      "id": "settings-tools",
+      "kind": "naming",
+      "title": "Enum name and route value disagree",
+      "body": "Screen.SETTINGS resolves to the route name \"Tools\", the header reads ADVANCED TOOLS, and the implementation lives in src/Home/Settings. Three names for one drawer destination.",
+      "evidence": [
+        "Screen.SETTINGS = \"Tools\"",
+        "ScreenTitle.SETTINGS = \"ADVANCED TOOLS\"",
+        "Implemented in src/Home/Settings/Settings.tsx"
+      ],
+      "screens": [
+        "SETTINGS"
+      ]
+    },
+    {
+      "id": "base-hardware",
+      "kind": "naming",
+      "title": "Base section is called Hardware in the UI",
+      "body": "The Base tab's navigator is HardwareNav and its header reads HARDWARE, while the domain term in CONTEXT.md is Base. Kept as-is by the plan, but the rewrite has to pick which name each surface shows.",
+      "evidence": [
+        "Navigator.BASE = \"HardwareNav\"",
+        "TabBar.tsx renders route.name.replace(\"Nav\", \"\") — the tab label is \"Hardware\"",
+        "ScreenTitle.BASES = \"HARDWARE\""
+      ],
+      "screens": [
+        "BASES"
+      ]
+    },
+    {
+      "id": "route-value-is-a-title",
+      "kind": "data",
+      "title": "Route value is a display string",
+      "body": "Every other member of the Screen enum is a PascalCase route identifier. These use the human-readable title as the route name, which is also what appears in the deep-link config and in navigation state.",
+      "evidence": [
+        "Screen.BASE_EDIT_INTERACTION_TIMING = \"INTERACTION TIMING\" (ScreenTitle.BASE_EDIT_INTERACTION_TIMING = \"INTERACTION TIMING\")",
+        "Screen.PETCUBE_VIDEOS_SCREEN = \"PETCUBE VIDEOS\" (ScreenTitle.PETCUBE_VIDEOS_SCREEN = \"INTERACTION VIDEOS\")"
+      ],
+      "screens": [
+        "BASE_EDIT_INTERACTION_TIMING",
+        "PETCUBE_VIDEOS_SCREEN"
+      ]
+    },
+    {
+      "id": "log-details-edit-pusher-value",
+      "kind": "data",
+      "title": "Route value drops the distinguishing word",
+      "body": "LOG_DETAILS_EDIT_PUSHER resolves to \"LogDetailsEdit\", not \"LogDetailsEditPusher\". Its sibling is \"LogDetailsEditButtons\", so the two route names differ by a suffix that is present on one and absent on the other.",
+      "evidence": [
+        "Screen.LOG_DETAILS_EDIT_PUSHER = \"LogDetailsEdit\"",
+        "Screen.LOG_DETAILS_EDIT_BUTTONS = \"LogDetailsEditButtons\""
+      ],
+      "screens": [
+        "LOG_DETAILS_EDIT_PUSHER"
+      ]
+    },
+    {
+      "id": "one-component-many-routes",
+      "kind": "structure",
+      "title": "One component, several route names",
+      "body": "These editors are registered more than once so that the LogDetails and LogEntryEdit stacks each get their own route. Same screen, four names — the rewrite needs one widget, not four.",
+      "evidence": [
+        "src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx → Screen.LOG_DETAILS_EDIT_BUTTONS, Screen.LOG_ENTRY_EDIT_BUTTONS",
+        "src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx → Screen.LOG_DETAILS_EDIT_PUSHER, Screen.LOG_ENTRY_EDIT_PUSHER"
+      ],
+      "screens": [
+        "LOG_DETAILS_EDIT_BUTTONS",
+        "LOG_ENTRY_EDIT_BUTTONS",
+        "LOG_DETAILS_EDIT_PUSHER",
+        "LOG_ENTRY_EDIT_PUSHER"
+      ]
+    },
+    {
+      "id": "unregistered",
+      "kind": "structure",
+      "title": "Declared but never registered",
+      "body": "Present in the Screen enum but attached to no navigator, so it cannot be navigated to. Nothing to rebuild — listed so the count reconciles.",
+      "evidence": [
+        "Screen.UNKNOWN = \"Unknown\" — no <Stack.Screen>, <Tab.Screen> or <Drawer.Screen> registration, no deep link"
+      ],
+      "screens": [
+        "UNKNOWN"
+      ]
+    },
+    {
+      "id": "alpha-comment-false-positive",
+      "kind": "scope",
+      "title": "Below the //alpha comment but not part of the learning product",
+      "body": "These sit under the //alpha comment in Screen.ts, which would suggest they are retired with the rest of it. They are not: they are registered in ModalNavigator with no isAlpha guard and implemented under Settings. Kept in scope.",
+      "evidence": [
+        "Screen.PETCUBE_VIDEOS_SCREEN registered unconditionally in ModalNavigator.tsx",
+        "Implemented in src/Home/Settings/PetCubeIntegration/PetCubeVideosScreen.tsx",
+        "Screen.PETCUBE_SHOP_SCREEN registered unconditionally in ModalNavigator.tsx",
+        "Implemented in src/Home/Settings/PetCubeIntegration/PetCubeShopScreen.tsx"
+      ],
+      "screens": [
+        "PETCUBE_VIDEOS_SCREEN",
+        "PETCUBE_SHOP_SCREEN"
+      ]
+    },
+    {
+      "id": "retired-above-alpha-comment",
+      "kind": "scope",
+      "title": "Retired despite sitting outside the //alpha block",
+      "body": "Grouped with the device-management screens in Screen.ts, but its only registration is behind the isAlpha flag and it renders a learning-product component.",
+      "evidence": [
+        "Screen.LANDING = \"Landing\" — Registered in LandingNavigator.tsx, which is reachable only behind the isAlpha flag."
+      ],
+      "screens": [
+        "LANDING"
+      ]
+    },
+    {
+      "id": "tab-count-varies",
+      "kind": "structure",
+      "title": "Tab bar is three tabs after the scope cut",
+      "body": "TabNavigator registers five tabs when isAlpha is on and three when it is off; TabBar.tsx hardcodes the matching widths. With the learning product retired, the tab bar is permanently Household / Activity / Hardware.",
+      "evidence": [
+        "TabNavigator.tsx: LANDING_NAV and MODULE_NAV are inside an `isAlpha ? … : null` branch",
+        "TabBar.tsx: const NUMBER_OF_TABS = isAlpha ? 5 : 3",
+        "TabNavigator.tsx: initialRouteName={isAlpha ? Navigator.LANDING_NAV : Navigator.ACTIVITY}"
+      ],
+      "screens": []
+    },
+    {
+      "id": "invented-screens",
+      "kind": "scope",
+      "title": "Designed for the Flutter app, absent from the RN app",
+      "body": "The RN app has no login or signup screen: AuthenticationNavigator.tsx registers WELCOME and nothing else, and sign-in is Auth0 Universal Login opened in a system browser. These screens are native replacements, designed rather than ported. They are the only entries in this map that were not read out of the RN source, they carry invented: true, and they are excluded from the in-scope/retired arithmetic above.",
+      "evidence": [
+        "Screen.SIGN_IN — /sign_in — no RN original",
+        "Screen.SIGN_UP — /sign_up — no RN original",
+        "Screen.FORGOT_PASSWORD — /forgot_password — no RN original",
+        "Screen.CHECK_YOUR_EMAIL — /check_your_email — no RN original",
+        "Screen.SET_NEW_PASSWORD — /set_new_password — no RN original",
+        "Screen.VERIFY_EMAIL — /verify_email — no RN original"
+      ],
+      "screens": [
+        "SIGN_IN",
+        "SIGN_UP",
+        "FORGOT_PASSWORD",
+        "CHECK_YOUR_EMAIL",
+        "SET_NEW_PASSWORD",
+        "VERIFY_EMAIL"
+      ]
+    }
+  ]
+}

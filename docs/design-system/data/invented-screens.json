@@ -1,0 +1,86 @@
+{
+  "$schema": "hand-authored — the one screen input that is not extracted",
+  "$why": [
+    "src/data/screen-map.json is generated wholesale from the React Native app's",
+    "navigation source on every run of scripts/build-screen-map.mjs, and it is",
+    "gitignored for that reason. Anything hand-written into it survives exactly",
+    "until the next sync and then disappears, taking six FpScreen values and a",
+    "compiling route table with it.",
+    "",
+    "So screens that have no RN original live here instead, in the repository,",
+    "and the generator merges them in. Every entry it merges is stamped",
+    "invented: true; every screen it extracts is stamped invented: false. The",
+    "RN-derived arithmetic — 36 in scope + 11 retired = the 47-member Screen",
+    "enum — is computed before this file is read and is not affected by it.",
+    "That is the point: the map stays a faithful extraction of the RN app AND",
+    "carries the screens this app adds, with the join visible in one field."
+  ],
+  "$rules": [
+    "key must not exist in the RN Screen enum. A collision is an error, not an override.",
+    "deepLink is required and must not collide with an RN deep link or another invented one.",
+    "navigator must name a navigator the RN app actually has, or be null.",
+    "These screens are NOT added to the navigator tree. The tree is a drawing of the RN app's navigation and stays one."
+  ],
+  "screens": [
+    {
+      "key": "SIGN_IN",
+      "route": "SignIn",
+      "title": "SIGN IN",
+      "deepLink": "/sign_in",
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "note": "Email and password, the route to account creation, and the route to password recovery. The RN app has no such screen: sign-in there is Auth0 Universal Login opened in a system browser against https://auth.fluent.pet/authorize, so there is nothing to port."
+    },
+    {
+      "key": "SIGN_UP",
+      "route": "SignUp",
+      "title": "CREATE ACCOUNT",
+      "deepLink": "/sign_up",
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "note": "Email and one password field with a reveal toggle and a live requirement list. Leads to VERIFY_EMAIL."
+    },
+    {
+      "key": "FORGOT_PASSWORD",
+      "route": "ForgotPassword",
+      "title": "RESET PASSWORD",
+      "deepLink": "/forgot_password",
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "note": "One email field. Asks for the reset mail to be sent; leads to CHECK_YOUR_EMAIL."
+    },
+    {
+      "key": "CHECK_YOUR_EMAIL",
+      "route": "CheckYourEmail",
+      "title": "CHECK YOUR EMAIL",
+      "deepLink": "/check_your_email",
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "note": "Confirmation that a reset link was sent, with a rate-limited resend. Never claims the address exists — only the mail server knows that."
+    },
+    {
+      "key": "SET_NEW_PASSWORD",
+      "route": "SetNewPassword",
+      "title": "NEW PASSWORD",
+      "deepLink": "/set_new_password",
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "note": "Where the emailed reset link lands. Takes the address and the link's token as query parameters, so the deep link is the whole entry point."
+    },
+    {
+      "key": "VERIFY_EMAIL",
+      "route": "VerifyEmail",
+      "title": "VERIFY EMAIL",
+      "deepLink": "/verify_email",
+      "navigator": "AUTHENTICATION",
+      "presentation": "Stack",
+      "headerShown": true,
+      "note": "Where sign-up lands: waiting for the verification link to be opened, and the confirmed state the link returns to."
+    }
+  ]
+}
