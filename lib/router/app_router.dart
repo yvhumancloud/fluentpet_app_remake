@@ -48,6 +48,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../auth/auth_service.dart';
 import '../screens/activity/activity_routes.dart';
+import '../screens/ai/ai_routes.dart';
 import '../screens/auth/auth_routes.dart';
 import '../screens/buttons/buttons_routes.dart';
 import '../screens/hardware/hardware_routes.dart';
@@ -96,6 +97,7 @@ screenBuilders = _merge(<Map<FpScreen, ScreenBuilder>>[
   buttonsRoutes,
   householdRoutes,
   settingsRoutes,
+  aiRoutes,
 ]);
 
 /// What a screen's builder looks like. The signature this file owns and the

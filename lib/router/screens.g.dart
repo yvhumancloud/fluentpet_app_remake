@@ -13,7 +13,7 @@ enum FpPresentation { stack, modal, drawer, tabs, none }
 
 /// Every screen the FluentPet app routes.
 ///
-/// 32 values. 26 are read out of the React Native app; 6 are screens this
+/// 35 values. 26 are read out of the React Native app; 9 are screens this
 /// product adds that the RN app has no original for. The 11 screens retired
 /// with the learning product are absent by construction, and a further 11 were
 /// dropped on 2026-09-17 when `../backend/PRD.md` scoped the product down: the
@@ -25,8 +25,9 @@ enum FpPresentation { stack, modal, drawer, tabs, none }
 ///
 /// The added ones carry `invented: true`: five native auth screens — the RN
 /// app has no login or signup screen at all, sign-in there is Auth0 Universal
-/// Login in a system browser — and `HOUSEHOLD_MEMBERS`, which the RN app kept
-/// inside `SETTINGS` and the PRD makes a first-class flow (in-app invitations).
+/// Login in a system browser — `HOUSEHOLD_MEMBERS`, which the RN app kept
+/// inside `SETTINGS` and the PRD makes a first-class flow (in-app invitations),
+/// and the three AI screens of PRD §12 (consent, chat, log by text).
 enum FpScreen {
   /// `src/Authentication/Welcome/Welcome.tsx`
   welcome(
@@ -377,6 +378,39 @@ enum FpScreen {
     path: '/verify_email',
     presentation: FpPresentation.stack,
     navigator: 'AUTHENTICATION',
+    invented: true,
+  ),
+
+  /// `no RN original — PRD §12.8, the one-time consent`
+  aiConsent(
+    key: 'AI_CONSENT',
+    route: 'AiConsent',
+    title: 'ASK FLUENTPET',
+    path: '/home/home_nav/modal_nav/ai/consent',
+    presentation: FpPresentation.stack,
+    navigator: 'AI',
+    invented: true,
+  ),
+
+  /// `no RN original — PRD §12.4, POST /ai/chat`
+  aiChat(
+    key: 'AI_CHAT',
+    route: 'AiChat',
+    title: 'ASK FLUENTPET',
+    path: '/home/home_nav/modal_nav/ai/chat',
+    presentation: FpPresentation.stack,
+    navigator: 'AI',
+    invented: true,
+  ),
+
+  /// `no RN original — PRD §12.5, POST /ai/log-text`
+  aiLogText(
+    key: 'AI_LOG_TEXT',
+    route: 'AiLogText',
+    title: 'DESCRIBE A PRESS',
+    path: '/home/home_nav/modal_nav/ai/log_text',
+    presentation: FpPresentation.stack,
+    navigator: 'AI',
     invented: true,
   );
 

@@ -27,6 +27,7 @@ import '../../router/tabs.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
+import '../ai/ai_state.dart' show openAi;
 import '../log/log_state.dart';
 import 'data/activity_providers.dart';
 import 'data/filters_edit.dart';
@@ -172,9 +173,41 @@ class _SettingsRow extends ConsumerWidget {
                 .set(value ? PushFrequency.none : PushFrequency.all),
           ),
           const SizedBox(width: FpSpace.s2),
+          const _AskButton(),
           const _SortButton(),
           _FiltersButton(active: filters.activeCount > 0),
         ],
+      ),
+    );
+  }
+}
+
+/// The way into `AI_CHAT` (PRD §12.4), through the consent gate.
+class _AskButton extends ConsumerWidget {
+  const _AskButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.fpColors;
+    return Semantics(
+      button: true,
+      label: 'Ask FluentPet about your log',
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => openAi(context, ref, FpScreen.aiChat),
+          child: SizedBox(
+            width: ActivityMetrics.touchTarget,
+            height: ActivityMetrics.touchTarget,
+            child: Center(
+              child: PhosphorIcon(
+                PhosphorIconsRegular.sparkle,
+                size: FpIconSize.md,
+                color: c.textBrand,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -450,6 +483,12 @@ class _Fab extends ConsumerWidget {
                   ref.read(logDraftProvider.notifier).reset();
                   context.push(FpScreen.log.path);
                 },
+              ),
+              SheetOption(
+                label: 'Describe it in words',
+                icon: PhosphorIconsRegular.sparkle,
+                detail: 'A sentence becomes a draft you review.',
+                onSelected: () => openAi(context, ref, FpScreen.aiLogText),
               ),
               SheetOption(
                 label: 'Add a journal entry',

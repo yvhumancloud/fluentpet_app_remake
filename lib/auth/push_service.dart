@@ -55,9 +55,15 @@ class PushService {
   }
 
   /// Which tab a notification is about. Everything hardware lands on
-  /// Hardware; a press lands on Activity.
+  /// Hardware; a press, and the weekly digest (PRD §12.6, a note in the
+  /// feed), land on Activity.
   static FpTab tabFor(RemoteMessage message) =>
-      message.data['key'] == 'button_pressed' ? FpTab.activity : FpTab.hardware;
+      const <String>{
+        'button_pressed',
+        'weekly_digest',
+      }.contains(message.data['key'])
+      ? FpTab.activity
+      : FpTab.hardware;
 }
 
 final Provider<PushService> pushServiceProvider = Provider<PushService>(
