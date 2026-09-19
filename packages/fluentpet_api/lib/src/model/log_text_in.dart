@@ -12,10 +12,14 @@ part 'log_text_in.g.dart';
 ///
 /// Properties:
 /// * [text]
+/// * [deviceTimezone]
 @BuiltValue()
 abstract class LogTextIn implements Built<LogTextIn, LogTextInBuilder> {
   @BuiltValueField(wireName: r'text')
   String get text;
+
+  @BuiltValueField(wireName: r'device_timezone')
+  String? get deviceTimezone;
 
   LogTextIn._();
 
@@ -45,6 +49,13 @@ class _$LogTextInSerializer implements PrimitiveSerializer<LogTextIn> {
       object.text,
       specifiedType: const FullType(String),
     );
+    if (object.deviceTimezone != null) {
+      yield r'device_timezone';
+      yield serializers.serialize(
+        object.deviceTimezone,
+        specifiedType: const FullType.nullable(String),
+      );
+    }
   }
 
   @override
@@ -76,6 +87,14 @@ class _$LogTextInSerializer implements PrimitiveSerializer<LogTextIn> {
             specifiedType: const FullType(String),
           ) as String;
           result.text = valueDes;
+          break;
+        case r'device_timezone':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.deviceTimezone = valueDes;
           break;
         default:
           unhandled.add(key);

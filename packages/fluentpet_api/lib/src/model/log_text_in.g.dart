@@ -9,11 +9,13 @@ part of 'log_text_in.dart';
 class _$LogTextIn extends LogTextIn {
   @override
   final String text;
+  @override
+  final String? deviceTimezone;
 
   factory _$LogTextIn([void Function(LogTextInBuilder)? updates]) =>
       (LogTextInBuilder()..update(updates))._build();
 
-  _$LogTextIn._({required this.text}) : super._();
+  _$LogTextIn._({required this.text, this.deviceTimezone}) : super._();
   @override
   LogTextIn rebuild(void Function(LogTextInBuilder) updates) =>
       (toBuilder()..update(updates)).build();
@@ -24,20 +26,25 @@ class _$LogTextIn extends LogTextIn {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is LogTextIn && text == other.text;
+    return other is LogTextIn &&
+        text == other.text &&
+        deviceTimezone == other.deviceTimezone;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, text.hashCode);
+    _$hash = $jc(_$hash, deviceTimezone.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'LogTextIn')..add('text', text))
+    return (newBuiltValueToStringHelper(r'LogTextIn')
+          ..add('text', text)
+          ..add('deviceTimezone', deviceTimezone))
         .toString();
   }
 }
@@ -49,6 +56,11 @@ class LogTextInBuilder implements Builder<LogTextIn, LogTextInBuilder> {
   String? get text => _$this._text;
   set text(String? text) => _$this._text = text;
 
+  String? _deviceTimezone;
+  String? get deviceTimezone => _$this._deviceTimezone;
+  set deviceTimezone(String? deviceTimezone) =>
+      _$this._deviceTimezone = deviceTimezone;
+
   LogTextInBuilder() {
     LogTextIn._defaults(this);
   }
@@ -57,6 +69,7 @@ class LogTextInBuilder implements Builder<LogTextIn, LogTextInBuilder> {
     final $v = _$v;
     if ($v != null) {
       _text = $v.text;
+      _deviceTimezone = $v.deviceTimezone;
       _$v = null;
     }
     return this;
@@ -80,6 +93,7 @@ class LogTextInBuilder implements Builder<LogTextIn, LogTextInBuilder> {
         _$LogTextIn._(
           text:
               BuiltValueNullFieldError.checkNotNull(text, r'LogTextIn', 'text'),
+          deviceTimezone: deviceTimezone,
         );
     replace(_$result);
     return _$result;

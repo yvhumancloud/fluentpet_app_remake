@@ -19,6 +19,7 @@ import 'package:fluentpet_api/fluentpet_api.dart';
 
 import '../../domain/domain.dart';
 import '../repositories.dart';
+import 'api_client.dart' show deviceTimezone;
 import 'mappers.dart';
 
 const String _v1 = '/api/v1';
@@ -62,6 +63,7 @@ class ApiActivityRepository implements ActivityRepository {
 
   @override
   Future<Activity> create(Activity activity) async {
+    final tz = await deviceTimezone;
     switch (activity) {
       case Note():
         final r = await _api.getNotesApi().createNote(
@@ -69,6 +71,7 @@ class ApiActivityRepository implements ActivityRepository {
             (b) => b
               ..text = activity.body
               ..occurredAt = activity.occurredAt.toUtc()
+              ..deviceTimezone = tz
               ..isFavourite = activity.isFlagged,
           ),
         );
@@ -80,6 +83,7 @@ class ApiActivityRepository implements ActivityRepository {
               ..pusherId = _pusherId(activity.pusher)
               ..note = activity.note.isEmpty ? null : activity.note
               ..occurredAt = activity.occurredAt.toUtc()
+              ..deviceTimezone = tz
               ..isFavourite = activity.isFlagged
               ..buttonIds.replace(activity.buttons.map((x) => x.id))
               ..contextIds.replace(activity.contexts.map((x) => x.id))

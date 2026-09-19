@@ -10,10 +10,19 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:fluentpet_api/fluentpet_api.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/auth_service.dart';
 import '../../env.dart';
+
+/// The phone's IANA zone, e.g. `Asia/Kolkata`, from `MainActivity.kt`.
+/// Sent as `device_timezone` with every entry the app writes and as the
+/// profile `timezone` on sign-in, so "around 8" and the stats' day buckets
+/// are read on the user's clock. Null where the channel is missing (tests).
+final Future<String?> deviceTimezone = const MethodChannel('fluentpet/timezone')
+    .invokeMethod<String>('id')
+    .catchError((Object _) => null);
 
 /// `X-Login-As`: the admin impersonation the PRD describes. Null for
 /// everyone. Set from Settings; [apiProvider] watches it, so a change rebuilds

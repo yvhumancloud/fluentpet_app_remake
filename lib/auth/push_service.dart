@@ -15,7 +15,7 @@ library;
 import 'package:dio/dio.dart' show DioException;
 import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fluentpet_api/fluentpet_api.dart' show PushTokenIn;
+import 'package:fluentpet_api/fluentpet_api.dart' show MePatch, PushTokenIn;
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart' show Sentry;
@@ -106,10 +106,27 @@ final Provider<void> pushBootstrapProvider = Provider<void>((ref) {
     }
   }
 
+  // The profile timezone drives stats buckets, the digest's week and chat's
+  // "today" on the server. Written once per session start, when it can
+  // have changed (new install, re-login, a move); nothing polls it.
+  Future<void> syncTimezone() async {
+    final tz = await deviceTimezone;
+    if (tz == null) return;
+    try {
+      await ref
+          .read(apiProvider)
+          .getMeApi()
+          .patchMe(mePatch: MePatch((b) => b.timezone = tz));
+    } on DioException {
+      // Offline; the next launch tries again.
+    }
+  }
+
   ref.listen(authStateProvider, (previous, next) {
     if (_usable(next.value) && !_usable(previous?.value)) {
       push.requestPermission();
       register();
+      syncTimezone();
     }
   }, fireImmediately: true);
   ref.listen(pushTokenProvider, (_, next) {

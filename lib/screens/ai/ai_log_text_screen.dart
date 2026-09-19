@@ -22,6 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../data/api/ai_client.dart';
+import '../../data/api/api_client.dart' show deviceTimezone;
 import '../../data/providers.dart';
 import '../../domain/domain.dart';
 import '../../router/screens.g.dart';
@@ -63,10 +64,17 @@ class _AiLogTextScreenState extends ConsumerState<AiLogTextScreen> {
       _preview = null;
     });
     try {
+      final tz = await deviceTimezone;
       final draft =
           (await ref
                   .read(aiApiProvider)
-                  .logText(logTextIn: LogTextIn((b) => b.text = text)))
+                  .logText(
+                    logTextIn: LogTextIn(
+                      (b) => b
+                        ..text = text
+                        ..deviceTimezone = tz,
+                    ),
+                  ))
               .data!;
       if (!mounted) return;
       setState(() {
