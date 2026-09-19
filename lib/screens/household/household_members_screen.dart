@@ -31,7 +31,7 @@
 ///   same dialog Hardware's Delete uses, rather than a bare `Alert.alert`.
 ///
 /// Fixtures only (PLAN.md): invite, remove, accept, decline and leave all
-/// validate and then say so through [showPhaseOneNotice].
+/// validate, call the API and refetch the Household.
 library;
 
 import 'package:flutter/material.dart';
@@ -39,6 +39,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../data/providers.dart';
+import '../../data/repositories.dart' show HouseholdRepository;
 import '../../domain/domain.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
@@ -96,26 +97,25 @@ class _HouseholdMembersScreenState
                 child: switch ((household, me)) {
                   (
                     AsyncData<Household>(value: final h),
-                    AsyncData<HouseholdMember>(value: final m)
+                    AsyncData<HouseholdMember>(value: final m),
                   ) =>
                     _body(h, m),
                   (AsyncError<Household>(), _) ||
-                  (_, AsyncError<HouseholdMember>()) =>
-                    ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[
-                        HardwareNotice(
-                          icon: PhosphorIconsRegular.warningOctagon,
-                          title: 'Could not load your Household',
-                          body: 'Pull down to try again.',
-                          tone: HardwareNoticeTone.danger,
-                        ),
-                      ],
-                    ),
+                  (_, AsyncError<HouseholdMember>()) => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[
+                      HardwareNotice(
+                        icon: PhosphorIconsRegular.warningOctagon,
+                        title: 'Could not load your Household',
+                        body: 'Pull down to try again.',
+                        tone: HardwareNoticeTone.danger,
+                      ),
+                    ],
+                  ),
                   _ => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[HardwareLoading()],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[HardwareLoading()],
+                  ),
                 },
               ),
             ),
@@ -146,7 +146,7 @@ class _HouseholdMembersScreenState
         Text(
           isAdmin
               ? 'You own this Household. You can invite and remove members '
-                  'below.'
+                    'below.'
               : 'You are a member of this Household, owned by $admins.',
           style: FpType.bodySm.copyWith(color: c.textSecondary),
         ),
@@ -284,7 +284,8 @@ class _HouseholdMembersScreenState
         const LogHairline(),
         const SizedBox(height: FpSpace.s6),
         const HouseholdInfoNote(
-          text: 'Everyone in a Household shares its Pushers, Buttons, Bases '
+          text:
+              'Everyone in a Household shares its Pushers, Buttons, Bases '
               'and activity. The owner invites and removes members. If you '
               'join another Household you can always leave it again, and '
               'you get a fresh Household of your own.',
@@ -303,15 +304,29 @@ class _HouseholdMembersScreenState
   static String _printInvitee(HouseholdInvitation i) =>
       i.fullname.contains('@') ? i.fullname : '${i.fullname}, ${i.email}';
 
-  void _sendInvite() {
+  HouseholdRepository get _repo => ref.read(householdRepositoryProvider);
+
+  /// Every write here changes who is in the Household, so both reads that
+  /// describe it refetch. Joining or leaving changes everything else too.
+  Future<void> _write(Future<void> call, {bool household = false}) async {
+    if (!await logWrite(context, () => call) || !mounted) return;
+    ref.invalidate(householdProvider);
+    ref.invalidate(meProvider);
+    if (household) {
+      ref.invalidate(pushersProvider);
+      ref.invalidate(basesProvider);
+      ref.invalidate(boardProvider);
+    }
+  }
+
+  Future<void> _sendInvite() async {
     final error = AuthRules.emailError(_invite.text);
     if (error != null) {
       setState(() => _inviteError = error);
       return;
     }
-    // POST /api/v1/household/invitations is a phase-1 no-op.
-    showPhaseOneNotice(context, 'Invite ${_invite.text.trim()}');
-    setState(() => _invite.clear());
+    await _write(_repo.invite(_invite.text.trim()));
+    if (mounted) setState(() => _invite.clear());
   }
 
   Future<void> _remove(HouseholdMember member) async {
@@ -321,7 +336,7 @@ class _HouseholdMembersScreenState
       message: 'They will be moved to a fresh Household of their own.',
       confirmLabel: 'Remove',
     );
-    if (ok && mounted) showPhaseOneNotice(context, 'Remove ${member.email}');
+    if (ok && mounted) await _write(_repo.removeMember(member));
   }
 
   Future<void> _withdraw(HouseholdInvitation invitation) async {
@@ -331,36 +346,36 @@ class _HouseholdMembersScreenState
       message: '${invitation.email} will not be able to join your Household.',
       confirmLabel: 'Remove',
     );
-    if (ok && mounted) {
-      showPhaseOneNotice(context, 'Withdraw invite to ${invitation.email}');
-    }
+    if (ok && mounted) await _write(_repo.withdrawInvitation(invitation));
   }
 
   Future<void> _accept(HouseholdInvitation invitation) async {
     final ok = await confirmDestructive(
       context: context,
       title: 'Join ${invitation.fullname}’s Household?',
-      message: 'You leave this one. Your other pending invitations are '
+      message:
+          'You leave this one. Your other pending invitations are '
           'declined.',
       confirmLabel: 'Join',
     );
     if (ok && mounted) {
-      showPhaseOneNotice(context, 'Accept invite from ${invitation.email}');
+      await _write(_repo.acceptInvitation(invitation), household: true);
     }
   }
 
-  void _decline(HouseholdInvitation invitation) =>
-      showPhaseOneNotice(context, 'Decline invite from ${invitation.email}');
+  Future<void> _decline(HouseholdInvitation invitation) =>
+      _write(_repo.rejectInvitation(invitation));
 
   Future<void> _leave() async {
     final ok = await confirmDestructive(
       context: context,
       title: 'Leave Household?',
-      message: 'You get a fresh Household of your own. Nothing here is '
+      message:
+          'You get a fresh Household of your own. Nothing here is '
           'deleted.',
       confirmLabel: 'Leave',
     );
-    if (ok && mounted) showPhaseOneNotice(context, 'Leave Household');
+    if (ok && mounted) await _write(_repo.leaveHousehold(), household: true);
   }
 }
 
@@ -415,10 +430,7 @@ class _PersonRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  name,
-                  style: FpType.bodyMd.copyWith(color: c.textPrimary),
-                ),
+                Text(name, style: FpType.bodyMd.copyWith(color: c.textPrimary)),
                 if (badges.isNotEmpty || actions.isNotEmpty)
                   Wrap(
                     spacing: FpSpace.s4,
@@ -434,8 +446,9 @@ class _PersonRow extends StatelessWidget {
                         action.onTap == null
                             ? Text(
                                 action.label,
-                                style: FpType.labelMd
-                                    .copyWith(color: c.textDisabled),
+                                style: FpType.labelMd.copyWith(
+                                  color: c.textDisabled,
+                                ),
                               )
                             : _ActionText(action: action),
                     ],

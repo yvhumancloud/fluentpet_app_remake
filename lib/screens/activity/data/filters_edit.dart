@@ -96,22 +96,21 @@ DashboardFilters _withTimeframe(
   required DateTime? endDate,
   String? searchText,
   bool clearSearchText = false,
-}) =>
-    DashboardFilters(
-      searchText: clearSearchText ? null : (searchText ?? f.searchText),
-      startDate: startDate,
-      endDate: endDate,
-      sinceDate: sinceDate,
-      pusherIds: f.pusherIds,
-      buttonMeanings: f.buttonMeanings,
-      contextIds: f.contextIds,
-      baseIds: f.baseIds,
-      eventNotes: f.eventNotes,
-      entriesWithNotes: f.entriesWithNotes,
-      flaggedEntries: f.flaggedEntries,
-      buttonPresses: f.buttonPresses,
-      searchType: f.searchType,
-    );
+}) => DashboardFilters(
+  searchText: clearSearchText ? null : (searchText ?? f.searchText),
+  startDate: startDate,
+  endDate: endDate,
+  sinceDate: sinceDate,
+  pusherIds: f.pusherIds,
+  buttonMeanings: f.buttonMeanings,
+  contextIds: f.contextIds,
+  baseIds: f.baseIds,
+  eventNotes: f.eventNotes,
+  entriesWithNotes: f.entriesWithNotes,
+  flaggedEntries: f.flaggedEntries,
+  buttonPresses: f.buttonPresses,
+  searchType: f.searchType,
+);
 
 /// The edits the filter sheet makes.
 extension FiltersEdit on DashboardFilters {
@@ -127,12 +126,7 @@ extension FiltersEdit on DashboardFilters {
 
   /// An explicit range. Clears the relative window, for the same reason.
   DashboardFilters withRange({DateTime? start, DateTime? end}) =>
-      _withTimeframe(
-        this,
-        sinceDate: null,
-        startDate: start,
-        endDate: end,
-      );
+      _withTimeframe(this, sinceDate: null, startDate: start, endDate: end);
 
   /// The free-text search in More Filters. Empty clears it rather than storing
   /// an empty string, so `isEmpty` stays honest.
@@ -173,28 +167,28 @@ extension FiltersEdit on DashboardFilters {
       copyWith(baseIds: _toggleInt(baseIds, id));
 
   DashboardFilters withButtonMatch(SearchMatch match) => copyWith(
-        searchType: SearchTypeFilter(
-          buttons: match,
-          contexts: searchType.contexts,
-          bases: searchType.bases,
-        ),
-      );
+    searchType: SearchTypeFilter(
+      buttons: match,
+      contexts: searchType.contexts,
+      bases: searchType.bases,
+    ),
+  );
 
   DashboardFilters withContextMatch(SearchMatch match) => copyWith(
-        searchType: SearchTypeFilter(
-          buttons: searchType.buttons,
-          contexts: match,
-          bases: searchType.bases,
-        ),
-      );
+    searchType: SearchTypeFilter(
+      buttons: searchType.buttons,
+      contexts: match,
+      bases: searchType.bases,
+    ),
+  );
 
   DashboardFilters withBaseMatch(SearchMatch match) => copyWith(
-        searchType: SearchTypeFilter(
-          buttons: searchType.buttons,
-          contexts: searchType.contexts,
-          bases: match,
-        ),
-      );
+    searchType: SearchTypeFilter(
+      buttons: searchType.buttons,
+      contexts: searchType.contexts,
+      bases: match,
+    ),
+  );
 
   /// How many facets are narrowing the timeline.
   ///
@@ -231,8 +225,10 @@ extension FiltersEdit on DashboardFilters {
       final from = startDate;
       final to = endDate;
       if (from != null && to != null) {
-        out.add('${FpFormat.dayAndMonth(from, asOf: asOf)} to '
-            '${FpFormat.dayAndMonth(to, asOf: asOf)}');
+        out.add(
+          '${FpFormat.dayAndMonth(from, asOf: asOf)} to '
+          '${FpFormat.dayAndMonth(to, asOf: asOf)}',
+        );
       } else if (from != null) {
         out.add('from ${FpFormat.dayAndMonth(from, asOf: asOf)}');
       } else if (to != null) {
@@ -285,16 +281,16 @@ List<String> _toggleString(List<String> values, String value) {
 
 /// Labels for the tri-state controls, so the sheet and the description agree.
 String showHideOnlyLabel(ShowHideOnly value, String noun) => switch (value) {
-      ShowHideOnly.show => 'Show',
-      ShowHideOnly.hide => 'Hide',
-      ShowHideOnly.showOnly => 'Only $noun',
-    };
+  ShowHideOnly.show => 'Show',
+  ShowHideOnly.hide => 'Hide',
+  ShowHideOnly.showOnly => 'Only $noun',
+};
 
 String buttonPressesLabel(ButtonPressesFilter value) => switch (value) {
-      ButtonPressesFilter.all => 'All',
-      ButtonPressesFilter.singlePress => 'Single',
-      ButtonPressesFilter.multiPress => 'Multi',
-    };
+  ButtonPressesFilter.all => 'All',
+  ButtonPressesFilter.singlePress => 'Single',
+  ButtonPressesFilter.multiPress => 'Multi',
+};
 
 String searchMatchLabel(SearchMatch value) =>
     value == SearchMatch.any ? 'Any' : 'All';

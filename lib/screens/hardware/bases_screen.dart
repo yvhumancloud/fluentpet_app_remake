@@ -42,11 +42,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
+import '../../data/providers.dart';
 import '../../domain/domain.dart';
 import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
+import '../log/log_controls.dart' show logWrite;
 import 'hardware_providers.dart';
 import 'hardware_ui.dart';
 
@@ -76,22 +78,24 @@ class BasesScreen extends ConsumerWidget {
                 backgroundColor: c.surfaceRaised,
                 onRefresh: () async => refreshHardware(ref),
                 child: switch (bases) {
-                  AsyncData<List<Base>>(:final value) => _BasesList(bases: value),
+                  AsyncData<List<Base>>(:final value) => _BasesList(
+                    bases: value,
+                  ),
                   AsyncError<List<Base>>() => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[
-                        HardwareNotice(
-                          icon: PhosphorIconsRegular.warningOctagon,
-                          title: 'Could not load your Bases',
-                          body: 'Pull down to try again.',
-                          tone: HardwareNoticeTone.danger,
-                        ),
-                      ],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[
+                      HardwareNotice(
+                        icon: PhosphorIconsRegular.warningOctagon,
+                        title: 'Could not load your Bases',
+                        body: 'Pull down to try again.',
+                        tone: HardwareNoticeTone.danger,
+                      ),
+                    ],
+                  ),
                   _ => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[HardwareLoading()],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[HardwareLoading()],
+                  ),
                 },
               ),
             ),
@@ -119,10 +123,13 @@ class BasesScreen extends ConsumerWidget {
     if (bases.isEmpty) return 'No Bases connected';
 
     final offline = bases.where((b) => !b.online).length;
-    final lowBattery =
-        bases.where((b) => FpFormat.isLowBattery(b.batteryLevel)).length;
-    final lowButtons =
-        bases.fold<int>(0, (sum, b) => sum + b.lowBatteryButtons);
+    final lowBattery = bases
+        .where((b) => FpFormat.isLowBattery(b.batteryLevel))
+        .length;
+    final lowButtons = bases.fold<int>(
+      0,
+      (sum, b) => sum + b.lowBatteryButtons,
+    );
 
     final parts = <String>[FpFormat.countOf(bases.length, 'Base')];
     if (offline > 0) parts.add('$offline offline');
@@ -133,7 +140,6 @@ class BasesScreen extends ConsumerWidget {
     if (parts.length == 1) parts.add('all online');
     return parts.join(' · ');
   }
-
 }
 
 class _BasesList extends StatelessWidget {
@@ -160,7 +166,8 @@ class _BasesList extends StatelessWidget {
           const HardwareNotice(
             icon: PhosphorIconsRegular.broadcast,
             title: 'No Bases yet',
-            body: 'Connect a Base and the presses your pet makes start '
+            body:
+                'Connect a Base and the presses your pet makes start '
                 'arriving on their own, with the Buttons they came from.',
           )
         else
@@ -199,10 +206,11 @@ class _BaseCard extends ConsumerWidget {
     final lastSeen = FpFormat.lastSeen(base.lastOnlineAt, asOf: now);
 
     return HardwareCard(
-      semanticLabel: '${base.displayName}, '
+      semanticLabel:
+          '${base.displayName}, '
           '${base.online ? 'online' : 'offline'}, last seen $lastSeen',
       onTap: () => _openEdit(context),
-      onLongPress: () => _openActions(context),
+      onLongPress: () => _openActions(context, ref),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -277,15 +285,16 @@ class _BaseCard extends ConsumerWidget {
   MetaFact _linkedFact(AsyncValue<Map<String, List<LinkedButton>>> linked) {
     return switch (linked) {
       AsyncData<Map<String, List<LinkedButton>>>(:final value) => () {
-          final count = value[base.serialNumber]?.length ?? 0;
-          return MetaFact(
-            count == 0
-                ? 'No linked Buttons'
-                : FpFormat.countOf(count, 'linked Button'),
-          );
-        }(),
-      AsyncError<Map<String, List<LinkedButton>>>() =>
-        const MetaFact('Linked Buttons unavailable'),
+        final count = value[base.serialNumber]?.length ?? 0;
+        return MetaFact(
+          count == 0
+              ? 'No linked Buttons'
+              : FpFormat.countOf(count, 'linked Button'),
+        );
+      }(),
+      AsyncError<Map<String, List<LinkedButton>>>() => const MetaFact(
+        'Linked Buttons unavailable',
+      ),
       _ => const MetaFact('Counting Buttons…'),
     };
   }
@@ -295,7 +304,7 @@ class _BaseCard extends ConsumerWidget {
   }
 
   /// Long-press: Edit / Delete, the RN action sheet exactly.
-  Future<void> _openActions(BuildContext context) async {
+  Future<void> _openActions(BuildContext context, WidgetRef ref) async {
     final choice = await showHardwareActions<_BaseAction>(
       context: context,
       title: base.displayName,
@@ -327,8 +336,12 @@ class _BaseCard extends ConsumerWidget {
           confirmLabel: 'Delete',
         );
         if (!context.mounted || !confirmed) return;
-        // DELETE /api/v1/bases/{serial} is one of §15's no-ops.
-        showPhaseOneNotice(context, '${base.displayName} not deleted');
+        final ok = await logWrite(
+          context,
+          () => ref.read(hardwareRepositoryProvider).deleteBase(base),
+          failed: 'Could not delete the Base. Try again.',
+        );
+        if (ok) refreshHardware(ref);
     }
   }
 }
@@ -416,14 +429,15 @@ class _ButtonsTile extends ConsumerWidget {
                 ),
                 const SizedBox(height: FpSpace.s2),
                 switch (board) {
-                  AsyncData<Board>(:final value) =>
-                    MetaLine(facts: _counts(value)),
+                  AsyncData<Board>(:final value) => MetaLine(
+                    facts: _counts(value),
+                  ),
                   AsyncError<Board>() => const MetaLine(
-                      facts: <MetaFact>[MetaFact('Board unavailable')],
-                    ),
+                    facts: <MetaFact>[MetaFact('Board unavailable')],
+                  ),
                   _ => const MetaLine(
-                      facts: <MetaFact>[MetaFact('Counting Buttons…')],
-                    ),
+                    facts: <MetaFact>[MetaFact('Counting Buttons…')],
+                  ),
                 },
               ],
             ),
@@ -452,12 +466,11 @@ class _ButtonsTile extends ConsumerWidget {
   /// so this is a plain interpolation rather than [FpFormat.countOf].
   static List<MetaFact> _counts(Board board) {
     final active = board.activeButtons;
-    final connect =
-        active.where((b) => b.kind == ButtonKind.connect).length;
-    final classic =
-        active.where((b) => b.kind == ButtonKind.classic).length;
-    final inaudible =
-        active.where((b) => b.kind == ButtonKind.inaudible).length;
+    final connect = active.where((b) => b.kind == ButtonKind.connect).length;
+    final classic = active.where((b) => b.kind == ButtonKind.classic).length;
+    final inaudible = active
+        .where((b) => b.kind == ButtonKind.inaudible)
+        .length;
 
     return <MetaFact>[
       MetaFact(FpFormat.countOf(connect + classic, 'Button')),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'auth/push_service.dart';
 import 'router/app_router.dart';
 import 'theme/fp_theme.dart';
 import 'theme/theme_mode.dart';
@@ -16,6 +17,7 @@ class FluentPetApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(pushBootstrapProvider);
     return MaterialApp.router(
       title: 'FluentPet',
       debugShowCheckedModeBanner: false,

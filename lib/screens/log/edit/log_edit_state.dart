@@ -80,40 +80,18 @@ import '../log_state.dart' show logModeledContextText;
 
 // ─────────────────────────── finding the Activity ───────────────────────────
 
-/// Every Activity `LOG_ENTRY_EDIT` could plausibly be asked to open.
+/// The Activity a deep link named, by [Activity.id], or null when it is gone.
 ///
-/// There is no `GET /api/v1/interactions/{id}` in this domain's repository
-/// surface — `ActivityRepository` has `today()` and `dashboard()`, both
-/// already-filtered views, never a single-row read (`repositories.dart`).
-/// [DashboardFilters.none] is the one filter set guaranteed not to hide the row
-/// a deep link asks for, so this is that call, held on its own provider rather
-/// than reusing `dashboardProvider` — which tracks whatever filters the
-/// Activity tab has live, and a row this screen needs could be exactly the one
-/// those filters are hiding.
-final FutureProvider<List<Activity>> logEditableActivitiesProvider =
-    FutureProvider<List<Activity>>((ref) async {
-  final dashboard = await ref
-      .watch(activityRepositoryProvider)
-      .dashboard(DashboardFilters.none);
-  return dashboard.activities;
-});
-
-/// The Activity a timeline row tap named, by [Activity.id] — not by
-/// [Interaction.interactionId], which a [Note] does not have.
-///
-/// The RN nav param is `interactionId` (`LogEntryEditNavigator.tsx:22`)
-/// because RN has one model for both; `DashboardList.tsx:491` passes
-/// `interaction.id`, which in this domain's vocabulary is [Activity.id], the
-/// field every row — Interaction or Note — actually carries. This screen's own
-/// route therefore names its query parameter `activityId`, not
-/// `interactionId`: the honest name for what a tapped row hands over.
-Activity? logFindActivity(List<Activity> activities, int? id) {
-  if (id == null) return null;
-  for (final activity in activities) {
-    if (activity.id == id) return activity;
-  }
-  return null;
-}
+/// A timeline row tap seeds the draft before it navigates, so this only runs
+/// for a cold link. An Interaction's id is its wire id and `GET
+/// /interactions/{id}` finds it; a Note's is the negative of its wire id
+/// (`mappers.dart`) and has no single-row read, so a cold link to a Note
+/// resolves to "not here" rather than to the wrong row.
+final logActivityProvider = FutureProvider.autoDispose.family<Activity?, int>(
+  (ref, id) => id < 0
+      ? Future<Activity?>.value()
+      : ref.watch(activityRepositoryProvider).interaction(id),
+);
 
 // ─────────────────────────── the edit draft ───────────────────────────
 
@@ -182,7 +160,13 @@ class EditEntryDraft {
     final who = pusher;
     if (id == null || who == null) return null;
     if (isJournal) {
-      return Note(id: id, occurredAt: occurredAt!, pusher: who, body: note, isFlagged: isFlagged);
+      return Note(
+        id: id,
+        occurredAt: occurredAt!,
+        pusher: who,
+        body: note,
+        isFlagged: isFlagged,
+      );
     }
     return Interaction(
       id: id,
@@ -242,23 +226,23 @@ class EditEntryDraftNotifier extends Notifier<EditEntryDraft> {
 
     final EditEntryDraft next = switch (activity) {
       Interaction i => EditEntryDraft(
-          activityId: i.id,
-          interactionId: i.interactionId,
-          occurredAt: i.occurredAt,
-          pusher: i.pusher,
-          buttons: i.buttons,
-          contexts: i.contexts,
-          modeledPushers: i.modeledPushers,
-          note: i.note,
-          isFlagged: i.isFlagged,
-        ),
+        activityId: i.id,
+        interactionId: i.interactionId,
+        occurredAt: i.occurredAt,
+        pusher: i.pusher,
+        buttons: i.buttons,
+        contexts: i.contexts,
+        modeledPushers: i.modeledPushers,
+        note: i.note,
+        isFlagged: i.isFlagged,
+      ),
       Note n => EditEntryDraft(
-          activityId: n.id,
-          occurredAt: n.occurredAt,
-          pusher: n.pusher,
-          note: n.body,
-          isFlagged: n.isFlagged,
-        ),
+        activityId: n.id,
+        occurredAt: n.occurredAt,
+        pusher: n.pusher,
+        note: n.body,
+        isFlagged: n.isFlagged,
+      ),
     };
     _initial = next;
     state = next;
@@ -315,7 +299,9 @@ class EditEntryDraftNotifier extends Notifier<EditEntryDraft> {
     state = state.copyWith(
       pusher: pusher,
       contexts: contexts,
-      modeledPushers: pusher.isTeacher ? state.modeledPushers : const <Pusher>[],
+      modeledPushers: pusher.isTeacher
+          ? state.modeledPushers
+          : const <Pusher>[],
     );
   }
 
@@ -323,23 +309,28 @@ class EditEntryDraftNotifier extends Notifier<EditEntryDraft> {
   /// UPDATE hands back (`updateSelectedButtons`, a closure in the RN app; a
   /// return value here, per `log_state.dart`'s note on why `LOG` and
   /// `LOG_DETAILS` share a provider instead).
-  void setButtons(List<Button> buttons) => state = state.copyWith(buttons: buttons);
+  void setButtons(List<Button> buttons) =>
+      state = state.copyWith(buttons: buttons);
 
   void toggleContext(InteractionContext context) {
     final selected = state.contexts.any((ctx) => ctx.id == context.id);
     final next = selected
-        ? state.contexts.where((ctx) => ctx.id != context.id).toList(growable: false)
+        ? state.contexts
+              .where((ctx) => ctx.id != context.id)
+              .toList(growable: false)
         : (<InteractionContext>[...state.contexts, context]
-          ..sort((a, b) => a.id.compareTo(b.id)));
+            ..sort((a, b) => a.id.compareTo(b.id)));
     state = state.copyWith(contexts: next);
   }
 
   void toggleModeledPusher(Pusher pusher) {
     final selected = state.modeledPushers.any((p) => p.id == pusher.id);
     final next = selected
-        ? state.modeledPushers.where((p) => p.id != pusher.id).toList(growable: false)
+        ? state.modeledPushers
+              .where((p) => p.id != pusher.id)
+              .toList(growable: false)
         : (<Pusher>[...state.modeledPushers, pusher]
-          ..sort((a, b) => a.id.compareTo(b.id)));
+            ..sort((a, b) => a.id.compareTo(b.id)));
     state = state.copyWith(modeledPushers: next);
   }
 
@@ -359,7 +350,14 @@ class EditEntryDraftNotifier extends Notifier<EditEntryDraft> {
     final at = state.occurredAt;
     if (at == null) return;
     state = state.copyWith(
-      occurredAt: DateTime(at.year, at.month, at.day, at.hour, at.minute, clamped),
+      occurredAt: DateTime(
+        at.year,
+        at.month,
+        at.day,
+        at.hour,
+        at.minute,
+        clamped,
+      ),
     );
   }
 
@@ -373,8 +371,7 @@ class EditEntryDraftNotifier extends Notifier<EditEntryDraft> {
 }
 
 final NotifierProvider<EditEntryDraftNotifier, EditEntryDraft>
-    logEditDraftProvider =
-    NotifierProvider<EditEntryDraftNotifier, EditEntryDraft>(
+logEditDraftProvider = NotifierProvider<EditEntryDraftNotifier, EditEntryDraft>(
   EditEntryDraftNotifier.new,
 );
 
@@ -402,10 +399,7 @@ List<Pusher> logEditEligiblePushers(
 
 /// The Contexts a given Pusher's press can carry — the same
 /// `useContexts(teacher|learner)` switch every screen in this area makes.
-List<InteractionContext> logEditContextsFor(
-  WidgetRef ref,
-  Pusher? pusher,
-) {
+List<InteractionContext> logEditContextsFor(WidgetRef ref, Pusher? pusher) {
   return (pusher?.isTeacher ?? false)
       ? logSyncContexts(ref, forTeacher: true)
       : logSyncContexts(ref, forTeacher: false);
@@ -417,6 +411,8 @@ List<InteractionContext> logSyncContexts(
   WidgetRef ref, {
   required bool forTeacher,
 }) {
-  final provider = forTeacher ? teacherContextsProvider : learnerContextsProvider;
+  final provider = forTeacher
+      ? teacherContextsProvider
+      : learnerContextsProvider;
   return ref.read(provider).value ?? const <InteractionContext>[];
 }

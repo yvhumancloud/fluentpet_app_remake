@@ -54,7 +54,7 @@
 ///
 /// ## The write path, deliberately absent
 ///
-/// Phase 1 is fixtures, read-only (PLAN.md, `docs/second-pass-brief.md`).
+/// Save is `PATCH /interactions/{id}` or `PATCH /notes/{id}`.
 /// SAVE is real UI with a real dirty check — [EditEntryDraftNotifier.isDirty]
 /// mirrors the RN screen's own `_.isEqual(initialData, formData)`
 /// (`LogDetailsEditScreen.tsx:157-168`) — but there is no PATCH behind it.
@@ -75,6 +75,7 @@ import '../../../router/screens.g.dart';
 import '../../../theme/fp_context.dart';
 import '../../../theme/generated/fp_tokens.dart';
 import '../../../widgets/widgets.dart';
+import '../../activity/data/activity_providers.dart' show refreshTimelines;
 import '../log_controls.dart';
 import '../log_state.dart' show logLearners;
 import 'log_edit_state.dart';
@@ -112,7 +113,9 @@ class _LogEntryEditScreenState extends ConsumerState<LogEntryEditScreen> {
     _controllersFor = draft.activityId;
     _note.text = draft.note;
     final at = draft.occurredAt;
-    _seconds.text = (at == null || at.second == 0) ? '' : FpFormat.pad2(at.second);
+    _seconds.text = (at == null || at.second == 0)
+        ? ''
+        : FpFormat.pad2(at.second);
   }
 
   @override
@@ -132,20 +135,20 @@ class _LogEntryEditScreenState extends ConsumerState<LogEntryEditScreen> {
       );
     }
 
-    final activities = ref.watch(logEditableActivitiesProvider);
-    return switch (activities) {
+    final activity = ref.watch(logActivityProvider(id));
+    return switch (activity) {
       AsyncError() => _notFound(context, message: 'Could not load this entry.'),
-      AsyncData(value: final list) => _resolve(context, list, id),
+      AsyncData(value: final found) => _resolve(context, found),
       _ => _loading(context),
     };
   }
 
-  Widget _resolve(BuildContext context, List<Activity> list, int id) {
-    final found = logFindActivity(list, id);
+  Widget _resolve(BuildContext context, Activity? found) {
     if (found == null) {
       return _notFound(
         context,
-        message: 'That entry is not here any more. It may have been deleted, '
+        message:
+            'That entry is not here any more. It may have been deleted, '
             'or the link that brought you here may be out of date.',
       );
     }
@@ -227,15 +230,19 @@ class _LogEntryEditScreenState extends ConsumerState<LogEntryEditScreen> {
           children: <Widget>[
             ScreenHeader(
               title: 'Edit log entry',
-              subtitle: '${FpFormat.fullDate(draft.occurredAt!, asOf: now)} · '
+              subtitle:
+                  '${FpFormat.fullDate(draft.occurredAt!, asOf: now)} · '
                   '${FpFormat.timeOfDayWithSeconds(draft.occurredAt!)}',
               onBack: context.canPop() ? () => context.pop() : null,
               trailing: FlagMarker.control(
                 flagged: draft.isFlagged,
-                onTap: () => ref.read(logEditDraftProvider.notifier).toggleFlag(),
+                onTap: () =>
+                    ref.read(logEditDraftProvider.notifier).toggleFlag(),
               ),
             ),
-            Expanded(child: _Body(draft: draft, note: _note, seconds: _seconds)),
+            Expanded(
+              child: _Body(draft: draft, note: _note, seconds: _seconds),
+            ),
             _Actions(draft: draft),
           ],
         ),
@@ -261,7 +268,12 @@ class _Body extends ConsumerWidget {
     final activityId = draft.activityId!;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(FpSpace.s6, FpSpace.s0, FpSpace.s6, FpSpace.s8),
+      padding: const EdgeInsets.fromLTRB(
+        FpSpace.s6,
+        FpSpace.s0,
+        FpSpace.s6,
+        FpSpace.s8,
+      ),
       children: <Widget>[
         if (preview != null) _Preview(activity: preview),
         if (!draft.isJournal) ...<Widget>[
@@ -306,7 +318,10 @@ class _Preview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('As it appears', style: FpType.labelSm.copyWith(color: c.textTertiary)),
+        Text(
+          'As it appears',
+          style: FpType.labelSm.copyWith(color: c.textTertiary),
+        ),
         const SizedBox(height: FpSpace.s3),
         Container(
           padding: const EdgeInsets.all(FpSpace.s5),
@@ -358,8 +373,8 @@ class _PusherField extends StatelessWidget {
       onTap: journal
           ? null
           : () => context.push(
-                '${FpScreen.logEntryEditPusher.path}?activityId=$activityId',
-              ),
+              '${FpScreen.logEntryEditPusher.path}?activityId=$activityId',
+            ),
       child: Row(
         children: <Widget>[
           PusherAvatar(pusher: pusher, size: PusherAvatarSize.lg),
@@ -368,23 +383,17 @@ class _PusherField extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  switch (pusher.kind) {
-                    PusherKind.eventNote => 'Journal entry',
-                    PusherKind.base => 'Nobody attributed',
-                    PusherKind.learner || PusherKind.teacher => pusher.name,
-                  },
-                  style: FpType.headingSm.copyWith(color: c.textPrimary),
-                ),
-                Text(
-                  switch (pusher.kind) {
-                    PusherKind.eventNote => 'A note with no press behind it',
-                    PusherKind.base => 'Choose who pressed',
-                    PusherKind.learner => 'Learner',
-                    PusherKind.teacher => 'Teacher',
-                  },
-                  style: FpType.labelMd.copyWith(color: c.textTertiary),
-                ),
+                Text(switch (pusher.kind) {
+                  PusherKind.eventNote => 'Journal entry',
+                  PusherKind.base => 'Nobody attributed',
+                  PusherKind.learner || PusherKind.teacher => pusher.name,
+                }, style: FpType.headingSm.copyWith(color: c.textPrimary)),
+                Text(switch (pusher.kind) {
+                  PusherKind.eventNote => 'A note with no press behind it',
+                  PusherKind.base => 'Choose who pressed',
+                  PusherKind.learner => 'Learner',
+                  PusherKind.teacher => 'Teacher',
+                }, style: FpType.labelMd.copyWith(color: c.textTertiary)),
               ],
             ),
           ),
@@ -466,7 +475,9 @@ class _ContextsField extends ConsumerWidget {
                   ),
                   child: Text(
                     'What was going on?',
-                    style: FpType.labelSm.copyWith(color: sheetContext.fpColors.textTertiary),
+                    style: FpType.labelSm.copyWith(
+                      color: sheetContext.fpColors.textTertiary,
+                    ),
                   ),
                 ),
                 Flexible(
@@ -477,8 +488,9 @@ class _ContextsField extends ConsumerWidget {
                         LogCheckRow(
                           label: ctx.text,
                           selected: selected.any((s) => s.id == ctx.id),
-                          onTap: () =>
-                              ref.read(logEditDraftProvider.notifier).toggleContext(ctx),
+                          onTap: () => ref
+                              .read(logEditDraftProvider.notifier)
+                              .toggleContext(ctx),
                         ),
                     ],
                   ),
@@ -525,8 +537,9 @@ class _ModeledLearners extends ConsumerWidget {
             _LearnerCheck(
               learner: learner,
               selected: draft.modeledPushers.any((p) => p.id == learner.id),
-              onTap: () =>
-                  ref.read(logEditDraftProvider.notifier).toggleModeledPusher(learner),
+              onTap: () => ref
+                  .read(logEditDraftProvider.notifier)
+                  .toggleModeledPusher(learner),
             ),
         ],
       ),
@@ -535,7 +548,11 @@ class _ModeledLearners extends ConsumerWidget {
 }
 
 class _LearnerCheck extends StatelessWidget {
-  const _LearnerCheck({required this.learner, required this.selected, required this.onTap});
+  const _LearnerCheck({
+    required this.learner,
+    required this.selected,
+    required this.onTap,
+  });
 
   final Pusher learner;
   final bool selected;
@@ -566,7 +583,9 @@ class _LearnerCheck extends StatelessWidget {
                   ),
                 ),
                 PhosphorIcon(
-                  selected ? PhosphorIconsFill.checkCircle : PhosphorIconsRegular.circle,
+                  selected
+                      ? PhosphorIconsFill.checkCircle
+                      : PhosphorIconsRegular.circle,
                   size: FpIconSize.md,
                   color: selected ? c.textBrand : c.textTertiary,
                 ),
@@ -599,7 +618,8 @@ class _NoteField extends ConsumerWidget {
         ),
         child: TextField(
           controller: controller,
-          onChanged: (value) => ref.read(logEditDraftProvider.notifier).setNote(value),
+          onChanged: (value) =>
+              ref.read(logEditDraftProvider.notifier).setNote(value),
           maxLines: null,
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
@@ -667,7 +687,11 @@ class _TimestampField extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickDate(BuildContext context, WidgetRef ref, DateTime at) async {
+  Future<void> _pickDate(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime at,
+  ) async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -676,28 +700,47 @@ class _TimestampField extends ConsumerWidget {
       lastDate: now,
     );
     if (picked == null || !context.mounted) return;
-    final next = DateTime(picked.year, picked.month, picked.day, at.hour, at.minute, at.second);
+    final next = DateTime(
+      picked.year,
+      picked.month,
+      picked.day,
+      at.hour,
+      at.minute,
+      at.second,
+    );
     _apply(context, ref, next);
   }
 
-  Future<void> _pickTime(BuildContext context, WidgetRef ref, DateTime at) async {
+  Future<void> _pickTime(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime at,
+  ) async {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(at),
       builder: (pickerContext, child) => MediaQuery(
-        data: MediaQuery.of(pickerContext).copyWith(alwaysUse24HourFormat: true),
+        data: MediaQuery.of(pickerContext)
+            .copyWith(alwaysUse24HourFormat: true),
         child: child ?? const SizedBox.shrink(),
       ),
     );
     if (picked == null || !context.mounted) return;
-    final next =
-        DateTime(at.year, at.month, at.day, picked.hour, picked.minute, at.second);
+    final next = DateTime(
+      at.year,
+      at.month,
+      at.day,
+      picked.hour,
+      picked.minute,
+      at.second,
+    );
     _apply(context, ref, next);
   }
 
   void _apply(BuildContext context, WidgetRef ref, DateTime at) {
-    final accepted =
-        ref.read(logEditDraftProvider.notifier).setOccurredAt(at, now: DateTime.now());
+    final accepted = ref
+        .read(logEditDraftProvider.notifier)
+        .setOccurredAt(at, now: DateTime.now());
     if (!accepted) {
       logSay(context, 'A press cannot be logged in the future.');
     }
@@ -719,7 +762,10 @@ class _SecondsField extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Seconds', style: FpType.labelSm.copyWith(color: c.textTertiary)),
+          Text(
+            'Seconds',
+            style: FpType.labelSm.copyWith(color: c.textTertiary),
+          ),
           ConstrainedBox(
             constraints: const BoxConstraints(minHeight: LogMetrics.tapTarget),
             child: Center(
@@ -737,12 +783,20 @@ class _SecondsField extends ConsumerWidget {
                   isDense: true,
                   hintText: '00',
                   hintStyle: FpType.bodyMd.copyWith(color: c.textTertiary),
-                  contentPadding: const EdgeInsets.symmetric(vertical: FpSpace.s3),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: FpSpace.s3,
+                  ),
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: c.borderDefault, width: FpStroke.hairline),
+                    borderSide: BorderSide(
+                      color: c.borderDefault,
+                      width: FpStroke.hairline,
+                    ),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: c.borderFocus, width: FpStroke.thick),
+                    borderSide: BorderSide(
+                      color: c.borderFocus,
+                      width: FpStroke.thick,
+                    ),
                   ),
                 ),
               ),
@@ -789,14 +843,16 @@ class _Actions extends ConsumerWidget {
     );
   }
 
-  /// The RN screen PATCHes, then navigates to Activity
-  /// (`LogDetailsEditScreen.tsx:212-243`). Phase 1 has no PATCH — the
-  /// inventory's instruction for every write is a no-op that returns success
-  /// (§15) — so this says so and makes the same trip, rather than leaving
-  /// someone on a screen that looks saved with no way to tell it was not.
-  void _save(BuildContext context, WidgetRef ref) {
+  /// PATCH, then the Activity timeline. On failure the draft stays, so the
+  /// change can be retried rather than retyped.
+  Future<void> _save(BuildContext context, WidgetRef ref) async {
+    final ok = await logWrite(
+      context,
+      () => ref.read(activityRepositoryProvider).update(draft.preview!),
+    );
+    if (!ok || !context.mounted) return;
     ref.read(logEditDraftProvider.notifier).reset();
-    logSay(context, 'Updated. Phase 1 stores nothing, so the change will not persist.');
+    refreshTimelines(ref);
     context.go(FpScreen.dashboard.path);
   }
 }

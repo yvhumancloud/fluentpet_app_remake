@@ -50,6 +50,19 @@ library;
 class AuthRules {
   const AuthRules._();
 
+  // ───────────────────────── mail ─────────────────────────
+
+  /// How long a reset link lasts, as `CHECK_YOUR_EMAIL` states it. Firebase's
+  /// default for its action links. An unbounded link is a standing key to the
+  /// account, so the screen says the bound out loud.
+  static const String resetLinkLifetime = '1 hour';
+
+  /// Seconds before a resend may be asked for again.
+  ///
+  /// Long enough that a double tap does not send two mails, short enough that
+  /// somebody who genuinely did not receive the first one is not stuck.
+  static const int resendCooldownSeconds = 30;
+
   // ───────────────────────── email ─────────────────────────
 
   /// The longest address a mail server has to accept: RFC 5321 §4.5.3.1.3

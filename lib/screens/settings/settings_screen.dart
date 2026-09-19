@@ -40,7 +40,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../auth/push_service.dart' show signOutProvider;
+import '../../data/api/api_client.dart' show loginAsProvider;
+import '../../env.dart';
 import '../../data/providers.dart';
 import '../../domain/domain.dart';
 import '../../router/screens.g.dart';
@@ -50,7 +54,7 @@ import '../../theme/theme_mode.dart';
 import '../../widgets/widgets.dart';
 import '../hardware/hardware_providers.dart' show appDebuggingEnabledProvider;
 import '../hardware/hardware_ui.dart'
-    show HardwareAction, MetaFact, MetaLine, showHardwareActions, showPhaseOneNotice;
+    show HardwareAction, MetaFact, MetaLine, showHardwareActions;
 import '../log/log_controls.dart';
 import 'settings_ui.dart' show SettingsTextField;
 
@@ -64,7 +68,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final TextEditingController _fullName = TextEditingController();
   final TextEditingController _loginAsEmail = TextEditingController();
-  bool _loggedInAsSomeone = false;
 
   /// The user the name field was filled from, so a rebuild does not overwrite
   /// what someone is typing — the same guard `BASE_EDIT` uses.
@@ -158,54 +161,67 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       title: 'Account',
       child: switch (me) {
         AsyncData<HouseholdMember>(:final value) => Builder(
-            builder: (context) {
-              if (_loadedFor != value.id) {
-                _loadedFor = value.id;
-                _fullName.text = value.fullname;
-              }
-              final dirty = _fullName.text.trim() != value.fullname;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SettingsTextField(
-                    controller: _fullName,
-                    hintText: 'Your name',
-                    keyboardType: TextInputType.name,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  const SizedBox(height: FpSpace.s2),
-                  Text(
-                    value.email,
-                    style: FpType.bodySm.copyWith(color: c.textTertiary),
-                  ),
-                  const SizedBox(height: FpSpace.s3),
-                  LogActionButton(
-                    label: 'SAVE NAME',
-                    tone: LogActionTone.secondary,
-                    onPressed: dirty && _fullName.text.trim().isNotEmpty
-                        ? () => showPhaseOneNotice(context, 'Name change')
-                        : null,
-                  ),
-                  const SizedBox(height: FpSpace.s4),
-                  LogTextAction(
-                    label: 'Sign out',
-                    icon: PhosphorIconsRegular.signOut,
-                    onTap: () => context.go(FpScreen.welcome.path),
-                  ),
-                ],
-              );
-            },
-          ),
+          builder: (context) {
+            if (_loadedFor != value.id) {
+              _loadedFor = value.id;
+              _fullName.text = value.fullname;
+            }
+            final dirty = _fullName.text.trim() != value.fullname;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SettingsTextField(
+                  controller: _fullName,
+                  hintText: 'Your name',
+                  keyboardType: TextInputType.name,
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: FpSpace.s2),
+                Text(
+                  value.email,
+                  style: FpType.bodySm.copyWith(color: c.textTertiary),
+                ),
+                const SizedBox(height: FpSpace.s3),
+                LogActionButton(
+                  label: 'SAVE NAME',
+                  tone: LogActionTone.secondary,
+                  onPressed: dirty && _fullName.text.trim().isNotEmpty
+                      ? () => _saveName(_fullName.text.trim())
+                      : null,
+                ),
+                const SizedBox(height: FpSpace.s4),
+                LogTextAction(
+                  label: 'Sign out',
+                  icon: PhosphorIconsRegular.signOut,
+                  // No navigation: the router's redirect lands on WELCOME
+                  // the moment the session is gone.
+                  onTap: ref.read(signOutProvider),
+                ),
+              ],
+            );
+          },
+        ),
         AsyncError<HouseholdMember>() => Text(
-            'Could not load your account.',
-            style: FpType.bodySm.copyWith(color: c.statusDangerFg),
-          ),
+          'Could not load your account.',
+          style: FpType.bodySm.copyWith(color: c.statusDangerFg),
+        ),
         _ => Text(
-            'Loading…',
-            style: FpType.bodySm.copyWith(color: c.textTertiary),
-          ),
+          'Loading…',
+          style: FpType.bodySm.copyWith(color: c.textTertiary),
+        ),
       },
     );
+  }
+
+  Future<void> _saveName(String name) async {
+    final ok = await logWrite(
+      context,
+      () => ref.read(householdRepositoryProvider).updateMyName(name),
+    );
+    if (!ok || !mounted) return;
+    ref.invalidate(meProvider);
+    ref.invalidate(householdProvider);
+    logSay(context, 'Name saved.');
   }
 
   // ─────────────────────────── appearance ───────────────────────────
@@ -312,7 +328,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Future<void> _chooseDefaultPusher(List<Pusher> pushers, Pusher? current) async {
+  Future<void> _chooseDefaultPusher(
+    List<Pusher> pushers,
+    Pusher? current,
+  ) async {
     final choice = await showHardwareActions<int>(
       context: context,
       title: 'Default Pusher',
@@ -338,7 +357,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ],
     );
     if (choice == null) return;
-    ref.read(defaultPusherIdProvider.notifier).set(choice == _none ? null : choice);
+    ref
+        .read(defaultPusherIdProvider.notifier)
+        .set(choice == _none ? null : choice);
   }
 
   static const int _none = -1;
@@ -354,41 +375,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       title: 'Household',
       child: switch (household) {
         AsyncData<Household>(:final value) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              MetaLine(
-                facts: <MetaFact>[
-                  MetaFact(value.name),
-                  MetaFact(FpFormat.countOf(value.members.length, 'member')),
-                  if (value.incoming.isNotEmpty)
-                    MetaFact(
-                      '${FpFormat.countOf(value.incoming.length, 'invite')} '
-                      'waiting on you',
-                    ),
-                  if (value.outgoing.isNotEmpty)
-                    MetaFact(
-                      '${FpFormat.countOf(value.outgoing.length, 'invite')} '
-                      'sent',
-                    ),
-                ],
-              ),
-              const SizedBox(height: FpSpace.s3),
-              LogTextAction(
-                label: 'Members and invitations',
-                icon: PhosphorIconsRegular.usersThree,
-                onTap: () => context.push(FpScreen.householdMembers.path),
-              ),
-            ],
-          ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            MetaLine(
+              facts: <MetaFact>[
+                MetaFact(value.name),
+                MetaFact(FpFormat.countOf(value.members.length, 'member')),
+                if (value.incoming.isNotEmpty)
+                  MetaFact(
+                    '${FpFormat.countOf(value.incoming.length, 'invite')} '
+                    'waiting on you',
+                  ),
+                if (value.outgoing.isNotEmpty)
+                  MetaFact(
+                    '${FpFormat.countOf(value.outgoing.length, 'invite')} '
+                    'sent',
+                  ),
+              ],
+            ),
+            const SizedBox(height: FpSpace.s3),
+            LogTextAction(
+              label: 'Members and invitations',
+              icon: PhosphorIconsRegular.usersThree,
+              onTap: () => context.push(FpScreen.householdMembers.path),
+            ),
+          ],
+        ),
         AsyncError<Household>() => Text(
-            'Could not load your Household.',
-            style: FpType.bodySm
-                .copyWith(color: context.fpColors.statusDangerFg),
-          ),
+          'Could not load your Household.',
+          style: FpType.bodySm.copyWith(color: context.fpColors.statusDangerFg),
+        ),
         _ => Text(
-            'Loading your Household…',
-            style: FpType.bodySm.copyWith(color: context.fpColors.textTertiary),
-          ),
+          'Loading your Household…',
+          style: FpType.bodySm.copyWith(color: context.fpColors.textTertiary),
+        ),
       },
     );
   }
@@ -417,6 +437,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             'device-state dump on a Base.',
             style: FpType.bodySm.copyWith(color: c.textTertiary),
           ),
+          // The RN app's "LOG ERROR (NO CRASH)", kept for one reason: it is
+          // the only way to check a build's Sentry wiring without breaking
+          // something. Dev builds only.
+          if (admin && isDev) ...<Widget>[
+            const SizedBox(height: FpSpace.s3),
+            LogTextAction(
+              label: 'Send a test error to Sentry',
+              icon: PhosphorIconsRegular.bug,
+              onTap: () async {
+                final id = await Sentry.captureException(
+                  StateError('Test error from Settings ($env)'),
+                );
+                if (!context.mounted) return;
+                logSay(
+                  context,
+                  sentryDsn.isEmpty
+                      ? 'No Sentry DSN in this build — nothing was sent.'
+                      : 'Sent. Event $id.',
+                );
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -428,21 +470,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   /// says.
   Widget _loginAsSection() {
     final c = context.fpColors;
+    final loginAs = ref.watch(loginAsProvider);
     return LogSection(
       title: 'Login as a different user',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          if (_loggedInAsSomeone) ...<Widget>[
+          if (loginAs != null) ...<Widget>[
             Text(
-              'You are logged in as ${_loginAsEmail.text}.',
+              'You are logged in as $loginAs.',
               style: FpType.bodySm.copyWith(color: c.textSecondary),
             ),
             const SizedBox(height: FpSpace.s3),
             LogActionButton(
               label: 'LOGOUT',
               tone: LogActionTone.secondary,
-              onPressed: () => setState(() => _loggedInAsSomeone = false),
+              onPressed: () => ref.read(loginAsProvider.notifier).set(null),
             ),
           ] else ...<Widget>[
             SettingsTextField(
@@ -457,13 +500,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               tone: LogActionTone.secondary,
               onPressed: _loginAsEmail.text.trim().isEmpty
                   ? null
-                  : () {
-                      setState(() => _loggedInAsSomeone = true);
-                      showPhaseOneNotice(
-                        context,
-                        'Signed in as ${_loginAsEmail.text}',
-                      );
-                    },
+                  : () => ref
+                        .read(loginAsProvider.notifier)
+                        .set(_loginAsEmail.text.trim()),
             ),
           ],
           const SizedBox(height: FpSpace.s3),
@@ -505,9 +544,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 message: 'This cannot be undone.',
                 confirmLabel: 'Delete',
               );
-              if (confirmed && mounted) {
-                showPhaseOneNotice(context, 'Account deletion');
-              }
+              if (!confirmed || !mounted) return;
+              final ok = await logWrite(
+                context,
+                () => ref.read(householdRepositoryProvider).deleteAccount(),
+                failed: 'Could not delete the account.',
+              );
+              // The backend deleted the Firebase user too; signing out drops
+              // the now-dead session and the router lands on WELCOME.
+              if (ok) await ref.read(signOutProvider)();
             },
           ),
         ],
@@ -526,8 +571,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       // ships no build pipeline to wire it through.
       child: Text(
         '1.0.0 (1)',
-        style:
-            FpType.monoSm.copyWith(color: context.fpColors.textTertiary),
+        style: FpType.monoSm.copyWith(color: context.fpColors.textTertiary),
       ),
     );
   }

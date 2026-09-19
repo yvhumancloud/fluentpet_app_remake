@@ -109,36 +109,36 @@ class TimelineEmpty extends StatelessWidget {
 
     final (IconData icon, String title, String body) = switch (cause) {
       TimelineEmptyCause.emptyAccount => (
-          PhosphorIconsRegular.chatTeardropDots,
-          'Nothing logged yet',
-          'Press a Button on the board, or log one by hand, and the day fills '
-              'in here.',
-        ),
+        PhosphorIconsRegular.chatTeardropDots,
+        'Nothing logged yet',
+        'Press a Button on the board, or log one by hand, and the day fills '
+            'in here.',
+      ),
       TimelineEmptyCause.nothingUnassigned => (
-          PhosphorIconsRegular.checks,
-          'Everything is attributed',
-          'No press is waiting for a Pusher. Presses the Base records without '
-              'knowing who made them collect here.',
-        ),
+        PhosphorIconsRegular.checks,
+        'Everything is attributed',
+        'No press is waiting for a Pusher. Presses the Base records without '
+            'knowing who made them collect here.',
+      ),
       TimelineEmptyCause.overFiltered => (
-          PhosphorIconsRegular.funnel,
-          'No activity matches these filters',
-          '${FpFormat.countOf(filters.activeCount, 'filter')} '
-              '${filters.activeCount == 1 ? 'is' : 'are'} narrowing the '
-              'timeline, and '
-              '${FpFormat.largeCountOf(facetTotal, 'entry', 'entries')} '
-              'sit behind ${filters.activeCount == 1 ? 'it' : 'them'}.',
-        ),
+        PhosphorIconsRegular.funnel,
+        'No activity matches these filters',
+        '${FpFormat.countOf(filters.activeCount, 'filter')} '
+            '${filters.activeCount == 1 ? 'is' : 'are'} narrowing the '
+            'timeline, and '
+            '${FpFormat.largeCountOf(facetTotal, 'entry', 'entries')} '
+            'sit behind ${filters.activeCount == 1 ? 'it' : 'them'}.',
+      ),
       TimelineEmptyCause.emptyFacet => (
-          PhosphorIconsRegular.magnifyingGlass,
-          _facetTitle(never: true),
-          _facetBody(never: true),
-        ),
+        PhosphorIconsRegular.magnifyingGlass,
+        _facetTitle(never: true),
+        _facetBody(never: true),
+      ),
       TimelineEmptyCause.filteredFacet => (
-          PhosphorIconsRegular.funnel,
-          _facetTitle(never: false),
-          _facetBody(never: false),
-        ),
+        PhosphorIconsRegular.funnel,
+        _facetTitle(never: false),
+        _facetBody(never: false),
+      ),
     };
 
     final describes = filters.describe(asOf);
@@ -159,10 +159,7 @@ class TimelineEmpty extends StatelessWidget {
               color: c.textTertiary,
             ),
             const SizedBox(height: FpSpace.s5),
-            Text(
-              title,
-              style: FpType.headingLg.copyWith(color: c.textPrimary),
-            ),
+            Text(title, style: FpType.headingLg.copyWith(color: c.textPrimary)),
             const SizedBox(height: FpSpace.s3),
             Text(body, style: FpType.bodyMd.copyWith(color: c.textSecondary)),
             if (describes.isNotEmpty) ...<Widget>[
@@ -183,31 +180,38 @@ class TimelineEmpty extends StatelessWidget {
   }
 
   String _facetTitle({required bool never}) => switch (query.facet) {
-        TimelineFacet.button =>
-          never ? '“${query.label}” has never been pressed' : 'All of them are filtered out',
-        TimelineFacet.context => never
-            ? 'Nothing is tagged “${query.label}”'
-            : 'All of them are filtered out',
-        TimelineFacet.pusher =>
-          never ? '${query.label} has not pressed anything' : 'All of it is filtered out',
-        _ => 'Nothing here',
-      };
+    TimelineFacet.button =>
+      never
+          ? '“${query.label}” has never been pressed'
+          : 'All of them are filtered out',
+    TimelineFacet.context =>
+      never
+          ? 'Nothing is tagged “${query.label}”'
+          : 'All of them are filtered out',
+    TimelineFacet.pusher =>
+      never
+          ? '${query.label} has not pressed anything'
+          : 'All of it is filtered out',
+    _ => 'Nothing here',
+  };
 
   String _facetBody({required bool never}) {
     if (never) {
       return switch (query.facet) {
         TimelineFacet.button =>
           'The Button is on the Board and has no presses recorded against it.',
-        TimelineFacet.context =>
-          'No Interaction carries this Context yet.',
+        TimelineFacet.context => 'No Interaction carries this Context yet.',
         TimelineFacet.pusher =>
           '${query.label} is in the Household and has no Activity recorded.',
         _ => 'There is nothing to show.',
       };
     }
     final noun = switch (query.facet) {
-      TimelineFacet.pusher =>
-        FpFormat.largeCountOf(facetTotal, 'entry', 'entries'),
+      TimelineFacet.pusher => FpFormat.largeCountOf(
+        facetTotal,
+        'entry',
+        'entries',
+      ),
       _ => FpFormat.largeCountOf(facetTotal, 'press', 'presses'),
     };
     return 'There ${facetTotal == 1 ? 'is' : 'are'} $noun here in total, and '
@@ -215,37 +219,36 @@ class TimelineEmpty extends StatelessWidget {
   }
 
   List<Widget> _actions(TimelineEmptyCause cause) => switch (cause) {
-        TimelineEmptyCause.emptyAccount => <Widget>[
-            ActionButton(
-              label: 'Log a press',
-              icon: PhosphorIconsRegular.plus,
-              onPressed: onLogPress,
-            ),
-          ],
-        TimelineEmptyCause.nothingUnassigned => <Widget>[
-            ActionButton(
-              label: 'Show all activity',
-              tone: ButtonTone.secondary,
-              onPressed: onShowAll,
-            ),
-          ],
-        TimelineEmptyCause.overFiltered ||
-        TimelineEmptyCause.filteredFacet =>
-          <Widget>[
-            ActionButton(label: 'Clear filters', onPressed: onClearFilters),
-            const SizedBox(height: FpSpace.s3),
-            ActionButton(
-              label: 'Edit filters',
-              tone: ButtonTone.ghost,
-              onPressed: onEditFilters,
-            ),
-          ],
-        TimelineEmptyCause.emptyFacet => <Widget>[
-            ActionButton(
-              label: 'Back to Activity',
-              tone: ButtonTone.secondary,
-              onPressed: onShowAll,
-            ),
-          ],
-      };
+    TimelineEmptyCause.emptyAccount => <Widget>[
+      ActionButton(
+        label: 'Log a press',
+        icon: PhosphorIconsRegular.plus,
+        onPressed: onLogPress,
+      ),
+    ],
+    TimelineEmptyCause.nothingUnassigned => <Widget>[
+      ActionButton(
+        label: 'Show all activity',
+        tone: ButtonTone.secondary,
+        onPressed: onShowAll,
+      ),
+    ],
+    TimelineEmptyCause.overFiltered ||
+    TimelineEmptyCause.filteredFacet => <Widget>[
+      ActionButton(label: 'Clear filters', onPressed: onClearFilters),
+      const SizedBox(height: FpSpace.s3),
+      ActionButton(
+        label: 'Edit filters',
+        tone: ButtonTone.ghost,
+        onPressed: onEditFilters,
+      ),
+    ],
+    TimelineEmptyCause.emptyFacet => <Widget>[
+      ActionButton(
+        label: 'Back to Activity',
+        tone: ButtonTone.secondary,
+        onPressed: onShowAll,
+      ),
+    ],
+  };
 }

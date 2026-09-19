@@ -9,14 +9,7 @@
 /// source wins; this screen and `HOUSEHOLD_EDIT` both follow `LOG`'s pattern
 /// instead of growing a chevron a modal should not have.
 ///
-/// ## Phase 1: renders the form, saves nothing
-///
-/// `HouseholdRepository` (`lib/data/repositories.dart`) has `household()` and
-/// `pushers()` and no write method — there is no `createPusherMutation` to
-/// call. SAVE validates, and on success shows [showPhaseOneNotice] and stays
-/// on the form, the same choice `BASE_EDIT`'s SAVE makes and for the same
-/// reason: popping after a write that did not happen would claim a success
-/// this build cannot deliver.
+/// SAVE validates, `POST /pushers`, refetches the roster and pops back to it.
 ///
 /// ## What is kept from `HouseholdAdd.tsx`
 ///
@@ -50,21 +43,21 @@ import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../data/providers.dart';
+import '../../domain/domain.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
 import '../hardware/hardware_ui.dart';
 import '../log/log_controls.dart';
-import 'household_fixture.dart';
 import 'household_metrics.dart';
+import 'household_options.dart';
 import 'household_ui.dart';
 
 class HouseholdAddScreen extends ConsumerStatefulWidget {
   const HouseholdAddScreen({super.key});
 
   @override
-  ConsumerState<HouseholdAddScreen> createState() =>
-      _HouseholdAddScreenState();
+  ConsumerState<HouseholdAddScreen> createState() => _HouseholdAddScreenState();
 }
 
 class _HouseholdAddScreenState extends ConsumerState<HouseholdAddScreen> {
@@ -93,6 +86,8 @@ class _HouseholdAddScreenState extends ConsumerState<HouseholdAddScreen> {
   Widget build(BuildContext context) {
     final c = context.fpColors;
     final now = ref.watch(nowProvider);
+    // Loaded here so the Species picker has its options when it opens.
+    ref.watch(learnerTypesProvider);
 
     return Scaffold(
       backgroundColor: c.surfaceCanvas,
@@ -126,10 +121,10 @@ class _HouseholdAddScreenState extends ConsumerState<HouseholdAddScreen> {
                     const SizedBox(height: FpSpace.s6),
                     Center(
                       child: HouseholdAvatarPicker(
-                        onTap: () => showPhaseOneNotice(
-                          context,
-                          'Photo not uploaded',
-                        ),
+                        // ponytail: no image_picker yet — `PUT /pushers/{id}/avatar`
+                        // waits on it.
+                        onTap: () =>
+                            logSay(context, 'Photos arrive in a later build.'),
                       ),
                     ),
                     const SizedBox(height: FpSpace.s6),
@@ -169,7 +164,8 @@ class _HouseholdAddScreenState extends ConsumerState<HouseholdAddScreen> {
                       ),
                       const SizedBox(height: FpSpace.s2),
                       const HouseholdInfoNote(
-                        text: 'A Teacher is someone whose presses get logged. '
+                        text:
+                            'A Teacher is someone whose presses get logged. '
                             'To give a person their own sign-in to this '
                             'Household, invite them from Household members.',
                       ),
@@ -203,19 +199,38 @@ class _HouseholdAddScreenState extends ConsumerState<HouseholdAddScreen> {
     return _nameError == null && _speciesError == null;
   }
 
-  void _save() {
+  Future<void> _save() async {
     setState(() {
       _submitted = true;
-      final valid = _validate();
-      if (!valid) return;
-      // POST /api/v1/pushers is a §15 no-op: `HouseholdRepository` has no
-      // write method to call. The screen stays open on success, the same
-      // choice `BASE_EDIT`'s SAVE makes and for the same reason.
-      showPhaseOneNotice(
-        context,
-        '${_name.text.trim()} not saved',
-      );
+      _validate();
     });
+    if (_nameError != null || _speciesError != null) return;
+    final ok = await logWrite(
+      context,
+      () => ref.read(householdRepositoryProvider).createPusher(_pusher()),
+    );
+    if (!ok || !mounted) return;
+    ref.invalidate(pushersProvider);
+    if (context.canPop()) context.pop();
+  }
+
+  /// The form as a [Pusher]. Species is picked by name and sent by id.
+  Pusher _pusher() {
+    final types = ref.read(learnerTypesProvider).value ?? const <int, String>{};
+    final breed = _breed.text.trim();
+    return Pusher(
+      id: 0,
+      name: _name.text.trim(),
+      isHuman: !_isLearner,
+      learnerTypeId: _isLearner ? learnerTypeId(types, _species) : null,
+      subType: _isLearner && breed.isNotEmpty ? breed : null,
+      trainingStartedAt: _isLearner ? _trainingStartDate : null,
+      birthDate: _isLearner ? _birthDate : null,
+      language: _isLearner && _languages.isNotEmpty
+          ? _languages.join(', ')
+          : null,
+      country: _isLearner ? null : _country,
+    );
   }
 
   Future<void> _pickSpecies() async {
@@ -223,7 +238,7 @@ class _HouseholdAddScreenState extends ConsumerState<HouseholdAddScreen> {
       context: context,
       title: 'Species',
       options: <HardwareAction<String>>[
-        for (final option in householdSpeciesOptions)
+        for (final option in householdSpeciesOptions(ref))
           HardwareAction<String>(
             label: option,
             value: option,

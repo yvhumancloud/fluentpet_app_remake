@@ -1,0 +1,6 @@
+# Generated code; its lint noise is not ours to fix. Kept out of `flutter analyze`.
+analyzer:
+  errors:
+    unused_import: ignore
+    duplicate_import: ignore
+    unused_element_parameter: ignore

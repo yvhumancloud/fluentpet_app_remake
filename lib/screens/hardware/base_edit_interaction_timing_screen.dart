@@ -73,10 +73,8 @@ class BaseEditInteractionTimingScreen extends ConsumerWidget {
                   FpSpace.s10,
                 ),
                 children: <Widget>[
-                  if (seconds != null) _CurrentWindow(
-                    seconds: seconds,
-                    baseName: baseName,
-                  ),
+                  if (seconds != null)
+                    _CurrentWindow(seconds: seconds, baseName: baseName),
                   if (seconds != null) const SizedBox(height: FpSpace.s7),
                   Text(
                     'A Base watches for presses that arrive close together and '
@@ -176,7 +174,8 @@ class _GroupingDiagram extends StatelessWidget {
         _DiagramRow(
           label: 'Outside the window',
           groups: <int>[1, 1, 1],
-          caption: 'Three Interactions, with the gaps between them on the '
+          caption:
+              'Three Interactions, with the gaps between them on the '
               'timeline',
           highlight: false,
         ),

@@ -32,9 +32,9 @@
 /// 3. Timestamps are [DateTime]. The API sends ISO 8601 strings; parsing
 ///    belongs in the integration phase's mapping layer, not in the screens.
 ///
-/// Everything is immutable. There is no `fromJson` anywhere: phase 1 has no
-/// HTTP (PLAN.md), and writing serialisation against an API nobody has called
-/// yet would be guesswork committed to the repo.
+/// Everything is immutable. There is no `fromJson` anywhere: the wire models
+/// are generated (`packages/fluentpet_api`) and `lib/data/api/mappers.dart`
+/// turns them into these.
 library;
 
 export 'activity.dart';

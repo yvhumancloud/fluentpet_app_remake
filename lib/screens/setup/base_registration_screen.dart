@@ -24,36 +24,43 @@
 /// shared Base is the one surprising outcome and it should be read before
 /// SAVE, not after.
 ///
-/// Fixtures only (PLAN.md): REGISTER validates and reports through
-/// [showPhaseOneNotice], the same no-op `BASE_EDIT`'s SAVE uses.
+/// REGISTER is `POST /bases`; on success the Bases list refreshes and this
+/// pops back to it.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../data/providers.dart';
 import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
 import '../hardware/hardware_metrics.dart';
+import '../hardware/hardware_providers.dart' show refreshHardware;
 import '../hardware/hardware_ui.dart';
+import '../log/log_controls.dart' show logWrite;
 
 /// `BASE_SERIAL_NUMBER_LENGTH` in the RN app and "12 chars" in the PRD.
 const int baseSerialLength = 12;
 
 /// `validateBaseSerialNumber.ts`, verbatim.
 bool isValidBaseSerial(String serial) =>
-    serial.length == baseSerialLength && RegExp(r'^[A-F0-9]*$').hasMatch(serial);
+    serial.length == baseSerialLength &&
+    RegExp(r'^[A-F0-9]*$').hasMatch(serial);
 
-class BaseRegistrationScreen extends StatefulWidget {
+class BaseRegistrationScreen extends ConsumerStatefulWidget {
   const BaseRegistrationScreen({super.key});
 
   @override
-  State<BaseRegistrationScreen> createState() =>
+  ConsumerState<BaseRegistrationScreen> createState() =>
       _BaseRegistrationScreenState();
 }
 
-class _BaseRegistrationScreenState extends State<BaseRegistrationScreen> {
+class _BaseRegistrationScreenState
+    extends ConsumerState<BaseRegistrationScreen> {
   final TextEditingController _serial = TextEditingController();
   final TextEditingController _name = TextEditingController();
 
@@ -79,15 +86,23 @@ class _BaseRegistrationScreenState extends State<BaseRegistrationScreen> {
     return null;
   }
 
-  void _register() {
+  Future<void> _register() async {
     setState(() => _attempted = true);
     if (_serialError != null) return;
-    // POST /api/v1/bases is a phase-1 no-op.
     final name = _name.text.trim();
-    showPhaseOneNotice(
+    final ok = await logWrite(
       context,
-      '${name.isEmpty ? _serialValue : name} not registered',
+      () => ref
+          .read(hardwareRepositoryProvider)
+          .registerBase(
+            serialNumber: _serialValue,
+            name: name.isEmpty ? _serialValue : name,
+          ),
+      failed: 'Could not register the Base. Try again.',
     );
+    if (!ok || !mounted) return;
+    refreshHardware(ref);
+    if (context.canPop()) context.pop();
   }
 
   @override
@@ -190,6 +205,5 @@ class _UpperCaseFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
-  ) =>
-      newValue.copyWith(text: newValue.text.toUpperCase());
+  ) => newValue.copyWith(text: newValue.text.toUpperCase());
 }

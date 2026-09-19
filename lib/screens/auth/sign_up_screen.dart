@@ -3,11 +3,16 @@
 /// The RN app has no signup screen either; account creation there happens on
 /// Auth0's hosted page, in a system browser. This is designed, not ported.
 ///
-/// **The submit path is deliberately absent.** No account is created, nothing
-/// is sent, and no credential is written anywhere — not to disk, not to a
-/// provider, not to a log. The password is read by two pure predicates in
-/// `AuthRules` that measure its length and compare it to the address, and by
-/// nothing else, ever.
+/// Submit calls [AuthService.signUp], which creates the Firebase account,
+/// records the name and sends the verification mail. Firebase signs the new
+/// account in at once, so the router's `authRedirect` takes over from here —
+/// it holds an unverified session on `VERIFY_EMAIL`.
+///
+/// ## The name field
+///
+/// Optional. `POST /me` names the first human Pusher after the token's `name`
+/// claim, falling back to the email's local part — so without this, everyone's
+/// Teacher is called "yogesh.vitekar". Google sign-in supplies it for free.
 ///
 /// ## One password field, not two
 ///
@@ -30,31 +35,34 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../auth/auth_service.dart';
 import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
-import '../log/log_controls.dart' show LogHairline, LogTextAction, logSay;
-import 'auth_fixture.dart';
+import '../log/log_controls.dart' show LogHairline, LogTextAction;
 import 'auth_rules.dart';
 import 'auth_ui.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+  final TextEditingController _name = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
 
   bool _submitted = false;
   bool _pending = false;
-  bool _taken = false;
+  AuthFailure? _failure;
 
   @override
   void initState() {
@@ -65,15 +73,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
+    _name.dispose();
     _email.dispose();
     _password.dispose();
+    _emailFocus.dispose();
     _passwordFocus.dispose();
     super.dispose();
   }
 
-  void _onEdit() => setState(() {
-        if (_taken) _taken = false;
-      });
+  void _onEdit() => setState(() => _failure = null);
 
   String? get _emailError =>
       _submitted ? AuthRules.emailError(_email.text) : null;
@@ -87,8 +95,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   /// empty field on submit, and a password that is nothing but spaces.
   String? get _passwordError {
     if (!_submitted) return null;
-    final message =
-        AuthRules.newPasswordError(_password.text, email: _email.text);
+    final message = AuthRules.newPasswordError(
+      _password.text,
+      email: _email.text,
+    );
     if (message == null) return null;
     if (_password.text.isNotEmpty && !AuthRules.longEnough(_password.text)) {
       return null;
@@ -117,29 +127,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _submit() async {
     setState(() {
       _submitted = true;
-      _taken = false;
+      _failure = null;
     });
     if (AuthRules.emailError(_email.text) != null || !_metAll) return;
+    await _run(
+      () => ref
+          .read(authServiceProvider)
+          .signUp(
+            name: _name.text.trim(),
+            email: AuthRules.normaliseEmail(_email.text),
+            password: _password.text,
+          ),
+    );
+  }
 
+  Future<void> _google() async {
+    setState(() => _failure = null);
+    await _run(() => ref.read(authServiceProvider).signInWithGoogle());
+  }
+
+  Future<void> _run(Future<void> Function() call) async {
     setState(() => _pending = true);
-    await Future<void>.delayed(FpDuration.base * 2);
-    if (!mounted) return;
-    setState(() => _pending = false);
-
-    switch (AuthFixture.signUp(_email.text)) {
-      case AuthSignUpOutcome.addressTaken:
-        setState(() => _taken = true);
-      case AuthSignUpOutcome.accepted:
-        // Push rather than replace: back from VERIFY_EMAIL means "that is the
-        // wrong address, let me fix it", and the form behind still holds what
-        // was typed.
-        context.push(
-          authLocation(FpScreen.verifyEmail.path, <String, String>{
-            'email': AuthRules.normaliseEmail(_email.text),
-          }),
-        );
+    try {
+      await call();
+    } catch (e) {
+      if (!mounted) return;
+      final failure = AuthFailure.of(e);
+      setState(() {
+        if (failure != AuthFailure.cancelled) _failure = failure;
+      });
+    } finally {
+      if (mounted) setState(() => _pending = false);
     }
   }
+
+  AuthBanner? get _banner => switch (_failure) {
+    null || AuthFailure.cancelled => null,
+    AuthFailure.addressTaken => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: 'That address already has an account',
+      message:
+          'Sign in instead, or reset the password if you have '
+          'forgotten it.',
+    ),
+    AuthFailure.offline => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: 'No connection',
+      message:
+          'Creating an account needs the network. Try again when '
+          'you are back online.',
+    ),
+    AuthFailure.rejected ||
+    AuthFailure.lockedOut ||
+    AuthFailure.other => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: 'Could not create the account',
+      message: 'Something went wrong on the way. Try again in a moment.',
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -161,13 +206,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'Household.',
         ),
         const SizedBox(height: FpSpace.s6),
-        if (_taken) ...<Widget>[
-          AuthBanner(
-            tone: AuthBannerTone.danger,
-            title: 'That address already has an account',
-            message: 'Sign in instead, or reset the password if you have '
-                'forgotten it.',
-          ),
+        if (_banner != null) ...<Widget>[
+          _banner!,
           const SizedBox(height: FpSpace.s6),
         ],
         AutofillGroup(
@@ -175,7 +215,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               AuthField(
+                controller: _name,
+                label: 'Your name',
+                hintText: 'Optional — what the Household calls you',
+                keyboardType: TextInputType.name,
+                autofillHints: const <String>[AutofillHints.name],
+                textInputAction: TextInputAction.next,
+                maxLength: 80,
+                onSubmitted: (_) => _emailFocus.requestFocus(),
+              ),
+              const SizedBox(height: FpSpace.s5),
+              AuthField(
                 controller: _email,
+                focusNode: _emailFocus,
                 label: 'Email address',
                 hintText: 'you@example.com',
                 errorText: _emailError,
@@ -205,13 +257,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 below: AuthRequirementList(
                   requirements: <AuthRequirement>[
                     AuthRequirement(
-                      label: 'At least ${AuthRules.passwordMinLength} '
+                      label:
+                          'At least ${AuthRules.passwordMinLength} '
                           'characters',
                       met: AuthRules.longEnough(_password.text),
                     ),
                     AuthRequirement(
                       label: 'Not your email address',
-                      met: _password.text.isEmpty ||
+                      met:
+                          _password.text.isEmpty ||
                           AuthRules.notTheAddress(_password.text, _email.text),
                     ),
                   ],
@@ -228,12 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           style: FpType.bodySm.copyWith(color: c.textTertiary),
         ),
         const SizedBox(height: FpSpace.s5),
-        AuthGoogleButton(
-          onPressed: () => logSay(
-            context,
-            'Google sign-in arrives with Firebase Auth. Phase 1 signs nobody up.',
-          ),
-        ),
+        AuthGoogleButton(onPressed: _pending ? null : _google),
         const SizedBox(height: FpSpace.s5),
         const LogHairline(),
         const SizedBox(height: FpSpace.s5),

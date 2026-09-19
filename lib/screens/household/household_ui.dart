@@ -4,7 +4,7 @@
 /// Per the coordinator's addendum: reuse first. `HardwareCard`,
 /// `SectionHeading`, `FactRow`/`FactSlot` and `HardwareNotice` draw `HOUSEHOLD`'s
 /// list; `HardwareTextField`, `HardwarePrimaryButton`/`HardwareActionBar`,
-/// `showHardwareActions`/`HardwareAction`, `showPhaseOneNotice` and
+/// `showHardwareActions`/`HardwareAction` and
 /// `confirmDestructive` (all from `hardware_ui.dart`), and `LogActionButton`,
 /// `LogActionBar`, `LogHeaderIconButton`, `LogSection`, `LogCheckRow` (from
 /// `log_controls.dart`) cover most of the two forms. `PusherAvatar` is used
@@ -146,7 +146,7 @@ class _Segment extends StatelessWidget {
 /// PLAN.md forbids a real permission prompt in phase 1, on the same rule
 /// `hardware_providers.dart` states for Base setup's camera/location checks.
 /// Rather than open nothing and look broken, the circle is real, tappable, and
-/// honest about what it does: [onTap] is wired to [showPhaseOneNotice] by the
+/// honest about what it does: [onTap] is wired to a notice by the
 /// caller, the same widget every other phase-1 write on these screens already
 /// uses.
 ///
@@ -277,14 +277,17 @@ class _HouseholdDisclosureState extends State<HouseholdDisclosure> {
         Semantics(
           button: true,
           expanded: _expanded,
-          label: _expanded ? 'Hide Advanced Settings' : 'Show Advanced Settings',
+          label: _expanded
+              ? 'Hide Advanced Settings'
+              : 'Show Advanced Settings',
           child: ExcludeSemantics(
             child: GestureDetector(
               onTap: () => setState(() => _expanded = !_expanded),
               behavior: HitTestBehavior.opaque,
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(minHeight: HardwareMetrics.touchTarget),
+                constraints: const BoxConstraints(
+                  minHeight: HardwareMetrics.touchTarget,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -340,7 +343,10 @@ class HouseholdInfoNote extends StatelessWidget {
         ),
         const SizedBox(width: FpSpace.s2),
         Expanded(
-          child: Text(text, style: FpType.bodySm.copyWith(color: c.textTertiary)),
+          child: Text(
+            text,
+            style: FpType.bodySm.copyWith(color: c.textTertiary),
+          ),
         ),
       ],
     );

@@ -178,18 +178,14 @@ class SegmentedControl<T> extends StatelessWidget {
                       Text(
                         labels(option).toUpperCase(),
                         style: FpType.labelSm.copyWith(
-                          color: option == value
-                              ? c.textBrand
-                              : c.textTertiary,
+                          color: option == value ? c.textBrand : c.textTertiary,
                         ),
                       ),
                       const SizedBox(height: ActivityMetrics.segmentRuleGap),
                       Container(
                         height: FpStroke.thick,
                         width: FpSpace.s7,
-                        color: option == value
-                            ? c.textBrand
-                            : c.surfaceCanvas,
+                        color: option == value ? c.textBrand : c.surfaceCanvas,
                       ),
                     ],
                   ),
@@ -246,8 +242,7 @@ class SquareSwitch extends StatelessWidget {
                 width: ActivityMetrics.switchTrackWidth,
                 height: ActivityMetrics.switchTrackHeight,
                 padding: const EdgeInsets.all(ActivityMetrics.switchInset),
-                alignment:
-                    value ? Alignment.centerRight : Alignment.centerLeft,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
                 decoration: BoxDecoration(
                   color: track,
                   borderRadius: BorderRadius.circular(FpRadius.sm),
@@ -336,47 +331,47 @@ class ActionButton extends StatelessWidget {
     final (Color background, Color foreground, Color border) = enabled
         ? switch (tone) {
             ButtonTone.primary => (
-                c.actionPrimaryBg,
-                c.actionPrimaryFg,
-                c.actionPrimaryBg,
-              ),
+              c.actionPrimaryBg,
+              c.actionPrimaryFg,
+              c.actionPrimaryBg,
+            ),
             ButtonTone.secondary => (
-                c.actionSecondaryBg,
-                c.actionSecondaryFg,
-                c.borderDefault,
-              ),
+              c.actionSecondaryBg,
+              c.actionSecondaryFg,
+              c.borderDefault,
+            ),
             ButtonTone.ghost => (
-                c.surfaceCanvas,
-                c.textSecondary,
-                c.borderSubtle,
-              ),
+              c.surfaceCanvas,
+              c.textSecondary,
+              c.borderSubtle,
+            ),
             ButtonTone.danger => (
-                c.actionDangerBg,
-                c.actionDangerFg,
-                c.actionDangerBg,
-              ),
+              c.actionDangerBg,
+              c.actionDangerFg,
+              c.actionDangerBg,
+            ),
           }
         : switch (tone) {
             ButtonTone.primary => (
-                c.actionPrimaryBgDisabled,
-                c.actionPrimaryFgDisabled,
-                c.actionPrimaryBgDisabled,
-              ),
+              c.actionPrimaryBgDisabled,
+              c.actionPrimaryFgDisabled,
+              c.actionPrimaryBgDisabled,
+            ),
             ButtonTone.secondary => (
-                c.actionSecondaryBgDisabled,
-                c.actionSecondaryFgDisabled,
-                c.actionSecondaryBgDisabled,
-              ),
+              c.actionSecondaryBgDisabled,
+              c.actionSecondaryFgDisabled,
+              c.actionSecondaryBgDisabled,
+            ),
             ButtonTone.ghost => (
-                c.actionTertiaryBgDisabled,
-                c.actionTertiaryFgDisabled,
-                c.actionTertiaryBgDisabled,
-              ),
+              c.actionTertiaryBgDisabled,
+              c.actionTertiaryFgDisabled,
+              c.actionTertiaryBgDisabled,
+            ),
             ButtonTone.danger => (
-                c.actionDangerBgDisabled,
-                c.actionDangerFgDisabled,
-                c.actionDangerBgDisabled,
-              ),
+              c.actionDangerBgDisabled,
+              c.actionDangerFgDisabled,
+              c.actionDangerBgDisabled,
+            ),
           };
 
     final glyph = icon;

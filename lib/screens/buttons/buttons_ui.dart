@@ -163,8 +163,8 @@ class _ButtonTextFieldState extends State<ButtonTextField> {
     final Color border = hasError
         ? c.statusDangerBorder
         : _focus.hasFocus
-            ? c.borderFocus
-            : c.borderDefault;
+        ? c.borderFocus
+        : c.borderDefault;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,8 +203,9 @@ class _ButtonTextFieldState extends State<ButtonTextField> {
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: FpSpace.s4),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: FpSpace.s4,
+                    ),
                     hintText: widget.hintText,
                     hintStyle: FpType.bodyMd.copyWith(color: c.textTertiary),
                   ),
@@ -336,10 +337,7 @@ class ButtonAudioSection extends StatelessWidget {
             ),
             const SizedBox(height: FpSpace.s4),
             if (hasSound) ...<Widget>[
-              Text(
-                label,
-                style: FpType.labelMd.copyWith(color: c.textPrimary),
-              ),
+              Text(label, style: FpType.labelMd.copyWith(color: c.textPrimary)),
               const SizedBox(height: FpSpace.s4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -354,7 +352,7 @@ class ButtonAudioSection extends StatelessWidget {
                     background: c.actionPrimaryBg,
                     foreground: c.actionPrimaryFg,
                     onTap: () =>
-                        logSay(context, 'Playback — phase 1 plays nothing.'),
+                        logSay(context, 'Playback arrives in a later build.'),
                   ),
                   const SizedBox(width: FpSpace.s5),
                   _AudioControl(
@@ -373,7 +371,7 @@ class ButtonAudioSection extends StatelessWidget {
                 background: c.actionDangerBg,
                 foreground: c.actionDangerFg,
                 onTap: () =>
-                    logSay(context, 'Recording — phase 1 records nothing.'),
+                    logSay(context, 'Recording arrives in a later build.'),
               ),
           ],
         ),
@@ -413,7 +411,11 @@ class _AudioControl extends StatelessWidget {
               width: ButtonsMetrics.audioControl,
               height: ButtonsMetrics.audioControl,
               child: Center(
-                child: PhosphorIcon(icon, color: foreground, size: FpIconSize.lg),
+                child: PhosphorIcon(
+                  icon,
+                  color: foreground,
+                  size: FpIconSize.lg,
+                ),
               ),
             ),
           ),
@@ -448,8 +450,9 @@ class ButtonBatteryDot extends StatelessWidget {
       FpBatteryLevel.low => c.statusWarningSolid,
       FpBatteryLevel.ok => c.statusSuccessSolid,
     };
-    final text =
-        level == FpBatteryLevel.unknown ? '—' : FpFormat.batteryPercent(percent!);
+    final text = level == FpBatteryLevel.unknown
+        ? '—'
+        : FpFormat.batteryPercent(percent!);
 
     return Semantics(
       label: level == FpBatteryLevel.unknown

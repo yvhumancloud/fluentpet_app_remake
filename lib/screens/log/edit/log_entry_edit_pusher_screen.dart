@@ -63,19 +63,18 @@ class LogEntryEditPusherScreen extends ConsumerWidget {
       return _NothingToEdit(onGo: () => context.go(FpScreen.dashboard.path));
     }
 
-    final activities = ref.watch(logEditableActivitiesProvider);
-    return switch (activities) {
+    final activity = ref.watch(logActivityProvider(id));
+    return switch (activity) {
       AsyncError() => _NothingToEdit(
-          onGo: () => context.go(FpScreen.dashboard.path),
-          message: 'Could not load this entry.',
-        ),
-      AsyncData(value: final list) => _resolve(context, ref, list, id),
+        onGo: () => context.go(FpScreen.dashboard.path),
+        message: 'Could not load this entry.',
+      ),
+      AsyncData(value: final found) => _resolve(context, ref, found),
       _ => const _Loading(),
     };
   }
 
-  Widget _resolve(BuildContext context, WidgetRef ref, List<Activity> list, int id) {
-    final found = logFindActivity(list, id);
+  Widget _resolve(BuildContext context, WidgetRef ref, Activity? found) {
     if (found == null) {
       return _NothingToEdit(onGo: () => context.go(FpScreen.dashboard.path));
     }
@@ -139,7 +138,8 @@ class _NothingToEdit extends StatelessWidget {
                   child: LogEmptyState(
                     icon: PhosphorIconsRegular.userSwitch,
                     title: 'Nothing to edit',
-                    message: message ??
+                    message:
+                        message ??
                         'This screen re-assigns an entry that already exists. '
                             'Open one from the timeline first.',
                     actionLabel: 'Go to Activity',
@@ -178,31 +178,31 @@ class _Body extends ConsumerWidget {
             Expanded(
               child: switch (household) {
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: FpSpace.s6),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: LogEmptyState(
-                        icon: PhosphorIconsRegular.warningCircle,
-                        title: 'Could not load the Household',
-                        message: '$error',
-                      ),
+                  padding: const EdgeInsets.symmetric(horizontal: FpSpace.s6),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: LogEmptyState(
+                      icon: PhosphorIconsRegular.warningCircle,
+                      title: 'Could not load the Household',
+                      message: '$error',
                     ),
                   ),
+                ),
                 AsyncData(value: final all) => EditPusherPickerBody(
-                    pushers: logEditEligiblePushers(
-                      all,
-                      hasButtons: draft.buttons.isNotEmpty,
-                      journalPusher: journal,
-                    ),
-                    selectedId: draft.pusher?.id,
-                    onSelected: (pusher) => _select(context, ref, pusher),
+                  pushers: logEditEligiblePushers(
+                    all,
+                    hasButtons: draft.buttons.isNotEmpty,
+                    journalPusher: journal,
                   ),
+                  selectedId: draft.pusher?.id,
+                  onSelected: (pusher) => _select(context, ref, pusher),
+                ),
                 _ => Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: FpStroke.thick,
-                      color: c.textBrand,
-                    ),
+                  child: CircularProgressIndicator(
+                    strokeWidth: FpStroke.thick,
+                    color: c.textBrand,
                   ),
+                ),
               },
             ),
           ],
@@ -212,7 +212,9 @@ class _Body extends ConsumerWidget {
   }
 
   void _select(BuildContext context, WidgetRef ref, Pusher pusher) {
-    ref.read(logEditDraftProvider.notifier).selectPusher(
+    ref
+        .read(logEditDraftProvider.notifier)
+        .selectPusher(
           pusher,
           availableContexts: logEditContextsFor(ref, pusher),
         );
@@ -256,7 +258,12 @@ class EditPusherPickerBody extends StatelessWidget {
     }
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(FpSpace.s6, FpSpace.s2, FpSpace.s6, FpSpace.s8),
+      padding: const EdgeInsets.fromLTRB(
+        FpSpace.s6,
+        FpSpace.s2,
+        FpSpace.s6,
+        FpSpace.s8,
+      ),
       children: <Widget>[
         Text(
           'Re-assign log entry to a different member',
@@ -281,7 +288,11 @@ class EditPusherPickerBody extends StatelessWidget {
 }
 
 class _PusherTile extends StatelessWidget {
-  const _PusherTile({required this.pusher, required this.selected, required this.onTap});
+  const _PusherTile({
+    required this.pusher,
+    required this.selected,
+    required this.onTap,
+  });
 
   final Pusher pusher;
   final bool selected;

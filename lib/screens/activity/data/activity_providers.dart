@@ -29,7 +29,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/fixtures/activity_extra_fixture.dart' as fixture;
+import '../../../data/api/api_client.dart';
 import '../../../data/providers.dart';
 import '../../../domain/domain.dart';
 import 'timeline_query.dart';
@@ -37,14 +37,18 @@ import 'timeline_source.dart';
 
 // ───────────────────────────── the source ─────────────────────────────
 
-/// The swap point for the integration phase, mirroring the one in
-/// `lib/data/providers.dart`.
 final Provider<ActivityTimelineSource> activityTimelineSourceProvider =
-    Provider<ActivityTimelineSource>((ref) => const ActivityTimelineSource());
+    Provider<ActivityTimelineSource>(
+      (ref) => ActivityTimelineSource(
+        ref.watch(apiProvider),
+        () => ref.read(boardProvider.future),
+      ),
+    );
 
 /// The clock the Activity screens render against.
-final Provider<DateTime> activityAsOfProvider =
-    Provider<DateTime>((ref) => ref.watch(activityTimelineSourceProvider).asOf);
+final Provider<DateTime> activityAsOfProvider = Provider<DateTime>(
+  (ref) => ref.watch(nowProvider),
+);
 
 // ───────────────────────────── the timeline ─────────────────────────────
 
@@ -56,8 +60,12 @@ final Provider<DateTime> activityAsOfProvider =
 // `*ProviderFamily` classes in `package:riverpod/misc.dart`, which
 // `flutter_riverpod.dart` does not export, so naming the type would mean an
 // import for no gain.
-final timelineProvider = AsyncNotifierProvider.family<TimelineNotifier,
-    TimelineSlice, TimelineQuery>(TimelineNotifier.new);
+final timelineProvider =
+    AsyncNotifierProvider.family<
+      TimelineNotifier,
+      TimelineSlice,
+      TimelineQuery
+    >(TimelineNotifier.new);
 
 class TimelineNotifier extends AsyncNotifier<TimelineSlice> {
   TimelineNotifier(this.query);
@@ -78,7 +86,7 @@ class TimelineNotifier extends AsyncNotifier<TimelineSlice> {
     final filters = ref.watch(dashboardFiltersProvider);
     final sort = ref.watch(activitySortProvider);
     return ref
-        .read(activityTimelineSourceProvider)
+        .watch(activityTimelineSourceProvider)
         .load(query: query, filters: filters, sort: sort);
   }
 
@@ -88,11 +96,14 @@ class TimelineNotifier extends AsyncNotifier<TimelineSlice> {
     if (current == null || current.isLastPage || _loadingMore) return;
     _loadingMore = true;
     try {
-      final next = await ref.read(activityTimelineSourceProvider).load(
+      final next = await ref
+          .read(activityTimelineSourceProvider)
+          .load(
             query: query,
             filters: ref.read(dashboardFiltersProvider),
             sort: ref.read(activitySortProvider),
             page: current.pageNumber + 1,
+            previous: current,
           );
       state = AsyncData<TimelineSlice>(next);
     } finally {
@@ -104,7 +115,9 @@ class TimelineNotifier extends AsyncNotifier<TimelineSlice> {
   Future<void> refresh() async {
     state = const AsyncLoading<TimelineSlice>();
     state = await AsyncValue.guard(
-      () => ref.read(activityTimelineSourceProvider).load(
+      () => ref
+          .read(activityTimelineSourceProvider)
+          .load(
             query: query,
             filters: ref.read(dashboardFiltersProvider),
             sort: ref.read(activitySortProvider),
@@ -113,14 +126,23 @@ class TimelineNotifier extends AsyncNotifier<TimelineSlice> {
   }
 }
 
+/// After any write that touches the timeline: every loaded timeline goes back
+/// to page 0 and refetches, and the Pusher statistics with them. The RN app
+/// refetched one page in place; a whole refetch is one line and cannot show
+/// a stale row.
+void refreshTimelines(WidgetRef ref) {
+  ref.invalidate(timelineProvider);
+  ref.invalidate(pusherStatsProvider);
+}
+
 // ───────────────────────────── the sort ─────────────────────────────
 
-/// The committed sort. Held in memory for the session: on the wire it is a user
-/// preference and a PATCH per change, and phase 1 writes nothing (§15).
+/// The committed sort. Held in memory for the session; the `activity_sort`
+/// preference exists on the wire but the default is what the design draws.
 final NotifierProvider<ActivitySortNotifier, ActivitySortType>
-    activitySortProvider =
-    NotifierProvider<ActivitySortNotifier, ActivitySortType>(
-        ActivitySortNotifier.new);
+activitySortProvider = NotifierProvider<ActivitySortNotifier, ActivitySortType>(
+  ActivitySortNotifier.new,
+);
 
 class ActivitySortNotifier extends Notifier<ActivitySortType> {
   @override
@@ -135,9 +157,9 @@ class ActivitySortNotifier extends Notifier<ActivitySortType> {
 enum DashboardTab { all, unassigned }
 
 final NotifierProvider<DashboardTabNotifier, DashboardTab>
-    dashboardTabProvider =
-    NotifierProvider<DashboardTabNotifier, DashboardTab>(
-        DashboardTabNotifier.new);
+dashboardTabProvider = NotifierProvider<DashboardTabNotifier, DashboardTab>(
+  DashboardTabNotifier.new,
+);
 
 class DashboardTabNotifier extends Notifier<DashboardTab> {
   @override
@@ -148,10 +170,17 @@ class DashboardTabNotifier extends Notifier<DashboardTab> {
 
 /// How many presses the Base recorded that nobody has attributed.
 ///
-/// Renders nothing at zero, like the RN banner it replaces.
-final FutureProvider<int> unassignedCountProvider = FutureProvider<int>(
-  (ref) => ref.watch(activityTimelineSourceProvider).unassignedCount(),
-);
+/// Renders nothing at zero, like the RN banner it replaces. Watches the root
+/// timeline so a write that refreshed the list refreshes this too.
+final FutureProvider<int> unassignedCountProvider = FutureProvider<int>((ref) {
+  ref.watch(timelineProvider(const TimelineQuery.all()));
+  return ref
+      .read(activityTimelineSourceProvider)
+      .count(
+        query: const TimelineQuery.unassigned(),
+        filters: DashboardFilters.none,
+      );
+});
 
 // ───────────────────────────── multi-select ─────────────────────────────
 
@@ -189,8 +218,10 @@ class SelectionNotifier extends Notifier<Set<int>> {
 /// autoDispose: every open starts from the committed set, every dismiss
 /// discards. That is the behaviour the three closures used to carry.
 final NotifierProvider<FilterDraftNotifier, DashboardFilters>
-    filterDraftProvider = NotifierProvider.autoDispose<FilterDraftNotifier,
-        DashboardFilters>(FilterDraftNotifier.new);
+filterDraftProvider =
+    NotifierProvider.autoDispose<FilterDraftNotifier, DashboardFilters>(
+      FilterDraftNotifier.new,
+    );
 
 class FilterDraftNotifier extends Notifier<DashboardFilters> {
   @override
@@ -211,13 +242,11 @@ class FilterDraftNotifier extends Notifier<DashboardFilters> {
 /// you can see while you are doing it.
 final FutureProvider<int> filterPreviewProvider =
     FutureProvider.autoDispose<int>((ref) async {
-  final draft = ref.watch(filterDraftProvider);
-  final slice = await ref.read(activityTimelineSourceProvider).load(
-        query: const TimelineQuery.all(),
-        filters: draft,
-      );
-  return slice.matched;
-});
+      final draft = ref.watch(filterDraftProvider);
+      return ref
+          .read(activityTimelineSourceProvider)
+          .count(query: const TimelineQuery.all(), filters: draft);
+    });
 
 /// The Board whose Buttons the filter sheet offers as tags.
 ///
@@ -239,34 +268,37 @@ final Provider<AsyncValue<Board>> filterBoardProvider =
 /// screens tag with have to be the same objects.
 final Provider<AsyncValue<List<InteractionContext>>> filterContextsProvider =
     Provider<AsyncValue<List<InteractionContext>>>(
-  (ref) => ref.watch(allContextsProvider),
-);
+      (ref) => ref.watch(allContextsProvider),
+    );
 
 /// Household Pushers, hidden ones included, pseudo-Pushers excluded.
-final Provider<List<Pusher>> filterPushersProvider =
-    Provider<List<Pusher>>((ref) => fixture.filterablePushers);
+final Provider<List<Pusher>> filterPushersProvider = Provider<List<Pusher>>(
+  (ref) => ref.watch(pushersProvider).value ?? const <Pusher>[],
+);
 
 // ───────────────────────────── Pusher statistics ────────────────────────
 
 /// The Stats tab of `DASHBOARD_PUSHER`, computed from the same rows the Feed
 /// tab shows.
 final pusherStatsProvider = FutureProvider.family<PusherStatistics, int>(
-  (ref, pusherId) => ref.watch(activityTimelineSourceProvider).statsFor(
+  (ref, pusherId) => ref
+      .watch(activityTimelineSourceProvider)
+      .statsFor(
         pusherId: pusherId,
         filters: ref.watch(dashboardFiltersProvider),
+        asOf: DateTime.now(),
       ),
 );
 
-/// Every Pusher the screens can be asked to render, pseudo-Pushers included —
-/// a `DASHBOARD_PUSHER` deep link carries an id and nothing else.
-final Provider<List<Pusher>> allPushersProvider =
-    Provider<List<Pusher>>((ref) => fixture.allPushers);
+/// Every Pusher the screens can be asked to render — a `DASHBOARD_PUSHER`
+/// deep link carries an id and nothing else.
+final Provider<List<Pusher>> allPushersProvider = filterPushersProvider;
 
 /// The Base the Activity header's health pill describes: the first one the
 /// Household has, or null when it has none.
 final Provider<AsyncValue<Base?>> activityBaseProvider =
     Provider<AsyncValue<Base?>>(
-  (ref) => ref
-      .watch(basesProvider)
-      .whenData((bases) => bases.isEmpty ? null : bases.first),
-);
+      (ref) => ref
+          .watch(basesProvider)
+          .whenData((bases) => bases.isEmpty ? null : bases.first),
+    );

@@ -45,11 +45,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
+import '../../data/providers.dart';
 import '../../domain/domain.dart';
 import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
+import '../log/log_controls.dart' show logWrite;
 import 'hardware_metrics.dart';
 import 'hardware_providers.dart';
 import 'hardware_ui.dart';
@@ -85,10 +87,7 @@ class _ClassicButtonsScreenState extends ConsumerState<ClassicButtonsScreen> {
           children: <Widget>[
             ScreenHeader(
               title: 'Buttons',
-              subtitle: board.maybeWhen(
-                data: _breadthLine,
-                orElse: () => null,
-              ),
+              subtitle: board.maybeWhen(data: _breadthLine, orElse: () => null),
               onBack: () => Navigator.of(context).maybePop(),
             ),
             Padding(
@@ -113,27 +112,27 @@ class _ClassicButtonsScreenState extends ConsumerState<ClassicButtonsScreen> {
                 onRefresh: () async => refreshHardware(ref),
                 child: switch (board) {
                   AsyncData<Board>(:final value) => _Board(
-                      board: value,
-                      sort: sort,
-                      query: _query,
-                      onAdd: _addButton,
-                      onButton: _openActions,
-                    ),
+                    board: value,
+                    sort: sort,
+                    query: _query,
+                    onAdd: _addButton,
+                    onButton: _openActions,
+                  ),
                   AsyncError<Board>() => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[
-                        HardwareNotice(
-                          icon: PhosphorIconsRegular.warningOctagon,
-                          title: 'Could not load your Board',
-                          body: 'Pull down to try again.',
-                          tone: HardwareNoticeTone.danger,
-                        ),
-                      ],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[
+                      HardwareNotice(
+                        icon: PhosphorIconsRegular.warningOctagon,
+                        title: 'Could not load your Board',
+                        body: 'Pull down to try again.',
+                        tone: HardwareNoticeTone.danger,
+                      ),
+                    ],
+                  ),
                   _ => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[HardwareLoading()],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[HardwareLoading()],
+                  ),
                 },
               ),
             ),
@@ -152,7 +151,9 @@ class _ClassicButtonsScreenState extends ConsumerState<ClassicButtonsScreen> {
     final active = board.activeButtons;
     final connect = active.where((b) => b.kind == ButtonKind.connect).length;
     final classic = active.where((b) => b.kind == ButtonKind.classic).length;
-    final inaudible = active.where((b) => b.kind == ButtonKind.inaudible).length;
+    final inaudible = active
+        .where((b) => b.kind == ButtonKind.inaudible)
+        .length;
 
     final parts = <String>[
       FpFormat.countOf(connect + classic, 'Button'),
@@ -187,10 +188,12 @@ class _ClassicButtonsScreenState extends ConsumerState<ClassicButtonsScreen> {
       context: context,
       title: button.text,
       message: switch (button.kind) {
-        ButtonKind.connect => 'Connect Button · '
-            '${FpFormat.largeCountOf(button.buttonPresses, 'press', 'presses')}',
-        ButtonKind.classic => 'Classic Button · '
-            '${FpFormat.largeCountOf(button.buttonPresses, 'press', 'presses')}',
+        ButtonKind.connect =>
+          'Connect Button · '
+              '${FpFormat.largeCountOf(button.buttonPresses, 'press', 'presses')}',
+        ButtonKind.classic =>
+          'Classic Button · '
+              '${FpFormat.largeCountOf(button.buttonPresses, 'press', 'presses')}',
         ButtonKind.inaudible => 'Records a press with no word',
       },
       options: <HardwareAction<_ButtonAction>>[
@@ -219,20 +222,28 @@ class _ClassicButtonsScreenState extends ConsumerState<ClassicButtonsScreen> {
       case _ButtonAction.edit:
         final query = <String>[
           'buttonId=${button.id}',
-          if (button.batteryLevel != null) 'batteryLevel=${button.batteryLevel}',
+          if (button.batteryLevel != null)
+            'batteryLevel=${button.batteryLevel}',
         ].join('&');
         context.push('${FpScreen.buttonEdit.path}?$query');
       case _ButtonAction.archive:
         final confirmed = await confirmDestructive(
           context: context,
           title: 'Are you sure?',
-          message: 'Archive “${button.text}”? It comes off the Board, and the '
+          message:
+              'Archive “${button.text}”? It comes off the Board, and the '
               'presses it recorded stay on the timeline.',
           confirmLabel: 'Archive',
         );
         if (!mounted || !confirmed) return;
-        // PATCH /api/v1/buttons/{id} is_hidden: true — a §15 no-op.
-        showPhaseOneNotice(context, '“${button.text}” not archived');
+        final ok = await logWrite(
+          context,
+          () => ref
+              .read(hardwareRepositoryProvider)
+              .setButtonHidden(button, true),
+          failed: 'Could not archive the Button. Try again.',
+        );
+        if (ok) refreshHardware(ref);
     }
   }
 }
@@ -268,8 +279,9 @@ class _Board extends StatelessWidget {
       words.where((b) => buttonMatches(b.text, query)),
       sort,
     );
-    final matchedInaudible =
-        inaudible.where((b) => buttonMatches(b.text, query)).toList();
+    final matchedInaudible = inaudible
+        .where((b) => buttonMatches(b.text, query))
+        .toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -286,7 +298,8 @@ class _Board extends StatelessWidget {
           HardwareNotice(
             icon: PhosphorIconsRegular.circlesThree,
             title: 'No Buttons on this Board',
-            body: 'Add the words your pet has learned, or pair a Connect '
+            body:
+                'Add the words your pet has learned, or pair a Connect '
                 'Button to a Base.',
             action: HardwarePrimaryButton(
               label: 'ADD A BUTTON',

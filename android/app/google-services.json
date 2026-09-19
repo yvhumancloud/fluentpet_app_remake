@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "184859693418",
+    "project_id": "fluentpet-remake",
+    "storage_bucket": "fluentpet-remake.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184859693418:android:77f1995a16cc7fd87e5513",
+        "android_client_info": {
+          "package_name": "pet.fluent.fluentpet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184859693418-68a44dto9hh2snpv0gnb5k9l2umbohsq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pet.fluent.fluentpet",
+            "certificate_hash": "093fd3cf935b418a0da9fb0f54da0354a731f579"
+          }
+        },
+        {
+          "client_id": "184859693418-p6fskrloee9rvf3uenj1fk3310vqucjh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-N670IAXihTyt2xbfHlReCPkV5Yy_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184859693418-p6fskrloee9rvf3uenj1fk3310vqucjh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

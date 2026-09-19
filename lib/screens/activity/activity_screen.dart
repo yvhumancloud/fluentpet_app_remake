@@ -156,8 +156,7 @@ class _SettingsRow extends ConsumerWidget {
             options: DashboardTab.values,
             labels: (t) => t == DashboardTab.all ? 'All' : 'Unassigned',
             value: tab,
-            onChanged: (t) =>
-                ref.read(dashboardTabProvider.notifier).select(t),
+            onChanged: (t) => ref.read(dashboardTabProvider.notifier).select(t),
           ),
           const Spacer(),
           Text(
@@ -409,7 +408,7 @@ class _Footer extends ConsumerWidget {
             base == null
                 ? 'No Base paired'
                 : '${base.displayName} synced '
-                    '${FpFormat.lastSeen(base.lastOnlineAt, asOf: asOf)}',
+                      '${FpFormat.lastSeen(base.lastOnlineAt, asOf: asOf)}',
             textAlign: TextAlign.center,
             style: FpType.labelMd.copyWith(color: c.textTertiary),
           ),
@@ -434,59 +433,59 @@ class _Fab extends ConsumerWidget {
     // inset and this Stack is inside the shell's body, so the space is already
     // accounted for. Adding it again would float the button 34pt too high.
     return Semantics(
-        button: true,
-        label: 'Add an entry',
-        child: ExcludeSemantics(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => showActivitySheet(
-              context,
-              title: 'Add an entry',
-              options: <SheetOption>[
-                SheetOption(
-                  label: 'Log a Button press',
-                  icon: PhosphorIconsRegular.handTap,
-                  detail: 'Pick who pressed, then the words.',
-                  onSelected: () {
-                    ref.read(logDraftProvider.notifier).reset();
-                    context.push(FpScreen.log.path);
-                  },
-                ),
-                SheetOption(
-                  label: 'Add a journal entry',
-                  icon: PhosphorIconsRegular.notePencil,
-                  detail: 'A note on the timeline with no press behind it.',
-                  // The Log area owns the draft and exposes `startJournal` for
-                  // exactly this entry point — the RN FAB is where the journal
-                  // flow begins (`Dashboard.tsx:48-78`), so the Activity screen
-                  // starts it and the Log screens carry it.
-                  onSelected: () {
-                    ref.read(logDraftProvider.notifier).startJournal(
-                          ref.read(logJournalPusherProvider),
-                        );
-                    context.push(FpScreen.logDetails.path);
-                  },
-                ),
-              ],
-            ),
-            child: Container(
-              width: ActivityMetrics.fabDiameter,
-              height: ActivityMetrics.fabDiameter,
-              decoration: BoxDecoration(
-                color: c.actionPrimaryBg,
-                shape: BoxShape.circle,
-                boxShadow: context.fpElevation.e2,
+      button: true,
+      label: 'Add an entry',
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => showActivitySheet(
+            context,
+            title: 'Add an entry',
+            options: <SheetOption>[
+              SheetOption(
+                label: 'Log a Button press',
+                icon: PhosphorIconsRegular.handTap,
+                detail: 'Pick who pressed, then the words.',
+                onSelected: () {
+                  ref.read(logDraftProvider.notifier).reset();
+                  context.push(FpScreen.log.path);
+                },
               ),
-              child: Center(
-                child: PhosphorIcon(
-                  PhosphorIconsBold.plus,
-                  size: FpIconSize.lg,
-                  color: c.actionPrimaryFg,
-                ),
+              SheetOption(
+                label: 'Add a journal entry',
+                icon: PhosphorIconsRegular.notePencil,
+                detail: 'A note on the timeline with no press behind it.',
+                // The Log area owns the draft and exposes `startJournal` for
+                // exactly this entry point — the RN FAB is where the journal
+                // flow begins (`Dashboard.tsx:48-78`), so the Activity screen
+                // starts it and the Log screens carry it.
+                onSelected: () {
+                  ref
+                      .read(logDraftProvider.notifier)
+                      .startJournal(ref.read(logJournalPusherProvider));
+                  context.push(FpScreen.logDetails.path);
+                },
+              ),
+            ],
+          ),
+          child: Container(
+            width: ActivityMetrics.fabDiameter,
+            height: ActivityMetrics.fabDiameter,
+            decoration: BoxDecoration(
+              color: c.actionPrimaryBg,
+              shape: BoxShape.circle,
+              boxShadow: context.fpElevation.e2,
+            ),
+            child: Center(
+              child: PhosphorIcon(
+                PhosphorIconsBold.plus,
+                size: FpIconSize.lg,
+                color: c.actionPrimaryFg,
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 }

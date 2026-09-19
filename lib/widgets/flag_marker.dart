@@ -37,13 +37,13 @@ class FlagMarker extends StatelessWidget {
     VoidCallback? onTap,
     Key? key,
   }) : this(
-          flagged: flagged,
-          showUnflagged: true,
-          size: FpIconSize.sm,
-          showLabel: true,
-          onTap: onTap,
-          key: key,
-        );
+         flagged: flagged,
+         showUnflagged: true,
+         size: FpIconSize.sm,
+         showLabel: true,
+         onTap: onTap,
+         key: key,
+       );
 
   final bool flagged;
 
@@ -104,7 +104,10 @@ class FlagMarker extends StatelessWidget {
   }) {
     const IconData icon = PhosphorIconsFill.flag;
     return <InlineSpan>[
-      TextSpan(text: glue, style: TextStyle(letterSpacing: gap)),
+      TextSpan(
+        text: glue,
+        style: TextStyle(letterSpacing: gap),
+      ),
       TextSpan(
         text: String.fromCharCode(icon.codePoint),
         style: TextStyle(

@@ -78,9 +78,9 @@ enum FpTab {
 
   /// Branch-first ordering: the root, then everything else it can push.
   List<FpScreen> get orderedScreens => <FpScreen>[
-        root,
-        ...screens.where((s) => s != root),
-      ];
+    root,
+    ...screens.where((s) => s != root),
+  ];
 
   /// The tab a screen belongs to, or null if it is not inside the tab bar.
   static FpTab? rootOf(FpScreen screen) {

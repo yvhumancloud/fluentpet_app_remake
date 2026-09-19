@@ -17,7 +17,7 @@
 ///   the first branch is dead in the RN app because no UI ever sets
 ///   `sinceDate` (§5). The filter sheet in this rewrite does, so the figure now
 ///   means "days in the window you are looking at" whenever there is one.
-/// * **The statistics are computed, not served.** §15 permits static numbers.
+/// * **The statistics are served** by `GET /pushers/{id}/stats` and `GET /stats/summary`.
 ///   Computing them from the same rows the Feed shows means the two halves of
 ///   this screen cannot disagree, which static numbers eventually would.
 /// * **Share is gone.** The RN header shared to a `ShareModal` whose card
@@ -66,24 +66,23 @@ class _PusherActivityScreenState extends ConsumerState<PusherActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pusher = ref.watch(allPushersProvider).firstWhere(
+    final pusher = ref
+        .watch(allPushersProvider)
+        .firstWhere(
           (p) => p.id == widget.pusherId,
-          orElse: () => Pusher(
-            id: widget.pusherId,
-            name: widget.name,
-            isHuman: false,
-          ),
+          orElse: () =>
+              Pusher(id: widget.pusherId, name: widget.name, isHuman: false),
         );
 
     final query = TimelineQuery.pusher(id: pusher.id, name: pusher.name);
     final stats = ref.watch(pusherStatsProvider(pusher.id));
 
     Widget header(BuildContext context, TimelineSlice? slice) => _PusherHeader(
-          pusher: pusher,
-          stats: stats.value,
-          tab: _tab,
-          onTab: (tab) => setState(() => _tab = tab),
-        );
+      pusher: pusher,
+      stats: stats.value,
+      tab: _tab,
+      onTab: (tab) => setState(() => _tab = tab),
+    );
 
     return FpOsChrome(
       child: _tab == PusherFeedTab.feed
@@ -99,8 +98,7 @@ class _PusherActivityScreenState extends ConsumerState<PusherActivityScreen> {
                         color: context.fpColors.textBrand,
                       ),
                     ),
-                    error: (error, stack) =>
-                        const _StatsUnavailable(),
+                    error: (error, stack) => const _StatsUnavailable(),
                     data: (data) =>
                         PusherStatsView(pusher: pusher, stats: data),
                   ),
@@ -157,7 +155,7 @@ class _PusherHeader extends StatelessWidget {
               ),
               Expanded(
                 child: StatFigure(
-                  value: FpFormat.largeNumber(stats?.activeButtons ?? 0),
+                  value: FpFormat.largeNumber(stats?.distinctButtons ?? 0),
                   caption: 'Buttons',
                 ),
               ),
@@ -226,9 +224,6 @@ class PusherStatsView extends StatelessWidget {
         _RankedList(title: 'Least pressed', rows: stats.leastPressed),
         if (learner) ...<Widget>[
           const _Divider(),
-          _RankedList(title: 'Most modelled', rows: stats.mostModeled),
-          _RankedList(title: 'Least modelled', rows: stats.leastModeled),
-          const _Divider(),
           _UsageTypes(contexts: stats.commonContexts),
         ],
         if (stats.mostFrequentCombination.isNotEmpty) ...<Widget>[
@@ -245,12 +240,12 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: FpSpace.s6),
-        child: Container(
-          height: FpStroke.hairline,
-          color: context.fpColors.borderSubtle,
-        ),
-      );
+    padding: const EdgeInsets.symmetric(vertical: FpSpace.s6),
+    child: Container(
+      height: FpStroke.hairline,
+      color: context.fpColors.borderSubtle,
+    ),
+  );
 }
 
 /// A numbered list of words and their counts. "None" when it is empty, which is
@@ -395,8 +390,9 @@ class _Combination extends StatelessWidget {
                   TextSpan(
                     text: ' · ',
                     style: FpType.bodySm.copyWith(
-                      color: c.textTertiary
-                          .withValues(alpha: FpMetrics.separatorOpacity),
+                      color: c.textTertiary.withValues(
+                        alpha: FpMetrics.separatorOpacity,
+                      ),
                     ),
                   ),
                 TextSpan(text: words[i]),

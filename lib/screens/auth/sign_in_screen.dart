@@ -6,52 +6,40 @@
 /// `https://auth.fluent.pet/authorize` — a hosted web page, not an app surface.
 /// So nothing here is ported; it is designed, inside the established system.
 ///
-/// **The submit path is deliberately absent.** This screen validates, shows
-/// every state a sign-in can be in, and stops. It opens no connection, calls no
-/// SDK, creates no session, and writes no credential anywhere — not to disk,
-/// not to a provider, not to a log. The email and the password live in two
-/// [TextEditingController]s and are read by exactly two things: the pure
-/// predicates in `AuthRules`, and — for the address only, never the password —
-/// `AuthFixture`, which chooses which designed state to draw. That is the
-/// whole of it.
+/// Submit calls [AuthService.signIn]; the Google button calls
+/// [AuthService.signInWithGoogle]. Neither navigates: the router's
+/// `authRedirect` sees the new session and moves off this screen itself, which
+/// is one place for that rule instead of one per screen.
 ///
-/// The predecessor to this screen was `WELCOME`'s invented CONTINUE, which went
-/// straight to the Activity tab as a stand-in for "a session now exists". That
-/// stand-in is gone, and this screen does not reintroduce it: a submit that
-/// passes validation lands on a stated phase-1 state, not on the dashboard.
-/// Landing on the dashboard would be the same lie in a new place.
+/// ## The post-submit states
 ///
-/// ## The three post-submit states, and how to reach each
-///
-/// Selected by address, in `auth_fixture.dart`, because nothing in this app
-/// takes a password as an argument:
-///
-/// * `wrong@fluent.pet` — rejected. One message for a wrong address and a
-///   wrong password alike; telling them apart is how an attacker enumerates
-///   accounts.
-/// * `locked@fluent.pet` — rate limited.
-/// * anything else — accepted as far as this screen can tell, and stopped.
+/// [AuthFailure] is the set. `rejected` is one message for a wrong address and
+/// a wrong password alike — telling them apart is how an attacker enumerates
+/// accounts, and Firebase's email-enumeration protection returns the same
+/// code for both anyway. `lockedOut` is Firebase's own rate limit. A cancelled
+/// Google sheet is not an error and shows nothing.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../auth/auth_service.dart';
 import '../../router/screens.g.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../theme/fp_context.dart';
-import '../log/log_controls.dart' show LogHairline, LogTextAction, logSay;
-import 'auth_fixture.dart';
+import '../log/log_controls.dart' show LogHairline, LogTextAction;
 import 'auth_rules.dart';
 import 'auth_ui.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final FocusNode _passwordFocus = FocusNode();
@@ -66,7 +54,7 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _submitted = false;
 
   bool _pending = false;
-  AuthSignInOutcome? _outcome;
+  AuthFailure? _failure;
 
   @override
   void initState() {
@@ -87,8 +75,8 @@ class _SignInScreenState extends State<SignInScreen> {
     // Editing anything retracts the verdict on the last submission. A
     // "that didn't match" banner sitting above a field the user has since
     // changed is a statement about a form that no longer exists.
-    if (_outcome != null) {
-      setState(() => _outcome = null);
+    if (_failure != null) {
+      setState(() => _failure = null);
     } else {
       setState(() {});
     }
@@ -100,7 +88,8 @@ class _SignInScreenState extends State<SignInScreen> {
   String? get _passwordError =>
       _submitted ? AuthRules.currentPasswordError(_password.text) : null;
 
-  bool get _hasBoth => _email.text.trim().isNotEmpty && _password.text.isNotEmpty;
+  bool get _hasBoth =>
+      _email.text.trim().isNotEmpty && _password.text.isNotEmpty;
 
   String get _disabledReason {
     final noEmail = _email.text.trim().isEmpty;
@@ -116,44 +105,73 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _submit() async {
     setState(() {
       _submitted = true;
-      _outcome = null;
+      _failure = null;
     });
     if (AuthRules.emailError(_email.text) != null ||
         AuthRules.currentPasswordError(_password.text) != null) {
       return;
     }
-
-    setState(() => _pending = true);
-    // A beat, so the working state is something that can be seen rather than
-    // something described in a comment. There is nothing to wait for.
-    await Future<void>.delayed(FpDuration.base * 2);
-    if (!mounted) return;
-    setState(() {
-      _pending = false;
-      _outcome = AuthFixture.signIn(_email.text);
-    });
+    await _run(
+      () => ref
+          .read(authServiceProvider)
+          .signIn(
+            email: AuthRules.normaliseEmail(_email.text),
+            password: _password.text,
+          ),
+    );
   }
 
-  AuthBanner? get _banner => switch (_outcome) {
-        null => null,
-        AuthSignInOutcome.rejected => const AuthBanner(
-            tone: AuthBannerTone.danger,
-            title: "That combination didn't work",
-            message: 'Check the address and the password and try again. If you '
-                'are not sure of the password, reset it below.',
-          ),
-        AuthSignInOutcome.lockedOut => AuthBanner(
-            tone: AuthBannerTone.danger,
-            title: 'Too many attempts',
-            message: 'Sign-in is paused for ${AuthFixture.lockedOutFor}. '
-                'Resetting your password lets you back in sooner.',
-          ),
-        AuthSignInOutcome.accepted => const AuthBanner(
-            title: 'Everything this screen can check is in order',
-            message: 'Phase 1 stops here. Nothing was sent, no session was '
-                'created, and neither the address nor the password was stored.',
-          ),
-      };
+  Future<void> _google() async {
+    setState(() => _failure = null);
+    await _run(() => ref.read(authServiceProvider).signInWithGoogle());
+  }
+
+  /// One pending/failure wrapper for both doors. Success needs nothing here:
+  /// the router redirects on the session change.
+  Future<void> _run(Future<void> Function() call) async {
+    setState(() => _pending = true);
+    try {
+      await call();
+    } catch (e) {
+      if (!mounted) return;
+      final failure = AuthFailure.of(e);
+      setState(() {
+        if (failure != AuthFailure.cancelled) _failure = failure;
+      });
+    } finally {
+      if (mounted) setState(() => _pending = false);
+    }
+  }
+
+  AuthBanner? get _banner => switch (_failure) {
+    null || AuthFailure.cancelled || AuthFailure.addressTaken => null,
+    AuthFailure.rejected => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: "That combination didn't work",
+      message:
+          'Check the address and the password and try again. If you '
+          'are not sure of the password, reset it below.',
+    ),
+    AuthFailure.lockedOut => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: 'Too many attempts',
+      message:
+          'Sign-in is paused for a while. Resetting your password '
+          'lets you back in sooner.',
+    ),
+    AuthFailure.offline => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: 'No connection',
+      message:
+          'Signing in needs the network. Try again when you are '
+          'back online.',
+    ),
+    AuthFailure.other => const AuthBanner(
+      tone: AuthBannerTone.danger,
+      title: 'Could not sign in',
+      message: 'Something went wrong on the way. Try again in a moment.',
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -227,12 +245,7 @@ class _SignInScreenState extends State<SignInScreen> {
           onTap: () => context.push(FpScreen.forgotPassword.path),
         ),
         const SizedBox(height: FpSpace.s5),
-        AuthGoogleButton(
-          onPressed: () => logSay(
-            context,
-            'Google sign-in arrives with Firebase Auth. Phase 1 signs nobody in.',
-          ),
-        ),
+        AuthGoogleButton(onPressed: _pending ? null : _google),
         const SizedBox(height: FpSpace.s5),
         const LogHairline(),
         const SizedBox(height: FpSpace.s5),

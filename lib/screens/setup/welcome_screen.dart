@@ -72,8 +72,7 @@ class WelcomeScreen extends StatelessWidget {
                       const SizedBox(height: FpSpace.s3),
                       Text(
                         "Let's go",
-                        style:
-                            FpType.headingLg.copyWith(color: c.textPrimary),
+                        style: FpType.headingLg.copyWith(color: c.textPrimary),
                       ),
                       const SizedBox(height: FpSpace.s6),
                       Divider(color: c.borderSubtle, height: FpStroke.hairline),
@@ -106,7 +105,7 @@ class WelcomeScreen extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => logSay(
                           context,
-                          'Support chat — phase 1 has no Intercom session.',
+                          'Support chat arrives in a later build.',
                         ),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
@@ -130,7 +129,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: FpSpace.s3),
                     Text(
-                      'v1.0.0 (phase 1)',
+                      'v1.0.0',
                       style: FpType.labelSm.copyWith(color: c.textTertiary),
                     ),
                   ],

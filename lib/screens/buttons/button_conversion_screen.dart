@@ -47,14 +47,11 @@ import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
 import '../log/log_controls.dart';
-import 'buttons_fixture.dart';
+import 'buttons_lookup.dart';
 import 'buttons_ui.dart';
 
 class ButtonConversionScreen extends ConsumerStatefulWidget {
-  const ButtonConversionScreen({
-    required this.buttonId,
-    super.key,
-  });
+  const ButtonConversionScreen({required this.buttonId, super.key});
 
   final int? buttonId;
 
@@ -105,8 +102,9 @@ class _ButtonConversionScreenState
     final board = ref.watch(boardProvider);
     return switch (board) {
       AsyncData<Board>(:final value) => _buildBody(context, value),
-      AsyncError<Board>() =>
-        const _MissingButton(message: 'Could not load the Board.'),
+      AsyncError<Board>() => const _MissingButton(
+        message: 'Could not load the Board.',
+      ),
       _ => const _Loading(),
     };
   }
@@ -140,10 +138,15 @@ class _ButtonConversionScreenState
     // `ButtonsBoard.tsx:73-83`), kept here rather than reinvented as a
     // substring match.
     final needle = _query.trim().toLowerCase();
-    final matched = classicButtons
-        .where((b) => needle.isEmpty || b.text.toLowerCase().startsWith(needle))
-        .toList()
-      ..sort((a, b) => a.text.toLowerCase().compareTo(b.text.toLowerCase()));
+    final matched =
+        classicButtons
+            .where(
+              (b) => needle.isEmpty || b.text.toLowerCase().startsWith(needle),
+            )
+            .toList()
+          ..sort(
+            (a, b) => a.text.toLowerCase().compareTo(b.text.toLowerCase()),
+          );
 
     final c = context.fpColors;
     final selected = _selected;
@@ -270,15 +273,25 @@ class _ButtonConversionScreenState
     final confirmed = await logConfirm(
       context,
       title: '',
-      message: "Are you sure you want to replace Classic Button "
+      message:
+          "Are you sure you want to replace Classic Button "
           "'${classicButton.text}' with your new Connect Button? This "
           'action cannot be undone.',
       confirmLabel: 'Replace',
     );
     if (!confirmed || !context.mounted) return;
-    // `POST /api/v1/buttons/{classicId}/unlink`-adjacent merge (§15) — a
-    // no-op. Fixtures only (PLAN.md).
-    //
+    // `POST /buttons/merge`: the Classic Button keeps its history and takes
+    // the Connect Button's Base link; the Connect Button goes.
+    final ok = await logWrite(
+      context,
+      () => ref
+          .read(hardwareRepositoryProvider)
+          .mergeButtons(source: connectButton, target: classicButton),
+      failed: 'Could not replace the Button. Try again.',
+    );
+    if (!ok || !context.mounted) return;
+    ref.invalidate(boardProvider);
+    ref.invalidate(basesProvider);
     // `ButtonConversionScreen.tsx:100-105`: replaces with `BUTTON_EDIT` for
     // the **Classic** Button's id, not the Connect Button's.
     context.pushReplacement(
@@ -290,28 +303,28 @@ class _ButtonConversionScreenState
 /// `ButtonInfo` (`commponents/ButtonInfo.tsx`), reproduced as three labelled
 /// facts rather than the RN component's own icon set — this app's icon
 /// vocabulary is Phosphor throughout, not the RN screen's bespoke SVGs.
-class _SelectedButtonFacts extends StatelessWidget {
+class _SelectedButtonFacts extends ConsumerWidget {
   const _SelectedButtonFacts({required this.button});
 
   final Button button;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fpColors;
-    final meaning = buttonMeaningById[button.id];
+    final meaning = ref.watch(buttonConceptsProvider).value?[button.conceptId];
     final introducedAt = button.introducedAt;
 
     Widget fact(IconData icon, String text) => Padding(
-          padding: const EdgeInsets.only(bottom: FpSpace.s2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              PhosphorIcon(icon, size: FpIconSize.sm, color: c.textTertiary),
-              const SizedBox(width: FpSpace.s2),
-              Text(text, style: FpType.bodySm.copyWith(color: c.textTertiary)),
-            ],
-          ),
-        );
+      padding: const EdgeInsets.only(bottom: FpSpace.s2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          PhosphorIcon(icon, size: FpIconSize.sm, color: c.textTertiary),
+          const SizedBox(width: FpSpace.s2),
+          Text(text, style: FpType.bodySm.copyWith(color: c.textTertiary)),
+        ],
+      ),
+    );
 
     return Column(
       children: <Widget>[

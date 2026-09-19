@@ -14,9 +14,9 @@ import 'base_registration_screen.dart';
 import 'welcome_screen.dart';
 
 /// The setup flow's screens, keyed the way [FpScreen] keys everything else.
-final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    setupRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
-  FpScreen.welcome: (context, state) => const WelcomeScreen(),
-  FpScreen.baseRegistration: (context, state) =>
-      const BaseRegistrationScreen(),
-};
+final Map<FpScreen, Widget Function(BuildContext, GoRouterState)> setupRoutes =
+    <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+      FpScreen.welcome: (context, state) => const WelcomeScreen(),
+      FpScreen.baseRegistration: (context, state) =>
+          const BaseRegistrationScreen(),
+    };

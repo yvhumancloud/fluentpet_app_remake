@@ -31,17 +31,16 @@ import 'button_edit_screen.dart';
 
 /// The Buttons group's screens, keyed the way [FpScreen] keys everything else.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    buttonsRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+buttonsRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
   FpScreen.buttonAdd: (context, state) => ButtonAddScreen(
-        boardId: int.tryParse(state.uri.queryParameters['boardId'] ?? ''),
-        prepopulatedName: state.uri.queryParameters['prepopulatedName'],
-      ),
+    boardId: int.tryParse(state.uri.queryParameters['boardId'] ?? ''),
+    prepopulatedName: state.uri.queryParameters['prepopulatedName'],
+  ),
   FpScreen.buttonEdit: (context, state) => ButtonEditScreen(
-        buttonId: int.tryParse(state.uri.queryParameters['buttonId'] ?? ''),
-        batteryLevel:
-            int.tryParse(state.uri.queryParameters['batteryLevel'] ?? ''),
-      ),
+    buttonId: int.tryParse(state.uri.queryParameters['buttonId'] ?? ''),
+    batteryLevel: int.tryParse(state.uri.queryParameters['batteryLevel'] ?? ''),
+  ),
   FpScreen.buttonConversion: (context, state) => ButtonConversionScreen(
-        buttonId: int.tryParse(state.uri.queryParameters['buttonId'] ?? ''),
-      ),
+    buttonId: int.tryParse(state.uri.queryParameters['buttonId'] ?? ''),
+  ),
 };

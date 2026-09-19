@@ -41,10 +41,7 @@ class ElapsedRail extends StatelessWidget {
             width: FpMetrics.timeRailWidth,
             child: Padding(
               padding: EdgeInsets.only(right: FpMetrics.elapsedRulePadRight),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: _Rule(),
-              ),
+              child: Align(alignment: Alignment.centerRight, child: _Rule()),
             ),
           ),
           const SizedBox(width: FpSpace.s4),

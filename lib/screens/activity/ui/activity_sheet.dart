@@ -10,7 +10,7 @@
 ///
 /// ## Disabled options say why
 ///
-/// Several of the options are **writes**, and phase 1 has no writes — the
+/// Several of the options are **writes** — and where one cannot apply, the
 /// repositories read and nothing else (`lib/data/repositories.dart`). Rather
 /// than hide them, which would quietly drop capability from the inventory, or
 /// show them and do nothing, which is worse, a write-shaped option is drawn
@@ -35,13 +35,13 @@ class SheetOption {
     this.detail,
     this.destructive = false,
   }) : assert(
-          onSelected != null || detail != null,
-          'A disabled option must say why. Colour is not a signal — '
-          'text.disabled is the same primitive as text.tertiary, and a sheet '
-          'row is a GestureDetector with no ripple to withhold, so this line '
-          'is the only thing that distinguishes it. See Components '
-          'Disabled states.',
-        );
+         onSelected != null || detail != null,
+         'A disabled option must say why. Colour is not a signal — '
+         'text.disabled is the same primitive as text.tertiary, and a sheet '
+         'row is a GestureDetector with no ripple to withhold, so this line '
+         'is the only thing that distinguishes it. See Components '
+         'Disabled states.',
+       );
 
   final String label;
   final IconData icon;
@@ -56,10 +56,6 @@ class SheetOption {
 
   final bool destructive;
 }
-
-/// The sentence every write-shaped option carries in phase 1.
-const String phaseOneReadOnly =
-    'Arrives with integration — phase 1 runs on fixtures and never writes.';
 
 /// How much of the screen a sheet may cover before it scrolls instead.
 const double _maxSheetFraction = 0.82;
@@ -84,11 +80,8 @@ Future<void> showActivitySheet(
     constraints: BoxConstraints(
       maxHeight: MediaQuery.sizeOf(context).height * _maxSheetFraction,
     ),
-    builder: (context) => _Sheet(
-      title: title,
-      subtitle: subtitle,
-      options: options,
-    ),
+    builder: (context) =>
+        _Sheet(title: title, subtitle: subtitle, options: options),
   );
 }
 
@@ -103,7 +96,7 @@ Future<void> showActivityConfirm(
   required String body,
   required String confirmLabel,
   VoidCallback? onConfirm,
-  String reason = phaseOneReadOnly,
+  String reason = '',
 }) {
   // Colour and shape come from `bottomSheetTheme`; see [showActivitySheet].
   return showModalBottomSheet<void>(
@@ -312,8 +305,9 @@ class _OptionRow extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 detail,
-                                style: FpType.bodySm
-                                    .copyWith(color: c.textTertiary),
+                                style: FpType.bodySm.copyWith(
+                                  color: c.textTertiary,
+                                ),
                               ),
                             ),
                           ],
@@ -365,15 +359,15 @@ class _Confirm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const _Handle(),
-            Text(
-              title,
-              style: FpType.headingSm.copyWith(color: c.textPrimary),
-            ),
+            Text(title, style: FpType.headingSm.copyWith(color: c.textPrimary)),
             const SizedBox(height: FpSpace.s2),
             Text(body, style: FpType.bodyMd.copyWith(color: c.textSecondary)),
             if (action == null) ...<Widget>[
               const SizedBox(height: FpSpace.s3),
-              Text(reason, style: FpType.bodySm.copyWith(color: c.textTertiary)),
+              Text(
+                reason,
+                style: FpType.bodySm.copyWith(color: c.textTertiary),
+              ),
             ],
             const SizedBox(height: FpSpace.s6),
             ActionButton(

@@ -56,8 +56,10 @@ class FpFormat {
     int count,
     String singular, [
     String? irregularPlural,
-  ]) =>
-      count == 1 ? singular : (irregularPlural ?? '${singular}s');
+  ]) => count == 1
+      ? singular
+      : irregularPlural ??
+            (singular.endsWith('s') ? '${singular}es' : '${singular}s');
 
   /// [count] and its noun together: "1 utterance", "0 utterances".
   ///
@@ -67,8 +69,7 @@ class FpFormat {
     int count,
     String singular, [
     String? irregularPlural,
-  ]) =>
-      '$count ${pluralWord(count, singular, irregularPlural)}';
+  ]) => '$count ${pluralWord(count, singular, irregularPlural)}';
 
   // ───────────────────────── large numbers ─────────────────────────
 
@@ -109,8 +110,7 @@ class FpFormat {
     int count,
     String singular, [
     String? irregularPlural,
-  ]) =>
-      '${largeNumber(count)} ${pluralWord(count, singular, irregularPlural)}';
+  ]) => '${largeNumber(count)} ${pluralWord(count, singular, irregularPlural)}';
 
   static const int _thousand = 1000;
 

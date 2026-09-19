@@ -128,14 +128,11 @@ class AppDrawer extends ConsumerWidget {
                 'Scheme',
                 style: FpType.bodyMd.copyWith(color: c.textPrimary),
               ),
-              subtitle: Text(
-                switch (mode) {
-                  ThemeMode.system => 'System',
-                  ThemeMode.light => 'Light',
-                  ThemeMode.dark => 'Dark',
-                },
-                style: FpType.bodySm.copyWith(color: c.textSecondary),
-              ),
+              subtitle: Text(switch (mode) {
+                ThemeMode.system => 'System',
+                ThemeMode.light => 'Light',
+                ThemeMode.dark => 'Dark',
+              }, style: FpType.bodySm.copyWith(color: c.textSecondary)),
               onTap: () => ref.read(themeModeProvider.notifier).cycle(),
             ),
             Divider(color: c.borderSubtle, height: FpSpace.s7),

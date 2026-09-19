@@ -55,27 +55,27 @@ class LogDetailsEditPusherScreen extends ConsumerWidget {
             Expanded(
               child: switch (household) {
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: FpSpace.s6),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: LogEmptyState(
-                        icon: PhosphorIconsRegular.warningCircle,
-                        title: 'Could not load the Household',
-                        message: '$error',
-                      ),
+                  padding: const EdgeInsets.symmetric(horizontal: FpSpace.s6),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: LogEmptyState(
+                      icon: PhosphorIconsRegular.warningCircle,
+                      title: 'Could not load the Household',
+                      message: '$error',
                     ),
                   ),
+                ),
                 AsyncData(value: final all) => EditPusherPickerBody(
-                    pushers: logMembers(all),
-                    selectedId: draft.pusher?.id,
-                    onSelected: (pusher) => _select(context, ref, pusher),
-                  ),
+                  pushers: logMembers(all),
+                  selectedId: draft.pusher?.id,
+                  onSelected: (pusher) => _select(context, ref, pusher),
+                ),
                 _ => Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: FpStroke.thick,
-                      color: c.textBrand,
-                    ),
+                  child: CircularProgressIndicator(
+                    strokeWidth: FpStroke.thick,
+                    color: c.textBrand,
                   ),
+                ),
               },
             ),
           ],
@@ -88,7 +88,9 @@ class LogDetailsEditPusherScreen extends ConsumerWidget {
     final contexts = pusher.isTeacher
         ? logContexts(ref.read(logTeacherContextsProvider))
         : logContexts(ref.read(logLearnerContextsProvider));
-    ref.read(logDraftProvider.notifier).selectPusher(pusher, availableContexts: contexts);
+    ref
+        .read(logDraftProvider.notifier)
+        .selectPusher(pusher, availableContexts: contexts);
     if (context.canPop()) context.pop();
   }
 }

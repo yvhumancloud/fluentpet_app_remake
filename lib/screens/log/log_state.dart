@@ -1,5 +1,4 @@
-/// State for the two Log screens, and the one place in this area that knows
-/// fixtures exist.
+/// State for the two Log screens.
 ///
 /// ## Why there is a draft object at all
 ///
@@ -219,7 +218,9 @@ class LogDraftNotifier extends Notifier<LogDraft> {
       contexts: contexts,
       // Only a Teacher models. Moving the entry to a Learner leaves the
       // modelled set describing nobody.
-      modeledPushers: pusher.isTeacher ? state.modeledPushers : const <Pusher>[],
+      modeledPushers: pusher.isTeacher
+          ? state.modeledPushers
+          : const <Pusher>[],
     );
   }
 
@@ -279,16 +280,20 @@ class LogDraftNotifier extends Notifier<LogDraft> {
   void toggleContext(InteractionContext context) {
     final selected = state.contexts.any((ctx) => ctx.id == context.id);
     final next = selected
-        ? state.contexts.where((ctx) => ctx.id != context.id).toList(growable: false)
+        ? state.contexts
+              .where((ctx) => ctx.id != context.id)
+              .toList(growable: false)
         : (<InteractionContext>[...state.contexts, context]
-          ..sort((a, b) => a.id.compareTo(b.id)));
+            ..sort((a, b) => a.id.compareTo(b.id)));
     state = state.copyWith(contexts: next);
   }
 
   void toggleModeledPusher(Pusher pusher) {
     final selected = state.modeledPushers.any((p) => p.id == pusher.id);
     final next = selected
-        ? state.modeledPushers.where((p) => p.id != pusher.id).toList(growable: false)
+        ? state.modeledPushers
+              .where((p) => p.id != pusher.id)
+              .toList(growable: false)
         : <Pusher>[...state.modeledPushers, pusher];
     state = state.copyWith(modeledPushers: next);
   }
@@ -327,7 +332,14 @@ class LogDraftNotifier extends Notifier<LogDraft> {
     final clamped = seconds.clamp(0, 59);
     final at = state.occurredAt;
     state = state.copyWith(
-      occurredAt: DateTime(at.year, at.month, at.day, at.hour, at.minute, clamped),
+      occurredAt: DateTime(
+        at.year,
+        at.month,
+        at.day,
+        at.hour,
+        at.minute,
+        clamped,
+      ),
     );
   }
 
@@ -345,8 +357,8 @@ class LogDraftNotifier extends Notifier<LogDraft> {
       boardId: state.boardId,
       contexts: who != null && who.isTeacher
           ? availableContexts
-              .where((ctx) => ctx.text == modeledContextText)
-              .toList(growable: false)
+                .where((ctx) => ctx.text == modeledContextText)
+                .toList(growable: false)
           : const <InteractionContext>[],
     );
   }
@@ -391,11 +403,8 @@ class LogBoardView {
 
   final LogButtonSort sort;
 
-  /// Archiving is `PATCH /api/v1/buttons/{id}` with `is_hidden: true`, which
-  /// phase 1 does not have. The inventory's instruction for every write is a
-  /// no-op that *mutates the in-memory fixture and returns success* (§15); the
-  /// fixture is another pass's file, so the mutation is held here instead. It
-  /// lasts as long as the app does, which is what an unsaved mock should do.
+  /// Buttons archived from this screen this session, hidden immediately
+  /// while `PATCH /buttons/{id}` and the Board refetch catch up.
   final Set<int> archivedButtonIds;
 
   LogBoardView copyWith({
@@ -422,12 +431,12 @@ class LogBoardViewNotifier extends Notifier<LogBoardView> {
   void setSort(LogButtonSort sort) => state = state.copyWith(sort: sort);
 
   void archive(Button button) => state = state.copyWith(
-        archivedButtonIds: <int>{...state.archivedButtonIds, button.id},
-      );
+    archivedButtonIds: <int>{...state.archivedButtonIds, button.id},
+  );
 }
 
-final NotifierProvider<LogBoardViewNotifier, LogBoardView> logBoardViewProvider =
-    NotifierProvider<LogBoardViewNotifier, LogBoardView>(
+final NotifierProvider<LogBoardViewNotifier, LogBoardView>
+logBoardViewProvider = NotifierProvider<LogBoardViewNotifier, LogBoardView>(
   LogBoardViewNotifier.new,
 );
 
@@ -457,8 +466,7 @@ final FutureProvider<List<InteractionContext>> logTeacherContextsProvider =
 /// can occur. Stated once rather than three `?? const []`s that could differ.
 List<InteractionContext> logContexts(
   AsyncValue<List<InteractionContext>> contexts,
-) =>
-    contexts.value ?? const <InteractionContext>[];
+) => contexts.value ?? const <InteractionContext>[];
 
 /// The event-note pseudo-Pusher a free-standing Note is attributed to.
 final Provider<Pusher> logJournalPusherProvider = journalPusherProvider;
@@ -478,7 +486,9 @@ const String logModeledContextText = modeledContextText;
 /// member is not someone a new press is attributed to.
 List<Pusher> logMembers(List<Pusher> all) {
   final members = all
-      .where((p) => p.kind == PusherKind.learner || p.kind == PusherKind.teacher)
+      .where(
+        (p) => p.kind == PusherKind.learner || p.kind == PusherKind.teacher,
+      )
       .where((p) => !p.isHidden)
       .toList(growable: false);
   return <Pusher>[
@@ -519,7 +529,9 @@ List<Button> logVisibleButtons(Board board, LogBoardView view) {
 
   switch (view.sort) {
     case LogButtonSort.alphabet:
-      matched.sort((a, b) => a.text.toLowerCase().compareTo(b.text.toLowerCase()));
+      matched.sort(
+        (a, b) => a.text.toLowerCase().compareTo(b.text.toLowerCase()),
+      );
     case LogButtonSort.introduced:
       // Newest first, and a Button with no date sinks to the bottom rather
       // than claiming the epoch.

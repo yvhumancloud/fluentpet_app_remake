@@ -2,28 +2,22 @@ import 'button.dart';
 import 'interaction_context.dart';
 import 'pusher.dart';
 
-/// Where a recorded press came from.
-///
-/// The wire values are inconsistent about separators — one hyphenated, three
-/// underscored, one bare. They are reproduced exactly. Normalising them here
-/// would make every future comparison against a live payload fail.
+/// Where a recorded press came from — the PRD's `origin` column.
 enum InteractionOrigin {
   app('app'),
-  base('fp_connect_base'),
-  dbManualImport('db-manual-import'),
-  interactionImporter('interaction_importer'),
+  base('base'),
 
   /// Produced when an existing Interaction is split in two.
-  interactionSplit('interaction_split');
+  interactionSplit('split');
 
   const InteractionOrigin(this.wire);
 
   final String wire;
 
   static InteractionOrigin fromWire(String value) => values.firstWhere(
-        (o) => o.wire == value,
-        orElse: () => InteractionOrigin.app,
-      );
+    (o) => o.wire == value,
+    orElse: () => InteractionOrigin.app,
+  );
 }
 
 /// The two things that appear on the timeline. Rails STI class names, hence the

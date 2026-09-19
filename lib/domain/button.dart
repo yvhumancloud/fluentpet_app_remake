@@ -21,8 +21,11 @@ enum ButtonKind {
   final String wire;
 
   static ButtonKind fromWire({required String? type, required String text}) {
-    if (text.toLowerCase() == ButtonKind.inaudible.wire) return ButtonKind.inaudible;
-    return type == ButtonKind.connect.wire ? ButtonKind.connect : ButtonKind.classic;
+    if (text.toLowerCase() == ButtonKind.inaudible.wire)
+      return ButtonKind.inaudible;
+    return type == ButtonKind.connect.wire
+        ? ButtonKind.connect
+        : ButtonKind.classic;
   }
 }
 
@@ -44,6 +47,9 @@ class Button {
     this.note = '',
     this.serialNumber,
     this.batteryLevel,
+    this.conceptId,
+    this.audioId,
+    this.webhookUrl,
   });
 
   final int id;
@@ -66,6 +72,14 @@ class Button {
   /// Connect buttons only: the physical button's serial, and its own battery.
   final String? serialNumber;
   final int? batteryLevel;
+
+  /// `button_concept_id` — the Meaning picked from `GET /button-concepts`.
+  final int? conceptId;
+
+  /// The custom sound on a Connect Button, or null for the stock one.
+  final int? audioId;
+
+  final String? webhookUrl;
 
   bool get isConnect => kind == ButtonKind.connect;
 }

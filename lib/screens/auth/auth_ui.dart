@@ -29,9 +29,8 @@
 /// * [AuthAddressWell] — the address a message went to, quoted back.
 /// * [AuthResendControl] — a rate-limited resend, and the disabled treatment
 ///   the rule asks for: affordance removed, reason in words.
-/// * [AuthPhaseNote] — the honest footnote on any screen that talks about mail
-///   nobody sent.
-/// * [AuthScaffold] — the page shape all six share.
+/// * [AuthGoogleButton] — the second door, with its "or" rule.
+/// * [AuthScaffold] — the page shape all five share.
 /// * [authLocation] and [authSwap] — the two navigation rules the flow needs.
 ///
 /// ## The direction, applied
@@ -145,9 +144,9 @@ class AuthLead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        text,
-        style: FpType.bodyMd.copyWith(color: context.fpColors.textSecondary),
-      );
+    text,
+    style: FpType.bodyMd.copyWith(color: context.fpColors.textSecondary),
+  );
 }
 
 // ─────────────────────────── fields ───────────────────────────
@@ -289,8 +288,8 @@ class _AuthFieldState extends State<AuthField> {
     final Color border = hasError
         ? c.statusDangerBorder
         : focused
-            ? c.borderFocus
-            : c.borderDefault;
+        ? c.borderFocus
+        : c.borderDefault;
 
     final extra = widget.below;
 
@@ -347,15 +346,15 @@ class _AuthFieldState extends State<AuthField> {
                     required int currentLength,
                     required bool isFocused,
                     required int? maxLength,
-                  }) =>
-                      null,
+                  }) => null,
                   decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: FpSpace.s4),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: FpSpace.s4,
+                    ),
                     hintText: widget.hintText,
                     hintStyle: FpType.bodyMd.copyWith(color: c.textTertiary),
                   ),
@@ -487,23 +486,23 @@ class AuthBanner extends StatelessWidget {
     final c = context.fpColors;
     final (Color bg, Color fg, Color line, IconData glyph) = switch (tone) {
       AuthBannerTone.info => (
-          c.statusInfoBg,
-          c.statusInfoFg,
-          c.statusInfoBorder,
-          PhosphorIconsRegular.info,
-        ),
+        c.statusInfoBg,
+        c.statusInfoFg,
+        c.statusInfoBorder,
+        PhosphorIconsRegular.info,
+      ),
       AuthBannerTone.danger => (
-          c.statusDangerBg,
-          c.statusDangerFg,
-          c.statusDangerBorder,
-          PhosphorIconsRegular.warningCircle,
-        ),
+        c.statusDangerBg,
+        c.statusDangerFg,
+        c.statusDangerBorder,
+        PhosphorIconsRegular.warningCircle,
+      ),
       AuthBannerTone.success => (
-          c.statusSuccessBg,
-          c.statusSuccessFg,
-          c.statusSuccessBorder,
-          PhosphorIconsRegular.checkCircle,
-        ),
+        c.statusSuccessBg,
+        c.statusSuccessFg,
+        c.statusSuccessBorder,
+        PhosphorIconsRegular.checkCircle,
+      ),
     };
     final heading = title;
 
@@ -528,10 +527,7 @@ class AuthBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (heading != null) ...<Widget>[
-                    Text(
-                      heading,
-                      style: FpType.headingSm.copyWith(color: fg),
-                    ),
+                    Text(heading, style: FpType.headingSm.copyWith(color: fg)),
                     const SizedBox(height: FpSpace.s1),
                   ],
                   Text(
@@ -577,7 +573,8 @@ class AuthRequirementList extends StatelessWidget {
         for (var i = 0; i < requirements.length; i++) ...<Widget>[
           if (i > 0) const SizedBox(height: FpSpace.s2),
           Semantics(
-            label: '${requirements[i].label} — '
+            label:
+                '${requirements[i].label} — '
                 '${requirements[i].met ? 'met' : 'not met yet'}',
             child: ExcludeSemantics(
               child: Row(
@@ -847,73 +844,6 @@ class AuthAddressWell extends StatelessWidget {
   }
 }
 
-/// The footnote on a screen that talks about mail nobody sent.
-///
-/// Every one of these screens describes something happening off the device —
-/// a message going out, an account being created, a session starting — and
-/// none of it does. The project's existing answer to that is to say so on the
-/// surface rather than in a comment (`ProductGlyph` "stays honest about being a
-/// stand-in"; the support bubble on `WELCOME` says phase 1 has no Intercom
-/// session), so this is the same move: a hairline, a mark, one sentence.
-///
-/// [demoLabel] and [onDemo] are the other half of the same honesty. The reset
-/// and verification links exist only in mail nobody sent, so without an
-/// affordance the two screens they lead to are unreachable except by typing a
-/// URL. The action is labelled `(demo)`, sits under the footnote rather than in
-/// the flow, and is the only control on these screens that is not part of the
-/// product.
-///
-/// Keep that label short. [LogTextAction] lays its label out in a `Row` with no
-/// `Flexible` around the `Text`, so a label wider than the content column
-/// overflows rather than wrapping — "Simulate opening the link" overflowed by
-/// 13px at 402pt, which is how this was found. That is a property of
-/// `LogTextAction`, not of this widget, and it is not this file's to fix.
-class AuthPhaseNote extends StatelessWidget {
-  const AuthPhaseNote({
-    required this.text,
-    this.demoLabel,
-    this.onDemo,
-    super.key,
-  });
-
-  final String text;
-  final String? demoLabel;
-  final VoidCallback? onDemo;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.fpColors;
-    final label = demoLabel;
-    final action = onDemo;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const LogHairline(),
-        const SizedBox(height: FpSpace.s4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            PhosphorIcon(
-              PhosphorIconsRegular.flask,
-              size: FpIconSize.sm,
-              color: c.textTertiary,
-            ),
-            const SizedBox(width: FpSpace.s2),
-            Expanded(
-              child: Text(
-                text,
-                style: FpType.labelMd.copyWith(color: c.textTertiary),
-              ),
-            ),
-          ],
-        ),
-        if (label != null && action != null)
-          LogTextAction(label: label, onTap: action),
-      ],
-    );
-  }
-}
-
 // ─────────────────────────── navigation helpers ───────────────────────────
 
 /// A generated path with query parameters on it, encoded.
@@ -927,8 +857,10 @@ class AuthPhaseNote extends StatelessWidget {
 String authLocation(String path, Map<String, String> query) {
   final parts = query.entries
       .where((e) => e.value.isNotEmpty)
-      .map((e) =>
-          '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
+      .map(
+        (e) =>
+            '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}',
+      )
       .join('&');
   return parts.isEmpty ? path : '$path?$parts';
 }

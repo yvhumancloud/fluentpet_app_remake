@@ -61,9 +61,11 @@ class Household {
 
   Iterable<HouseholdMember> get admins => members.where((m) => m.isAdmin);
 
-  Iterable<HouseholdInvitation> get incoming => invitations
-      .where((i) => i.direction == HouseholdInvitationDirection.fromOtherHousehold);
+  Iterable<HouseholdInvitation> get incoming => invitations.where(
+    (i) => i.direction == HouseholdInvitationDirection.fromOtherHousehold,
+  );
 
-  Iterable<HouseholdInvitation> get outgoing => invitations
-      .where((i) => i.direction == HouseholdInvitationDirection.toCurrentHousehold);
+  Iterable<HouseholdInvitation> get outgoing => invitations.where(
+    (i) => i.direction == HouseholdInvitationDirection.toCurrentHousehold,
+  );
 }

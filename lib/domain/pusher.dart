@@ -41,7 +41,12 @@ class Pusher {
     this.interactionsCount = 0,
     this.isHidden = false,
     this.learnerType,
+    this.learnerTypeId,
     this.trainingStartedAt,
+    this.birthDate,
+    this.subType,
+    this.country,
+    this.language,
   });
 
   /// The sentinel id the API uses for the journal / event-note pseudo-Pusher.
@@ -60,7 +65,18 @@ class Pusher {
   /// e.g. "Dog". Learners only.
   final String? learnerType;
 
+  /// `learner_type_id`, what `PATCH /pushers` takes; [learnerType] is its name.
+  final int? learnerTypeId;
+
   final DateTime? trainingStartedAt;
+  final DateTime? birthDate;
+
+  /// Breed, for a Learner.
+  final String? subType;
+  final String? country;
+
+  /// Comma-joined on the wire, as the RN form sent it.
+  final String? language;
 
   PusherKind get kind => PusherKind.fromWire(name: name, isHuman: isHuman);
 
@@ -69,6 +85,5 @@ class Pusher {
 
   /// The single letter shown in the avatar. Derived, never typed twice — the
   /// design system makes the same point in `src/components/ui/types.ts`.
-  String get initial =>
-      name.isEmpty ? '?' : name.substring(0, 1).toUpperCase();
+  String get initial => name.isEmpty ? '?' : name.substring(0, 1).toUpperCase();
 }

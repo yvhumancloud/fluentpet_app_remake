@@ -98,7 +98,11 @@ class _LogScreenState extends ConsumerState<LogScreen> {
                 (AsyncError(:final error), _) => _Failed(error: error),
                 (_, AsyncError(:final error)) => _Failed(error: error),
                 (AsyncData(value: final members), AsyncData(value: final b)) =>
-                  _Body(members: logMembers(members), board: b, search: _search),
+                  _Body(
+                    members: logMembers(members),
+                    board: b,
+                    search: _search,
+                  ),
                 _ => const _Loading(),
               },
             ),
@@ -206,7 +210,9 @@ class _Body extends ConsumerWidget {
         const SizedBox(height: FpSpace.s6),
         const _Inset(child: LogHairline()),
         const SizedBox(height: FpSpace.s6),
-        _Inset(child: _BoardSection(board: board, search: search)),
+        _Inset(
+          child: _BoardSection(board: board, search: search),
+        ),
       ],
     );
   }
@@ -246,7 +252,8 @@ class _PusherStrip extends ConsumerWidget {
         child: LogEmptyState(
           icon: PhosphorIconsRegular.usersThree,
           title: 'No members yet',
-          message: 'A press is attributed to someone. Add the pet, or the '
+          message:
+              'A press is attributed to someone. Add the pet, or the '
               'people who model words for them.',
           actionLabel: 'Add a member',
           onAction: () => context.push(FpScreen.householdAdd.path),
@@ -280,7 +287,9 @@ class _PusherStrip extends ConsumerWidget {
             _PusherOption(
               pusher: pusher,
               selected: pusher.id == selected.id,
-              onTap: () => ref.read(logDraftProvider.notifier).selectPusher(
+              onTap: () => ref
+                  .read(logDraftProvider.notifier)
+                  .selectPusher(
                     pusher,
                     availableContexts: _contextsFor(ref, pusher),
                   ),
@@ -433,7 +442,8 @@ class _Composer extends ConsumerWidget {
           ? LogEmptyState(
               icon: PhosphorIconsRegular.handTap,
               title: 'Nothing pressed yet',
-              message: 'Tap Buttons below, in the order they were pressed. '
+              message:
+                  'Tap Buttons below, in the order they were pressed. '
                   'The same Button twice is two presses.',
               // The journal entry — an Activity with no press behind it — is
               // reached from the Activity FAB in the RN app. That FAB is on
@@ -482,8 +492,9 @@ class _BoardSection extends ConsumerWidget {
     final view = ref.watch(logBoardViewProvider);
     final visible = logVisibleButtons(board, view);
     final inaudible = logInaudibleButton(board, view);
-    final hasAnyButton = board.activeButtons
-        .any((b) => !view.archivedButtonIds.contains(b.id));
+    final hasAnyButton = board.activeButtons.any(
+      (b) => !view.archivedButtonIds.contains(b.id),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,7 +516,8 @@ class _BoardSection extends ConsumerWidget {
           LogEmptyState(
             icon: PhosphorIconsRegular.squaresFour,
             title: 'No Buttons on this Board',
-            message: 'Add the first word your pet can say, and it will appear '
+            message:
+                'Add the first word your pet can say, and it will appear '
                 'here to press.',
             actionLabel: 'Add the first Button',
             onAction: () => _addButton(context, null),
@@ -584,11 +596,15 @@ class _BoardSection extends ConsumerWidget {
       name.isEmpty
           ? FpScreen.buttonAdd.path
           : '${FpScreen.buttonAdd.path}'
-              '?prepopulatedName=${Uri.encodeComponent(name)}',
+                '?prepopulatedName=${Uri.encodeComponent(name)}',
     );
   }
 
-  void _openSortSheet(BuildContext context, WidgetRef ref, LogButtonSort current) {
+  void _openSortSheet(
+    BuildContext context,
+    WidgetRef ref,
+    LogButtonSort current,
+  ) {
     showLogSheet(
       context,
       title: 'Sort the Board',
@@ -618,9 +634,8 @@ class _BoardSection extends ConsumerWidget {
           icon: PhosphorIconsRegular.pencilSimple,
           // A query parameter, not `state.extra`, for the same reason as
           // `_addButton` above: the path stays deep-linkable.
-          onSelected: () => context.push(
-            '${FpScreen.buttonEdit.path}?buttonId=${button.id}',
-          ),
+          onSelected: () =>
+              context.push('${FpScreen.buttonEdit.path}?buttonId=${button.id}'),
         ),
         if (!button.isConnect)
           LogSheetOption(
@@ -641,13 +656,20 @@ class _BoardSection extends ConsumerWidget {
     final confirmed = await logConfirm(
       context,
       title: 'Archive “${button.text}”?',
-      message: 'It leaves the Board. Presses already logged against it keep '
+      message:
+          'It leaves the Board. Presses already logged against it keep '
           'the word.',
       confirmLabel: 'Archive',
     );
     if (!confirmed || !context.mounted) return;
+    final ok = await logWrite(
+      context,
+      () => ref.read(hardwareRepositoryProvider).setButtonHidden(button, true),
+    );
+    if (!ok || !context.mounted) return;
     ref.read(logBoardViewProvider.notifier).archive(button);
-    logSay(context, '“${button.text}” archived for this session only.');
+    ref.invalidate(boardProvider);
+    logSay(context, '“${button.text}” archived.');
   }
 }
 
@@ -662,9 +684,9 @@ class _SearchField extends ConsumerWidget {
     final view = ref.watch(logBoardViewProvider);
 
     OutlineInputBorder border(Color colour, double width) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FpRadius.sm),
-          borderSide: BorderSide(color: colour, width: width),
-        );
+      borderRadius: BorderRadius.circular(FpRadius.sm),
+      borderSide: BorderSide(color: colour, width: width),
+    );
 
     return TextField(
       controller: controller,

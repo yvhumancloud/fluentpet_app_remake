@@ -51,6 +51,8 @@ import '../../../router/screens.g.dart';
 import '../../../theme/fp_context.dart';
 import '../../../theme/generated/fp_tokens.dart';
 import '../../../widgets/widgets.dart';
+import '../../log/edit/log_edit_state.dart' show logEditDraftProvider;
+import '../../log/log_controls.dart' show logWrite;
 import '../../log/log_state.dart';
 import '../data/activity_providers.dart';
 import '../data/filters_edit.dart';
@@ -164,9 +166,8 @@ class _ActivityTimelineState extends ConsumerState<ActivityTimeline> {
         if (selection.isEmpty && widget.pinned != null) widget.pinned!,
         Expanded(
           child: async.when(
-            loading: () => _Centered(
-              child: CircularProgressIndicator(color: c.textBrand),
-            ),
+            loading: () =>
+                _Centered(child: CircularProgressIndicator(color: c.textBrand)),
             error: (error, stack) => _TimelineError(query: widget.query),
             data: (slice) => RefreshIndicator(
               color: c.textBrand,
@@ -180,9 +181,8 @@ class _ActivityTimelineState extends ConsumerState<ActivityTimeline> {
                         filters: filters,
                         facetTotal: slice.facetTotal,
                         asOf: asOf,
-                        onClearFilters: () => ref
-                            .read(dashboardFiltersProvider.notifier)
-                            .clear(),
+                        onClearFilters: () =>
+                            ref.read(dashboardFiltersProvider.notifier).clear(),
                         onEditFilters: () =>
                             context.push(FpScreen.dashboardFilters.path),
                         onLogPress: () => context.push(FpScreen.log.path),
@@ -203,7 +203,11 @@ class _ActivityTimelineState extends ConsumerState<ActivityTimeline> {
           ),
         ),
         if (selection.isNotEmpty)
-          _SelectionActions(query: widget.query, selection: selection, slice: slice),
+          _SelectionActions(
+            query: widget.query,
+            selection: selection,
+            slice: slice,
+          ),
       ],
     );
   }
@@ -284,15 +288,18 @@ class _List extends ConsumerWidget {
           sliver: SliverList.builder(
             itemCount: items.length,
             itemBuilder: (context, index) => switch (items[index]) {
-              _DayItem(:final day, :final count) =>
-                _DayHeader(day: day, count: count, asOf: asOf),
+              _DayItem(:final day, :final count) => _DayHeader(
+                day: day,
+                count: count,
+                asOf: asOf,
+              ),
               _RowItem(:final activity, :final gapAfter) => _Row(
-                  query: query,
-                  activity: activity,
-                  gapAfter: gapAfter,
-                  selected: selection.contains(activity.id),
-                  selecting: selection.isNotEmpty,
-                ),
+                query: query,
+                activity: activity,
+                gapAfter: gapAfter,
+                selected: selection.contains(activity.id),
+                selecting: selection.isNotEmpty,
+              ),
             },
           ),
         ),
@@ -329,15 +336,17 @@ class _List extends ConsumerWidget {
         items.add(_DayItem(day: day, count: entries.length));
       }
       for (var i = 0; i < entries.length; i++) {
-        items.add(_RowItem(
-          activity: entries[i],
-          gapAfter: i == entries.length - 1
-              ? null
-              : FpFormat.elapsedBetween(
-                  entries[i].occurredAt,
-                  entries[i + 1].occurredAt,
-                ),
-        ));
+        items.add(
+          _RowItem(
+            activity: entries[i],
+            gapAfter: i == entries.length - 1
+                ? null
+                : FpFormat.elapsedBetween(
+                    entries[i].occurredAt,
+                    entries[i + 1].occurredAt,
+                  ),
+          ),
+        );
       }
     }
     return items;
@@ -385,10 +394,7 @@ class _DayHeader extends StatelessWidget {
           ],
           const SizedBox(width: FpSpace.s4),
           Expanded(
-            child: Container(
-              height: FpStroke.hairline,
-              color: c.borderSubtle,
-            ),
+            child: Container(height: FpStroke.hairline, color: c.borderSubtle),
           ),
           const SizedBox(width: FpSpace.s4),
           Text(
@@ -468,11 +474,8 @@ class _Row extends ConsumerWidget {
     // (`DashboardList.tsx:488-496`). That is `LOG_ENTRY_EDIT` and not
     // `LOG_DETAILS`: the two are one letter apart in the RN filenames and
     // opposite in what they do — `LOG_DETAILS` creates an Interaction,
-    // `LOG_ENTRY_EDIT` updates one. This screen is not built this pass and
-    // resolves to the placeholder, which names the key it landed on.
-    context.push(
-      '${FpScreen.logEntryEdit.path}?activityId=${activity.id}',
-    );
+    // `LOG_ENTRY_EDIT` updates one.
+    openEntryEdit(context, ref, activity);
   }
 
   void _onLongPress(BuildContext context, WidgetRef ref) {
@@ -636,7 +639,8 @@ class _SelectionHeader extends ConsumerWidget {
             label: 'Clear selection',
             child: ExcludeSemantics(
               child: GestureDetector(
-                onTap: () => ref.read(selectionProvider(query).notifier).clear(),
+                onTap: () =>
+                    ref.read(selectionProvider(query).notifier).clear(),
                 behavior: HitTestBehavior.opaque,
                 child: SizedBox(
                   width: ActivityMetrics.touchTarget,
@@ -690,6 +694,14 @@ class _SelectionActions extends ConsumerWidget {
         .where((a) => selection.contains(a.id))
         .toList(growable: false);
     final hasNotes = rows.any((a) => a is Note);
+    final interactions = rows.whereType<Interaction>().toList(growable: false);
+    final repo = ref.read(activityRepositoryProvider);
+
+    Future<void> done(Future<void> write) async {
+      if (!await logWrite(context, () => write) || !context.mounted) return;
+      ref.read(selectionProvider(query).notifier).clear();
+      refreshTimelines(ref);
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -714,14 +726,15 @@ class _SelectionActions extends ConsumerWidget {
               tone: ButtonTone.secondary,
               onPressed: hasNotes
                   ? null
-                  : () => showActivityConfirm(
-                        context,
-                        title: 'Assign a Pusher',
-                        body: 'Attribute '
-                            '${FpFormat.countOf(rows.length, 'entry', 'entries')} '
-                            'to one Pusher.',
-                        confirmLabel: 'Choose a Pusher',
-                      ),
+                  : () => showPusherPicker(
+                      context,
+                      ref,
+                      title:
+                          'Attribute '
+                          '${FpFormat.countOf(rows.length, 'entry', 'entries')} to',
+                      onPicked: (pusher) =>
+                          done(repo.assignMany(interactions, pusher)),
+                    ),
             ),
           ),
           const SizedBox(width: FpSpace.s3),
@@ -732,13 +745,15 @@ class _SelectionActions extends ConsumerWidget {
               onPressed: (rows.length < 2 || hasNotes)
                   ? null
                   : () => showActivityConfirm(
-                        context,
-                        title: 'Are you sure?',
-                        body: 'The selected '
-                            '${FpFormat.countOf(rows.length, 'item')} '
-                            'will be merged.',
-                        confirmLabel: 'Merge',
-                      ),
+                      context,
+                      title: 'Are you sure?',
+                      body:
+                          'The selected '
+                          '${FpFormat.countOf(rows.length, 'item')} '
+                          'will be merged.',
+                      confirmLabel: 'Merge',
+                      onConfirm: () => done(repo.merge(interactions)),
+                    ),
             ),
           ),
           const SizedBox(width: FpSpace.s3),
@@ -749,13 +764,15 @@ class _SelectionActions extends ConsumerWidget {
               onPressed: rows.isEmpty
                   ? null
                   : () => showActivityConfirm(
-                        context,
-                        title: 'Are you sure?',
-                        body: 'The selected '
-                            '${FpFormat.countOf(rows.length, 'item')} '
-                            'will be deleted.',
-                        confirmLabel: 'Delete',
-                      ),
+                      context,
+                      title: 'Are you sure?',
+                      body:
+                          'The selected '
+                          '${FpFormat.countOf(rows.length, 'item')} '
+                          'will be deleted.',
+                      confirmLabel: 'Delete',
+                      onConfirm: () => done(repo.deleteMany(rows)),
+                    ),
             ),
           ),
         ],
@@ -789,21 +806,25 @@ void showRowSheet(
   final pusher = activity.pusher;
   final realPusher =
       pusher.kind != PusherKind.eventNote && pusher.kind != PusherKind.base;
+  final repo = ref.read(activityRepositoryProvider);
+
+  Future<void> write(Future<void> call) async {
+    if (await logWrite(context, () => call) && context.mounted) {
+      refreshTimelines(ref);
+    }
+  }
 
   showActivitySheet(
     context,
-    title: interaction == null
-        ? 'Note'
-        : interaction.words.join(' · '),
-    subtitle: '${FpFormat.timeOfDay(activity.occurredAt)} · '
+    title: interaction == null ? 'Note' : interaction.words.join(' · '),
+    subtitle:
+        '${FpFormat.timeOfDay(activity.occurredAt)} · '
         '${FpFormat.dayAndMonth(activity.occurredAt)}',
     options: <SheetOption>[
       SheetOption(
         label: 'Edit entry',
         icon: PhosphorIconsRegular.pencilSimple,
-        onSelected: () => context.push(
-          '${FpScreen.logEntryEdit.path}?activityId=${activity.id}',
-        ),
+        onSelected: () => openEntryEdit(context, ref, activity),
       ),
       SheetOption(
         label: 'Select',
@@ -859,17 +880,68 @@ void showRowSheet(
       if (interaction != null &&
           interaction.isMultiPress &&
           interaction.canSplit)
-        const SheetOption(
+        SheetOption(
           label: 'Split',
           icon: PhosphorIconsRegular.arrowsOutLineVertical,
-          detail: phaseOneReadOnly,
+          detail: 'One entry per press.',
+          onSelected: () => showActivityConfirm(
+            context,
+            title: 'Split this entry?',
+            body:
+                'Each of the ${interaction.buttons.length} presses becomes '
+                'its own entry.',
+            confirmLabel: 'Split',
+            onConfirm: () => write(repo.split(interaction)),
+          ),
         ),
       SheetOption(
         label: 'Delete',
         icon: PhosphorIconsRegular.trash,
         destructive: true,
-        detail: phaseOneReadOnly,
+        onSelected: () => showActivityConfirm(
+          context,
+          title: 'Are you sure?',
+          body: 'This entry will be deleted.',
+          confirmLabel: 'Delete',
+          onConfirm: () => write(repo.delete(activity)),
+        ),
       ),
+    ],
+  );
+}
+
+/// Seeds the edit draft from the row in hand, then opens `LOG_ENTRY_EDIT`.
+/// The screen finds its draft loaded and skips the lookup — which a Note
+/// needs, having no single-row read on the wire.
+void openEntryEdit(BuildContext context, WidgetRef ref, Activity activity) {
+  ref.read(logEditDraftProvider.notifier)
+    ..reset()
+    ..loadFrom(activity);
+  context.push('${FpScreen.logEntryEdit.path}?activityId=${activity.id}');
+}
+
+/// A sheet of the Household's Pushers, for "attribute this to".
+Future<void> showPusherPicker(
+  BuildContext context,
+  WidgetRef ref, {
+  required String title,
+  required void Function(Pusher) onPicked,
+}) {
+  final pushers = (ref.read(pushersProvider).value ?? const <Pusher>[]).where(
+    (p) => !p.isHidden,
+  );
+  return showActivitySheet(
+    context,
+    title: title,
+    options: <SheetOption>[
+      for (final p in pushers)
+        SheetOption(
+          label: p.name,
+          icon: p.isTeacher
+              ? PhosphorIconsRegular.user
+              : PhosphorIconsRegular.pawPrint,
+          onSelected: () => onPicked(p),
+        ),
     ],
   );
 }

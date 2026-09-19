@@ -3,11 +3,24 @@
 The FluentPet Connect device-management product, rebuilt in Flutter against the
 visual specification in `../design-system`.
 
-**Phase 1 is screens against mock data.** No Bluetooth, no pairing, no
-authentication, no analytics, no crash reporting, no offline sync, no device
-shadow, no HTTP. See `../design-system/PLAN.md`. The point of phase 1 is to prove
-the design survives contact with a real device — real type, real touch targets,
-real scroll, light and dark — before any integration work starts.
+The app talks to the FastAPI backend in `../backend` (`PRD.md` there is the
+scope), signs in with Firebase Auth, receives FCM pushes and reports to Sentry.
+No Bluetooth, no pairing, no device shadow: a Base is registered by serial and
+the device script does the rest.
+
+## Backend and environment
+
+`lib/env.dart` is the one place that knows which environment a build is:
+`--dart-define=ENV=dev|prod` (a debug build defaults to `dev`), the API base
+URL (`API_URL`; dev defaults to `http://10.0.2.2:8080`, the Android emulator's
+name for the host) and the Sentry DSN.
+
+The client is generated. `tool/gen_api.sh` fetches the backend's OpenAPI
+spec, tidies it (FastAPI's operation ids, the per-route auth headers, a few
+defaults the generator mishandles) and runs openapi-generator's `dart-dio`
+into `packages/fluentpet_api`. Re-run it when the backend changes; never edit
+the package. `lib/data/api/api_client.dart` wraps it with the Firebase bearer
+token; `lib/data/api/mappers.dart` turns wire models into `lib/domain/`.
 
 ## The screen map is hand-maintained now
 
@@ -66,16 +79,14 @@ are better inside a `const` widget.
 (`lib/format/fp_format.dart`, exported by `widgets/widgets.dart`): times, dates,
 elapsed gaps, battery, last-seen, plurals, and the `1.5k` rule the old app
 applied to every count in every header. It imports nothing — not even Flutter —
-which is why the domain and the fixtures can use it too.
+which is why the domain can use it too.
 
 ## Data
 
-Screens watch providers in `lib/data/providers.dart` and never see a fixture:
+Screens watch providers in `lib/data/providers.dart` and never see the wire:
 
 | provider | yields |
 | --- | --- |
-| `activityDayProvider` | `ActivityDay` — the designed day |
-| `dashboardProvider` | `Dashboard` — filtered Activities plus counts |
 | `dashboardFiltersProvider` | `DashboardFilters` — the current filter set |
 | `householdProvider` | `Household` |
 | `pushersProvider` | `List<Pusher>` |
@@ -83,18 +94,21 @@ Screens watch providers in `lib/data/providers.dart` and never see a fixture:
 | `boardProvider` | `Board` — **the** Board, every Button in the Household |
 | `learnerContextsProvider` / `teacherContextsProvider` | `List<InteractionContext>` |
 | `allContextsProvider` | both Context lists, as the filter sheet offers them |
-| `nowProvider` | `DateTime` — the one clock every relative time reads |
+| `preferencesProvider` | the user's server-side preferences |
+| `learnerTypesProvider` / `buttonConceptsProvider` | the pickers' options |
+| `nowProvider` | `DateTime` — the one clock every relative time reads, ticking once a minute |
 
-The three `*RepositoryProvider` lines at the top of that file are the swap
-point: the integration phase replaces `FixtureActivityRepository` and friends
-and touches no screen.
+The three `*RepositoryProvider`s hand out `lib/data/api/api_repositories.dart`;
+the interfaces in `lib/data/repositories.dart` carry the writes too. A screen
+that writes calls the repository through `logWrite` (`log_controls.dart`),
+which reports the server's message on failure, then invalidates the provider
+it changed. The Activity timeline is paged by `POST /interactions/search`
+through `lib/screens/activity/data/timeline_source.dart`.
 
-**There is one Board and one Context catalogue.** An area that needs a Button or
-a Context the fixtures do not carry adds it to `lib/data/fixtures/`, not to a
-list beside its own screens: a second Board is how `CLASSIC_BUTTONS` ends up
-showing Buttons the Log screen has never heard of, and a second Context list is
-how a filter set on the Activity tab stops matching what the Log screen tagged
-(Contexts filter by id). Both happened; both are merged.
+**There is one Board and one Context catalogue**, both from the API. A second
+Board is how `CLASSIC_BUTTONS` ends up showing Buttons the Log screen has never
+heard of, and a second Context list is how a filter set on the Activity tab
+stops matching what the Log screen tagged (Contexts filter by id).
 
 Domain vocabulary is `../design-system/CONTEXT.md`, verbatim. One deliberate
 rename: the domain's **Context** is the Dart type `InteractionContext`, because
@@ -167,8 +181,9 @@ lib/
     widget_gallery_screen.dart  every component, every state (drawer, dev only)
   data/
     repositories.dart        the interfaces screens are allowed to call
-    providers.dart           the swap point
-    fixtures/                phase-1 mock data — one Board, one Context list
+    providers.dart           what screens watch
+    api/                     the generated client wrapped, and wire → domain
+  auth/                      Firebase Auth and FCM, behind two classes
   router/
     screens.g.dart           the screen enum — hand-maintained
     tabs.dart                the three tab roots

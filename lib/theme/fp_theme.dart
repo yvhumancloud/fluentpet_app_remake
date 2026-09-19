@@ -18,8 +18,10 @@ import 'generated/fp_tokens.dart';
 /// clears 4.5:1 against both a near-white and a near-black canvas. It is not a
 /// bug and it is not to be unified.
 abstract final class FpTheme {
-  static ThemeData get light => _build(Brightness.light, FpColors.light, FpElevation.light);
-  static ThemeData get dark => _build(Brightness.dark, FpColors.dark, FpElevation.dark);
+  static ThemeData get light =>
+      _build(Brightness.light, FpColors.light, FpElevation.light);
+  static ThemeData get dark =>
+      _build(Brightness.dark, FpColors.dark, FpElevation.dark);
 
   static ThemeData _build(Brightness brightness, FpColors c, FpElevation e) {
     final textTheme = _textTheme(c);
@@ -64,7 +66,10 @@ abstract final class FpTheme {
       textTheme: textTheme,
       primaryTextTheme: textTheme,
       iconTheme: IconThemeData(color: c.textPrimary, size: FpIconSize.lg),
-      primaryIconTheme: IconThemeData(color: c.textPrimary, size: FpIconSize.lg),
+      primaryIconTheme: IconThemeData(
+        color: c.textPrimary,
+        size: FpIconSize.lg,
+      ),
       dividerTheme: DividerThemeData(
         color: c.borderSubtle,
         thickness: FpStroke.hairline,
@@ -105,13 +110,16 @@ abstract final class FpTheme {
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: c.surfaceRaised,
         modalBackgroundColor: c.surfaceRaised,
-        modalBarrierColor:
-            c.surfaceInverse.withValues(alpha: FpStateLayer.overlay),
+        modalBarrierColor: c.surfaceInverse.withValues(
+          alpha: FpStateLayer.overlay,
+        ),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         modalElevation: 0,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(FpRadius.xl)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(FpRadius.xl),
+          ),
         ),
       ),
       dialogTheme: DialogThemeData(

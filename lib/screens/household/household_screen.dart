@@ -111,23 +111,25 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen> {
                   ref.invalidate(pushersProvider);
                 },
                 child: switch (pushers) {
-                  AsyncData<List<Pusher>>(:final value) =>
-                    _Roster(pushers: value, showArchived: _showArchived),
+                  AsyncData<List<Pusher>>(:final value) => _Roster(
+                    pushers: value,
+                    showArchived: _showArchived,
+                  ),
                   AsyncError<List<Pusher>>() => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[
-                        HardwareNotice(
-                          icon: PhosphorIconsRegular.warningOctagon,
-                          title: 'Could not load your Household',
-                          body: 'Pull down to try again.',
-                          tone: HardwareNoticeTone.danger,
-                        ),
-                      ],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[
+                      HardwareNotice(
+                        icon: PhosphorIconsRegular.warningOctagon,
+                        title: 'Could not load your Household',
+                        body: 'Pull down to try again.',
+                        tone: HardwareNoticeTone.danger,
+                      ),
+                    ],
+                  ),
                   _ => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const <Widget>[HardwareLoading()],
-                    ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const <Widget>[HardwareLoading()],
+                  ),
                 },
               ),
             ),
@@ -148,8 +150,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen> {
     final result = await showHardwareActions<bool>(
       context: context,
       title: 'Archived members',
-      message: 'Hidden Pushers still own their history. Archiving is a '
-          'preview-only toggle in this build and is not saved.',
+      message: 'Hidden Pushers still own their history.',
       options: <HardwareAction<bool>>[
         HardwareAction<bool>(
           label: 'Show archived members',
@@ -183,8 +184,9 @@ class _Roster extends StatelessWidget {
     // is one fixture edit away from drawing a "?" avatar in a member list.
     final members = pushers.where((p) => p.isLearner || p.isTeacher).toList()
       ..sort(_byArchivedThenPresses);
-    final visible =
-        showArchived ? members : members.where((p) => !p.isHidden).toList();
+    final visible = showArchived
+        ? members
+        : members.where((p) => !p.isHidden).toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -201,7 +203,8 @@ class _Roster extends StatelessWidget {
           HardwareNotice(
             icon: PhosphorIconsRegular.usersThree,
             title: 'Get started by adding a Household Member',
-            body: 'Add the pet who presses the Buttons, or a person who '
+            body:
+                'Add the pet who presses the Buttons, or a person who '
                 'models words for them.',
             action: LogTextAction(
               label: 'Add a member',
@@ -231,26 +234,27 @@ class _Roster extends StatelessWidget {
   }
 }
 
-class _MemberCard extends StatelessWidget {
+class _MemberCard extends ConsumerWidget {
   const _MemberCard({required this.pusher});
 
   final Pusher pusher;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fpColors;
     final archived = pusher.isHidden;
     final typeLabel = pusher.isTeacher
         ? 'Teacher'
         : (pusher.learnerType == null || pusher.learnerType!.isEmpty)
-            ? 'Learner'
-            : pusher.learnerType!;
+        ? 'Learner'
+        : pusher.learnerType!;
 
     return HardwareCard(
-      semanticLabel: '${pusher.name}, $typeLabel'
+      semanticLabel:
+          '${pusher.name}, $typeLabel'
           '${archived ? ', archived' : ''}',
       onTap: () => _openEdit(context),
-      onLongPress: () => _openActions(context),
+      onLongPress: () => _openActions(context, ref),
       child: Row(
         children: <Widget>[
           // The avatar is its own tap target, to the Pusher's Activity feed —
@@ -316,7 +320,7 @@ class _MemberCard extends StatelessWidget {
     context.push('${FpScreen.householdEdit.path}?id=${pusher.id}');
   }
 
-  Future<void> _openActions(BuildContext context) async {
+  Future<void> _openActions(BuildContext context, WidgetRef ref) async {
     final archived = pusher.isHidden;
     final choice = await showHardwareActions<_MemberAction>(
       context: context,
@@ -344,13 +348,13 @@ class _MemberCard extends StatelessWidget {
       case _MemberAction.edit:
         _openEdit(context);
       case _MemberAction.toggleArchive:
-        // `updatePusherVisibilityMutation` is a write `HouseholdRepository`
-        // has no method for (`lib/data/repositories.dart` — `household()` and
-        // `pushers()` only). §15 no-op, same words as the rest of this pass.
-        showPhaseOneNotice(
+        final ok = await logWrite(
           context,
-          '${pusher.name} ${archived ? 'not restored' : 'not archived'}',
+          () => ref
+              .read(householdRepositoryProvider)
+              .setPusherHidden(pusher, !archived),
         );
+        if (ok) ref.invalidate(pushersProvider);
     }
   }
 }

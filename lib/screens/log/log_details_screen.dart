@@ -58,6 +58,7 @@ import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
+import '../activity/data/activity_providers.dart' show refreshTimelines;
 import 'log_controls.dart';
 import 'log_state.dart';
 
@@ -120,7 +121,7 @@ class _LogDetailsScreenState extends ConsumerState<LogDetailsScreen> {
               // `FpFormat.timeOfDay`.
               subtitle: hasDraft
                   ? '${FpFormat.fullDate(draft.occurredAt, asOf: now)} · '
-                      '${FpFormat.timeOfDayWithSeconds(draft.occurredAt)}'
+                        '${FpFormat.timeOfDayWithSeconds(draft.occurredAt)}'
                   : null,
               onBack: context.canPop() ? () => context.pop() : null,
               // The one trailing control, and the only place the unflagged
@@ -178,7 +179,8 @@ class _NoDraft extends StatelessWidget {
         child: LogEmptyState(
           icon: PhosphorIconsRegular.notePencil,
           title: 'Nothing to log yet',
-          message: 'This screen annotates a press before it is saved. Start '
+          message:
+              'This screen annotates a press before it is saved. Start '
               'from Log and tap the Buttons that were pressed.',
           actionLabel: 'Go to Log',
           onAction: () => context.go(FpScreen.log.path),
@@ -266,10 +268,7 @@ class _Preview extends StatelessWidget {
           decoration: BoxDecoration(
             color: c.surfaceRaised,
             borderRadius: BorderRadius.circular(FpRadius.lg),
-            border: Border.all(
-              color: c.borderSubtle,
-              width: FpStroke.hairline,
-            ),
+            border: Border.all(color: c.borderSubtle, width: FpStroke.hairline),
           ),
           child: UtteranceRow.activity(activity),
         ),
@@ -352,15 +351,12 @@ class _PusherField extends StatelessWidget {
                   },
                   style: FpType.headingSm.copyWith(color: c.textPrimary),
                 ),
-                Text(
-                  switch (pusher.kind) {
-                    PusherKind.eventNote => 'A note with no press behind it',
-                    PusherKind.base => 'Choose who pressed',
-                    PusherKind.learner => 'Learner',
-                    PusherKind.teacher => 'Teacher',
-                  },
-                  style: FpType.labelMd.copyWith(color: c.textTertiary),
-                ),
+                Text(switch (pusher.kind) {
+                  PusherKind.eventNote => 'A note with no press behind it',
+                  PusherKind.base => 'Choose who pressed',
+                  PusherKind.learner => 'Learner',
+                  PusherKind.teacher => 'Teacher',
+                }, style: FpType.labelMd.copyWith(color: c.textTertiary)),
               ],
             ),
           ),
@@ -710,7 +706,8 @@ class _TimestampField extends ConsumerWidget {
       // `FpFormat.timeOfDay` produces nothing else. The RN app read the device
       // preference; phase 1 does not (see `fp_format.dart`).
       builder: (pickerContext, child) => MediaQuery(
-        data: MediaQuery.of(pickerContext).copyWith(alwaysUse24HourFormat: true),
+        data: MediaQuery.of(pickerContext)
+            .copyWith(alwaysUse24HourFormat: true),
         child: child ?? const SizedBox.shrink(),
       ),
     );
@@ -858,24 +855,28 @@ class _Actions extends ConsumerWidget {
     );
   }
 
-  /// SAVE EVENT → POST, then the Activity timeline (`:190-200`).
-  ///
-  /// Phase 1 has no POST. The inventory's instruction for every write is a
-  /// no-op that returns success (§15), and the honest version of that says so
-  /// rather than letting someone hunt the timeline for an entry that was never
-  /// stored.
-  void _save(BuildContext context, WidgetRef ref) {
+  /// `POST /interactions` or `POST /notes` — [LogDraft.preview] is exactly
+  /// the object to send. False when the server refused it; the draft is kept
+  /// so nothing typed is lost.
+  Future<bool> _post(BuildContext context, WidgetRef ref) => logWrite(
+    context,
+    () => ref.read(activityRepositoryProvider).create(draft.preview!),
+  );
+
+  /// SAVE EVENT → POST, then the Activity timeline.
+  Future<void> _save(BuildContext context, WidgetRef ref) async {
+    if (!await _post(context, ref) || !context.mounted) return;
     ref.read(logDraftProvider.notifier).reset();
-    logSay(context, 'Saved. Phase 1 stores nothing, so it will not appear on '
-        'the timeline.');
+    refreshTimelines(ref);
     context.go(FpScreen.dashboard.path);
   }
 
   /// SAVE EVENT & LOG ANOTHER → POST, clear the caller's selection, back to
-  /// `LOG` (`:202-210`). That clearing is the `onReturn(true)` callback the RN
-  /// app passes through navigation params; here it is a method on the notifier
-  /// both screens already share.
-  void _saveAndLogAnother(BuildContext context, WidgetRef ref) {
+  /// `LOG`. That clearing is the `onReturn(true)` callback the RN app passes
+  /// through navigation params; here it is a method on the notifier both
+  /// screens already share.
+  Future<void> _saveAndLogAnother(BuildContext context, WidgetRef ref) async {
+    if (!await _post(context, ref) || !context.mounted) return;
     final available = draft.isTeacher
         ? logContexts(ref.read(logTeacherContextsProvider))
         : logContexts(ref.read(logLearnerContextsProvider));
@@ -883,6 +884,7 @@ class _Actions extends ConsumerWidget {
         .read(logDraftProvider.notifier)
         .clearComposition(availableContexts: available);
     onCleared();
+    refreshTimelines(ref);
     logSay(context, 'Saved. Log the next one.');
     if (context.canPop()) {
       context.pop();

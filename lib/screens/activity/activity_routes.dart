@@ -45,25 +45,25 @@ import 'pusher_activity_screen.dart';
 
 /// The Activity area's contribution to `screenBuilders`.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    activityRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+activityRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
   FpScreen.dashboard: (context, state) => const ActivityScreen(),
   FpScreen.dashboardFilters: (context, state) => ActivityFiltersScreen(
-        // `editTimeframeOnly` in the RN params. Opened this way from
-        // `DASHBOARD_PUSHER` (`DashboardInfiniteScroll.tsx:324`).
-        timeframeOnly: state.uri.queryParameters['timeframeOnly'] == '1',
-      ),
+    // `editTimeframeOnly` in the RN params. Opened this way from
+    // `DASHBOARD_PUSHER` (`DashboardInfiniteScroll.tsx:324`).
+    timeframeOnly: state.uri.queryParameters['timeframeOnly'] == '1',
+  ),
   FpScreen.dashboardButton: (context, state) => ButtonActivityScreen(
-        buttonId: _int(state, 'buttonId') ?? _noId,
-        meaning: _string(state, 'meaning', fallback: 'This Button'),
-      ),
+    buttonId: _int(state, 'buttonId') ?? _noId,
+    meaning: _string(state, 'meaning', fallback: 'This Button'),
+  ),
   FpScreen.dashboardContext: (context, state) => ContextActivityScreen(
-        contextId: _int(state, 'contextId') ?? _noId,
-        text: _string(state, 'text', fallback: 'This Context'),
-      ),
+    contextId: _int(state, 'contextId') ?? _noId,
+    text: _string(state, 'text', fallback: 'This Context'),
+  ),
   FpScreen.dashboardPusher: (context, state) => PusherActivityScreen(
-        pusherId: _int(state, 'pusherId') ?? _noId,
-        name: _string(state, 'name', fallback: 'Pusher'),
-      ),
+    pusherId: _int(state, 'pusherId') ?? _noId,
+    name: _string(state, 'name', fallback: 'Pusher'),
+  ),
 };
 
 /// The id a link without one gets: matches nothing, so the screen lands in its

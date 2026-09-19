@@ -40,8 +40,9 @@ import '../../domain/domain.dart';
 /// the Hardware tab's "2 min ago" and the Activity header's are the same two
 /// minutes. It used to read a second `asOf` declared in a Hardware-only
 /// fixture, which was the same instant only by agreement.
-final Provider<DateTime> hardwareNowProvider =
-    Provider<DateTime>((ref) => ref.watch(nowProvider));
+final Provider<DateTime> hardwareNowProvider = Provider<DateTime>(
+  (ref) => ref.watch(nowProvider),
+);
 
 // ─────────────────────── Bases and the Board ───────────────────────
 
@@ -55,8 +56,9 @@ final Provider<DateTime> hardwareNowProvider =
 final FutureProvider<List<Base>> hardwareBasesProvider =
     FutureProvider<List<Base>>((ref) => ref.watch(basesProvider.future));
 
-final FutureProvider<Board> hardwareBoardProvider =
-    FutureProvider<Board>((ref) => ref.watch(boardProvider.future));
+final FutureProvider<Board> hardwareBoardProvider = FutureProvider<Board>(
+  (ref) => ref.watch(boardProvider.future),
+);
 
 /// One Base by serial number, or null.
 ///
@@ -68,8 +70,10 @@ final FutureProvider<Board> hardwareBoardProvider =
 /// bar.
 // The family's own class is not exported by flutter_riverpod, so this one
 // declaration takes its type from the builder rather than naming it.
-final baseBySerialProvider =
-    Provider.family<AsyncValue<Base?>, String>((ref, serialNumber) {
+final baseBySerialProvider = Provider.family<AsyncValue<Base?>, String>((
+  ref,
+  serialNumber,
+) {
   return ref.watch(hardwareBasesProvider).whenData((bases) {
     for (final base in bases) {
       if (base.serialNumber == serialNumber) return base;
@@ -128,27 +132,27 @@ class LinkedButton {
 /// disagree with the hardware.
 final FutureProvider<Map<String, List<LinkedButton>>> linkedButtonsProvider =
     FutureProvider<Map<String, List<LinkedButton>>>((ref) async {
-  final board = await ref.watch(hardwareBoardProvider.future);
-  final bases = await ref.watch(hardwareBasesProvider.future);
-  final bySerial = <String, Button>{
-    for (final button in board.buttons)
-      if (button.serialNumber != null) button.serialNumber!: button,
-  };
+      final board = await ref.watch(hardwareBoardProvider.future);
+      final bases = await ref.watch(hardwareBasesProvider.future);
+      final bySerial = <String, Button>{
+        for (final button in board.buttons)
+          if (button.serialNumber != null) button.serialNumber!: button,
+      };
 
-  return Map<String, List<LinkedButton>>.unmodifiable(
-    <String, List<LinkedButton>>{
-      for (final base in bases)
-        base.serialNumber: List<LinkedButton>.unmodifiable(<LinkedButton>[
-          for (final paired in base.pairedButtons)
-            LinkedButton(
-              serialNumber: paired.serialNumber,
-              firmwareVersion: paired.firmwareVersion,
-              button: bySerial[paired.serialNumber],
-            ),
-        ]),
-    },
-  );
-});
+      return Map<String, List<LinkedButton>>.unmodifiable(
+        <String, List<LinkedButton>>{
+          for (final base in bases)
+            base.serialNumber: List<LinkedButton>.unmodifiable(<LinkedButton>[
+              for (final paired in base.pairedButtons)
+                LinkedButton(
+                  serialNumber: paired.serialNumber,
+                  firmwareVersion: paired.firmwareVersion,
+                  button: bySerial[paired.serialNumber],
+                ),
+            ]),
+        },
+      );
+    });
 
 // ─────────────────────── Button firmware ───────────────────────
 
@@ -210,15 +214,14 @@ enum ButtonSort {
 
   final String label;
 
-  ButtonSort get next => ButtonSort.values[(index + 1) % ButtonSort.values.length];
+  ButtonSort get next =>
+      ButtonSort.values[(index + 1) % ButtonSort.values.length];
 }
 
 /// The Button sort, shared by `CLASSIC_BUTTONS` and the linked-Button list.
 ///
-/// Held in memory. On the wire this is the `button_sort` user preference and a
-/// PATCH per change; phase 1 writes nothing (§15), so the choice survives a tab
-/// switch and not a restart, and that limitation is the fixture's rather than
-/// the screen's.
+/// Held in memory: the choice survives a tab switch and not a restart. The
+/// `button_sort` preference exists on the wire for when that matters.
 final NotifierProvider<ButtonSortNotifier, ButtonSort> buttonSortProvider =
     NotifierProvider<ButtonSortNotifier, ButtonSort>(ButtonSortNotifier.new);
 

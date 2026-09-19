@@ -60,25 +60,30 @@ class LogEntryEditButtonsScreen extends ConsumerWidget {
     }
 
     if (id == null) {
-      return _NothingToEdit(title: _title, onGo: () => context.go(FpScreen.dashboard.path));
+      return _NothingToEdit(
+        title: _title,
+        onGo: () => context.go(FpScreen.dashboard.path),
+      );
     }
 
-    final activities = ref.watch(logEditableActivitiesProvider);
-    return switch (activities) {
+    final activity = ref.watch(logActivityProvider(id));
+    return switch (activity) {
       AsyncError() => _NothingToEdit(
-          title: _title,
-          onGo: () => context.go(FpScreen.dashboard.path),
-          message: 'Could not load this entry.',
-        ),
-      AsyncData(value: final list) => _resolve(context, ref, list, id),
+        title: _title,
+        onGo: () => context.go(FpScreen.dashboard.path),
+        message: 'Could not load this entry.',
+      ),
+      AsyncData(value: final found) => _resolve(context, ref, found),
       _ => _Loading(title: _title),
     };
   }
 
-  Widget _resolve(BuildContext context, WidgetRef ref, List<Activity> list, int id) {
-    final found = logFindActivity(list, id);
+  Widget _resolve(BuildContext context, WidgetRef ref, Activity? found) {
     if (found == null) {
-      return _NothingToEdit(title: _title, onGo: () => context.go(FpScreen.dashboard.path));
+      return _NothingToEdit(
+        title: _title,
+        onGo: () => context.go(FpScreen.dashboard.path),
+      );
     }
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
@@ -143,7 +148,8 @@ class _NothingToEdit extends StatelessWidget {
                   child: LogEmptyState(
                     icon: PhosphorIconsRegular.pencilSimpleSlash,
                     title: 'Nothing to edit',
-                    message: message ??
+                    message:
+                        message ??
                         'This screen corrects the Buttons on an entry that '
                             'already exists. Open one from the timeline first.',
                     actionLabel: 'Go to Activity',
@@ -212,7 +218,8 @@ class EditButtonsPickerBody extends ConsumerStatefulWidget {
   final ValueChanged<List<Button>> onUpdate;
 
   @override
-  ConsumerState<EditButtonsPickerBody> createState() => _EditButtonsPickerBodyState();
+  ConsumerState<EditButtonsPickerBody> createState() =>
+      _EditButtonsPickerBodyState();
 }
 
 class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
@@ -238,23 +245,23 @@ class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
 
     return switch (board) {
       AsyncError(:final error) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: FpSpace.s6),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: LogEmptyState(
-              icon: PhosphorIconsRegular.warningCircle,
-              title: 'Could not load the Board',
-              message: '$error',
-            ),
+        padding: const EdgeInsets.symmetric(horizontal: FpSpace.s6),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: LogEmptyState(
+            icon: PhosphorIconsRegular.warningCircle,
+            title: 'Could not load the Board',
+            message: '$error',
           ),
         ),
+      ),
       AsyncData(value: final b) => _loaded(context, b),
       _ => Center(
-          child: CircularProgressIndicator(
-            strokeWidth: FpStroke.thick,
-            color: context.fpColors.textBrand,
-          ),
+        child: CircularProgressIndicator(
+          strokeWidth: FpStroke.thick,
+          color: context.fpColors.textBrand,
         ),
+      ),
     };
   }
 
@@ -286,11 +293,16 @@ class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         spacing: FpSpace.s3,
                         children: <Widget>[
-                          for (var i = 0; i < _selected.length; i++) ...<Widget>[
+                          for (
+                            var i = 0;
+                            i < _selected.length;
+                            i++
+                          ) ...<Widget>[
                             if (i > 0) const LogPressBoundary(),
                             LogWordToken(
                               word: _selected[i].text,
-                              onRemove: () => setState(() => _selected.removeAt(i)),
+                              onRemove: () =>
+                                  setState(() => _selected.removeAt(i)),
                             ),
                           ],
                         ],
@@ -309,7 +321,8 @@ class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
                 child: _SearchField(
                   controller: _search,
                   value: _view.search,
-                  onChanged: (value) => setState(() => _view = _view.copyWith(search: value)),
+                  onChanged: (value) =>
+                      setState(() => _view = _view.copyWith(search: value)),
                   onClear: () {
                     _search.clear();
                     setState(() => _view = _view.copyWith(search: ''));
@@ -321,7 +334,8 @@ class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
                 LogEmptyState(
                   icon: PhosphorIconsRegular.squaresFour,
                   title: 'No Buttons on this Board',
-                  message: 'Add the first word your pet can say, and it will '
+                  message:
+                      'Add the first word your pet can say, and it will '
                       'appear here to press.',
                   actionLabel: 'Add the first Button',
                   onAction: () => _addButton(null),
@@ -341,11 +355,15 @@ class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
                   children: <Widget>[
                     LogButtonChip(
                       kind: LogChipKind.add,
-                      onTap: () => _addButton(visible.isEmpty ? _view.search.trim() : null),
+                      onTap: () => _addButton(
+                        visible.isEmpty ? _view.search.trim() : null,
+                      ),
                     ),
                     for (final button in visible)
                       LogButtonChip(
-                        kind: button.isConnect ? LogChipKind.connect : LogChipKind.classic,
+                        kind: button.isConnect
+                            ? LogChipKind.connect
+                            : LogChipKind.classic,
                         label: button.text,
                         onTap: () => _press(button),
                       ),
@@ -404,7 +422,8 @@ class _EditButtonsPickerBodyState extends ConsumerState<EditButtonsPickerBody> {
           LogSheetOption(
             label: sort.label,
             selected: sort == _view.sort,
-            onSelected: () => setState(() => _view = _view.copyWith(sort: sort)),
+            onSelected: () =>
+                setState(() => _view = _view.copyWith(sort: sort)),
           ),
       ],
     );
@@ -429,9 +448,9 @@ class _SearchField extends StatelessWidget {
     final colours = context.fpColors;
 
     OutlineInputBorder border(Color colour, double width) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FpRadius.sm),
-          borderSide: BorderSide(color: colour, width: width),
-        );
+      borderRadius: BorderRadius.circular(FpRadius.sm),
+      borderSide: BorderSide(color: colour, width: width),
+    );
 
     return TextField(
       controller: controller,

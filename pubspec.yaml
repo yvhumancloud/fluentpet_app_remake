@@ -8,14 +8,25 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  built_collection: ^5.1.1
+  dio: ^5.7.0
+  firebase_auth: ^6.7.0
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
   flutter:
     sdk: flutter
+
+  # Generated from the backend's OpenAPI spec — tool/gen_api.sh. Never edited.
+  fluentpet_api:
+    path: packages/fluentpet_api
 
   # State and navigation. Phase 1 has no network, no BLE and no auth, so this
   # is the whole dependency list on purpose — see PLAN.md.
   flutter_riverpod: ^3.0.3
   go_router: ^17.2.1
+  google_sign_in: ^7.2.0
   phosphor_icons: ^3.0.1
+  sentry_flutter: ^9.30.0
 
 dev_dependencies:
   flutter_test:

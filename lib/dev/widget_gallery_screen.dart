@@ -32,10 +32,16 @@ class WidgetGalleryScreen extends StatelessWidget {
   /// literal strings "base" and "event note" — and both draw as a mark rather
   /// than an initial, which is the only way an unattributed press does not read
   /// as somebody called B.
-  static final Pusher _unattributed =
-      Pusher(id: -2, name: 'base', isHuman: false);
-  static final Pusher _journal =
-      Pusher(id: Pusher.journalPusherId, name: 'event note', isHuman: false);
+  static final Pusher _unattributed = Pusher(
+    id: -2,
+    name: 'base',
+    isHuman: false,
+  );
+  static final Pusher _journal = Pusher(
+    id: Pusher.journalPusherId,
+    name: 'event note',
+    isHuman: false,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +54,8 @@ class WidgetGalleryScreen extends StatelessWidget {
           children: <Widget>[
             ScreenHeader(
               title: 'Widget gallery',
-              subtitle: 'Dev only · twelve components and the four buttons, '
+              subtitle:
+                  'Dev only · twelve components and the four buttons, '
                   'every documented state',
               onBack: () => Navigator.of(context).pop(),
             ),
@@ -79,7 +86,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'Teacher · recedes',
-                    note: 'Heading type, secondary, outlined avatar, '
+                    note:
+                        'Heading type, secondary, outlined avatar, '
                         'attribution line.',
                     child: UtteranceRow(
                       at: '11:30',
@@ -101,7 +109,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'Flagged',
-                    note: 'The flag sits on the utterance line, after the last '
+                    note:
+                        'The flag sits on the utterance line, after the last '
                         'word.',
                     child: UtteranceRow(
                       at: '18:47',
@@ -118,7 +127,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                       words: const <String>['play', 'outside'],
                       pusher: _otis,
                       contexts: const <String>['after breakfast'],
-                      note: 'Brought the rope toy over first, then pressed '
+                      note:
+                          'Brought the rope toy over first, then pressed '
                           'both.',
                     ),
                   ),
@@ -158,7 +168,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                         'living room',
                         'unprompted',
                       ],
-                      note: 'First time she has combined a name with a '
+                      note:
+                          'First time she has combined a name with a '
                           'request. Repeated it twice after.',
                       flagged: true,
                       firstTimeWord: 'Sam',
@@ -166,7 +177,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'Long utterance · wrapping',
-                    note: 'Display type wraps rather than shrinking; the rail '
+                    note:
+                        'Display type wraps rather than shrinking; the rail '
                         'stays put.',
                     child: UtteranceRow(
                       at: '20:41',
@@ -206,8 +218,10 @@ class WidgetGalleryScreen extends StatelessWidget {
                     ),
                   ),
                   _Specimen(
-                    label: 'Unattributed · nobody pressed it *that anyone knows*',
-                    note: 'PusherKind.base. A question-mark disc and the row\'s '
+                    label:
+                        'Unattributed · nobody pressed it *that anyone knows*',
+                    note:
+                        'PusherKind.base. A question-mark disc and the row\'s '
                         'own attribution line — never "base modelled this", '
                         'which is what reading the question as '
                         '"not a Learner" produced.',
@@ -225,7 +239,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                         id: 99,
                         occurredAt: DateTime(2026, 8, 19, 12, 15),
                         pusher: _sam,
-                        body: 'Sealed-subtype dispatch, timestamp formatted '
+                        body:
+                            'Sealed-subtype dispatch, timestamp formatted '
                             'once.',
                       ),
                     ),
@@ -260,7 +275,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'Pseudo-Pushers · unattributed, journal',
-                    note: 'Marks, not letters: their names are wire sentinels '
+                    note:
+                        'Marks, not letters: their names are wire sentinels '
                         'and "base".initial is a B.',
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -279,10 +295,7 @@ class WidgetGalleryScreen extends StatelessWidget {
                     note: 'The difference must survive greyscale.',
                     child: Row(
                       children: <Widget>[
-                        PusherAvatar(
-                          pusher: _otis,
-                          size: PusherAvatarSize.lg,
-                        ),
+                        PusherAvatar(pusher: _otis, size: PusherAvatarSize.lg),
                         const SizedBox(width: FpSpace.s5),
                         PusherAvatar(pusher: _sam, size: PusherAvatarSize.lg),
                       ],
@@ -332,7 +345,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   const _Specimen(
                     label: 'Long prose',
                     child: NoteBlock(
-                      text: 'Pressed this three times in a row while standing '
+                      text:
+                          'Pressed this three times in a row while standing '
                           'at the back door, then went and sat by the lead. '
                           'Waited about a minute between the second and third '
                           "press, which is longer than the Base's grouping "
@@ -342,10 +356,12 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   const _Specimen(
                     label: 'With a pasted link',
-                    note: 'The token wraps mid-string, not one character per '
+                    note:
+                        'The token wraps mid-string, not one character per '
                         'line.',
                     child: NoteBlock(
-                      text: 'Discussed on the forum: '
+                      text:
+                          'Discussed on the forum: '
                           'https://community.fluent.pet/t/multi-press-grouping'
                           '-window-and-what-it-does-to-long-utterances/48213',
                     ),
@@ -423,7 +439,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   const _Section('7 · Device health pill'),
                   const _Specimen(
                     label: 'All six states',
-                    note: 'none → syncing → offline → low → online, and '
+                    note:
+                        'none → syncing → offline → low → online, and '
                         'online with the level unknown.',
                     child: Wrap(
                       spacing: FpSpace.s3,
@@ -440,13 +457,15 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'With somewhere to go',
-                    note: 'The chevron appears only when the pill can '
+                    note:
+                        'The chevron appears only when the pill can '
                         'navigate.',
                     child: DeviceHealthPill(battery: 87, onTap: () {}),
                   ),
                   _Specimen(
                     label: 'Precedence · offline at 12%',
-                    note: 'One dot, one label. Offline wins and the stale '
+                    note:
+                        'One dot, one label. Offline wins and the stale '
                         'percent is dropped.',
                     child: DeviceHealthPill.forBase(
                       Base(
@@ -493,7 +512,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   const _Section('9 · Tab bar'),
                   for (final tab in FpTab.values)
                     _Specimen(
-                      label: '${tab.label} active'
+                      label:
+                          '${tab.label} active'
                           '${tab == FpTab.activity ? ' · the default' : ''}',
                       inset: false,
                       child: FpTabBar(
@@ -503,7 +523,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                     ),
                   _Specimen(
                     label: 'With an attention dot',
-                    note: 'Count-free status. It says "go look", not "you '
+                    note:
+                        'Count-free status. It says "go look", not "you '
                         'have 3".',
                     inset: false,
                     child: FpTabBar(
@@ -527,7 +548,10 @@ class WidgetGalleryScreen extends StatelessWidget {
                   const _Specimen(
                     label: 'Title and date only',
                     inset: false,
-                    child: ScreenHeader(title: 'Tuesday', subtitle: '17 August'),
+                    child: ScreenHeader(
+                      title: 'Tuesday',
+                      subtitle: '17 August',
+                    ),
                   ),
                   _Specimen(
                     label: 'Detail screen · back chevron',
@@ -564,7 +588,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   const _Section('11 & 12 · Status bar and home indicator'),
                   const _Specimen(
                     label: 'Not built, on purpose',
-                    note: 'Both are the OS\'s chrome. The specification says '
+                    note:
+                        'Both are the OS\'s chrome. The specification says '
                         'Flutter gets them from SafeArea, so there is no fake '
                         'clock and no fake home bar in this app. The top inset '
                         'and the overlay style come from FpOsChrome, which '
@@ -576,18 +601,19 @@ class WidgetGalleryScreen extends StatelessWidget {
                   const _Section('13 · Buttons, enabled and disabled'),
                   _Specimen(
                     label: 'ActionButton · every tone',
-                    note: 'Disabled is a specified pair of tokens, not an '
+                    note:
+                        'Disabled is a specified pair of tokens, not an '
                         'opacity over the enabled fill. Compare each row: the '
                         'colour drops out, the label stays readable at 6.43:1.',
                     child: Column(
                       children: <Widget>[
-                        for (final (String name, ButtonTone tone) in const
-                            <(String, ButtonTone)>[
-                          ('primary', ButtonTone.primary),
-                          ('secondary', ButtonTone.secondary),
-                          ('ghost', ButtonTone.ghost),
-                          ('danger', ButtonTone.danger),
-                        ]) ...<Widget>[
+                        for (final (String name, ButtonTone tone)
+                            in const <(String, ButtonTone)>[
+                              ('primary', ButtonTone.primary),
+                              ('secondary', ButtonTone.secondary),
+                              ('ghost', ButtonTone.ghost),
+                              ('danger', ButtonTone.danger),
+                            ]) ...<Widget>[
                           Row(
                             children: <Widget>[
                               Expanded(
@@ -614,7 +640,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'LogActionButton · the LOG and LOG_DETAILS bar',
-                    note: '"Log event" is disabled until a Button is picked. '
+                    note:
+                        '"Log event" is disabled until a Button is picked. '
                         'That is the state this screen spends most of its '
                         'life in, so it has to be readable.',
                     child: Column(
@@ -645,7 +672,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'HardwarePrimaryButton · the pinned commit',
-                    note: 'BASE_EDIT keeps it disabled until something '
+                    note:
+                        'BASE_EDIT keeps it disabled until something '
                         'changes.',
                     child: Column(
                       children: <Widget>[
@@ -663,7 +691,8 @@ class WidgetGalleryScreen extends StatelessWidget {
                   ),
                   _Specimen(
                     label: 'ButtonChip · three kinds, plus unavailable',
-                    note: 'Unavailable is a Button the Base reports and the '
+                    note:
+                        'Unavailable is a Button the Base reports and the '
                         'database does not have.',
                     child: Wrap(
                       spacing: FpSpace.s3,
@@ -762,10 +791,7 @@ class _Specimen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            label,
-            style: FpType.labelSm.copyWith(color: c.textTertiary),
-          ),
+          Text(label, style: FpType.labelSm.copyWith(color: c.textTertiary)),
           if (subtitle != null) ...<Widget>[
             const SizedBox(height: FpSpace.s1),
             Text(

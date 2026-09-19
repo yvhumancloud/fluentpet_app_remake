@@ -40,9 +40,9 @@ class SummaryLine extends StatelessWidget {
 
   /// The same three numbers, as the domain already computes them.
   SummaryLine.of(DashboardSummary summary, {this.isToday = true, super.key})
-      : count = summary.utterances,
-        multi = summary.multiWord,
-        firstTimes = summary.firstTimes;
+    : count = summary.utterances,
+      multi = summary.multiWord,
+      firstTimes = summary.firstTimes;
 
   /// Learner utterances today.
   final int count;

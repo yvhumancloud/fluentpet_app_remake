@@ -45,17 +45,17 @@ import 'log_entry_edit_pusher_screen.dart';
 import 'log_entry_edit_screen.dart';
 
 /// The Log-edit area's screens, keyed the way [FpScreen] keys everything else.
-final Map<FpScreen, Widget Function(BuildContext, GoRouterState)> logEditRoutes =
-    <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
+logEditRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
   FpScreen.logEntryEdit: (context, state) => LogEntryEditScreen(
-        activityId: int.tryParse(state.uri.queryParameters['activityId'] ?? ''),
-      ),
+    activityId: int.tryParse(state.uri.queryParameters['activityId'] ?? ''),
+  ),
   FpScreen.logEntryEditButtons: (context, state) => LogEntryEditButtonsScreen(
-        activityId: int.tryParse(state.uri.queryParameters['activityId'] ?? ''),
-      ),
+    activityId: int.tryParse(state.uri.queryParameters['activityId'] ?? ''),
+  ),
   FpScreen.logEntryEditPusher: (context, state) => LogEntryEditPusherScreen(
-        activityId: int.tryParse(state.uri.queryParameters['activityId'] ?? ''),
-      ),
+    activityId: int.tryParse(state.uri.queryParameters['activityId'] ?? ''),
+  ),
   FpScreen.logDetailsEditButtons: (context, state) =>
       const LogDetailsEditButtonsScreen(),
   FpScreen.logDetailsEditPusher: (context, state) =>

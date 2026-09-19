@@ -16,13 +16,13 @@
 /// ([buttons_fixture.dart]'s [baseForButton], the same join
 /// `linkedButtonsProvider` performs from the other side).
 ///
-/// ## What phase 1 does not attempt
+/// ## What this screen does not attempt
 ///
 /// The RN screen's `onError` branch — a 404 with `duplicate_button_id`
 /// triggers a merge-instead-of-rename prompt (`ButtonEdit.tsx:209-219`) — is a
 /// real network error path with nothing to trigger it here (PLAN.md: no
 /// network). UPDATE BUTTON always succeeds, as a phase-1 no-op, the same
-/// `showPhaseOneNotice` pattern `hardware_ui.dart` uses under a different
+/// snackbar pattern `hardware_ui.dart` uses under a different
 /// name ([logSay], reused from `log_controls.dart` per the coordinator's
 /// addendum).
 ///
@@ -43,7 +43,7 @@ import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
 import '../log/log_controls.dart';
-import 'buttons_fixture.dart';
+import 'buttons_lookup.dart';
 import 'buttons_ui.dart';
 
 class ButtonEditScreen extends ConsumerStatefulWidget {
@@ -69,16 +69,17 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
   final TextEditingController _webhook = TextEditingController();
   final TextEditingController _note = TextEditingController();
 
-  String? _meaning;
+  int? _conceptId;
   DateTime _introducedAt = DateTime.now();
   bool _dirty = false;
   bool _submitting = false;
   bool _initialised = false;
 
-  /// Local mirror of `newSoundUri`: true means "a sound was attached or
-  /// replaced this session", which is enough on its own to enable the save.
+  /// The sound on the Button as the form now has it. Only removal is
+  /// possible here: recording needs a microphone and an Opus encoder the app
+  /// does not carry yet.
+  int? _audioId;
   bool _soundChanged = false;
-  bool _hasSound = false;
 
   @override
   void dispose() {
@@ -95,8 +96,9 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
     _webhook.text = '';
     _note.text = button.note;
     _introducedAt = button.introducedAt ?? DateTime.now();
-    _meaning = buttonMeaningById[button.id];
-    _hasSound = buttonSounds.containsKey(button.id);
+    _conceptId = button.conceptId;
+    _audioId = button.audioId;
+    _webhook.text = button.webhookUrl ?? '';
   }
 
   @override
@@ -115,8 +117,7 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
               onClose: () => Navigator.of(context).maybePop(),
             ),
             Expanded(
-              child:
-                  boardId == null ? const _NotFound() : _buildBody(context),
+              child: boardId == null ? const _NotFound() : _buildBody(context),
             ),
           ],
         ),
@@ -128,10 +129,14 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
     final board = ref.watch(boardProvider);
     final bases = ref.watch(basesProvider);
     return switch (board) {
-      AsyncData<Board>(:final value) =>
-        _buildForm(context, value, bases.value ?? const <Base>[]),
-      AsyncError<Board>() =>
-        const _NotFound(message: 'Could not load this Button.'),
+      AsyncData<Board>(:final value) => _buildForm(
+        context,
+        value,
+        bases.value ?? const <Base>[],
+      ),
+      AsyncError<Board>() => const _NotFound(
+        message: 'Could not load this Button.',
+      ),
       _ => const _Loading(),
     };
   }
@@ -146,7 +151,6 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
     final c = context.fpColors;
     final isConnect = button.kind == ButtonKind.connect;
     final base = isConnect ? baseForButton(bases, button) : null;
-    final sound = buttonSounds[button.id];
 
     return Column(
       children: <Widget>[
@@ -189,27 +193,13 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
               if (isConnect) ...<Widget>[
                 const SizedBox(height: FpSpace.s5),
                 ButtonAudioSection(
-                  hasSound: _hasSound,
-                  label: sound?.label ?? 'Custom sound',
+                  hasSound: _audioId != null,
+                  label: 'Custom sound',
                   onDelete: () => setState(() {
-                    _hasSound = false;
+                    _audioId = null;
                     _soundChanged = true;
                   }),
                 ),
-                if (!_hasSound)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => setState(() {
-                        _hasSound = true;
-                        _soundChanged = true;
-                      }),
-                      child: Text(
-                        'Simulate a recording',
-                        style: FpType.labelMd.copyWith(color: c.textBrand),
-                      ),
-                    ),
-                  ),
               ],
               const SizedBox(height: FpSpace.s5),
               ButtonsExpander(
@@ -220,10 +210,12 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
                       label: 'Meaning',
                       onTap: () => _pickMeaning(context),
                       child: Text(
-                        _meaning ?? 'Button Meaning',
+                        ref.watch(buttonConceptsProvider).value?[_conceptId] ??
+                            'Button Meaning',
                         style: FpType.bodyMd.copyWith(
-                          color:
-                              _meaning == null ? c.textTertiary : c.textPrimary,
+                          color: _conceptId == null
+                              ? c.textTertiary
+                              : c.textPrimary,
                         ),
                       ),
                     ),
@@ -238,8 +230,9 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
                             onTap: () => _pickDate(context),
                             child: Text(
                               FpFormat.dayAndMonth(_introducedAt),
-                              style:
-                                  FpType.bodyMd.copyWith(color: c.textPrimary),
+                              style: FpType.bodyMd.copyWith(
+                                color: c.textPrimary,
+                              ),
                             ),
                           ),
                         ),
@@ -249,8 +242,9 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
                             label: 'Button Type',
                             child: Text(
                               isConnect ? 'Connect' : 'Classic',
-                              style: FpType.bodyMd
-                                  .copyWith(color: c.textTertiary),
+                              style: FpType.bodyMd.copyWith(
+                                color: c.textTertiary,
+                              ),
                             ),
                           ),
                         ),
@@ -266,8 +260,9 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
                               label: 'Button ID',
                               child: Text(
                                 button.serialNumber ?? '—',
-                                style: FpType.monoSm
-                                    .copyWith(color: c.textTertiary),
+                                style: FpType.monoSm.copyWith(
+                                  color: c.textTertiary,
+                                ),
                               ),
                             ),
                           ),
@@ -277,8 +272,9 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
                               label: 'Base',
                               child: Text(
                                 base?.displayName ?? 'unavailable',
-                                style: FpType.bodyMd
-                                    .copyWith(color: c.textTertiary),
+                                style: FpType.bodyMd.copyWith(
+                                  color: c.textTertiary,
+                                ),
                               ),
                             ),
                           ),
@@ -320,16 +316,16 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
                           keyboardType: TextInputType.multiline,
                           textCapitalization: TextCapitalization.sentences,
                           onChanged: (_) => setState(() => _dirty = true),
-                          style:
-                              FpType.bodyMd.copyWith(color: c.textPrimary),
+                          style: FpType.bodyMd.copyWith(color: c.textPrimary),
                           cursorColor: c.textBrand,
                           decoration: InputDecoration(
                             isDense: true,
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                             hintText: 'Add more detail',
-                            hintStyle: FpType.bodyMd
-                                .copyWith(color: c.textTertiary),
+                            hintStyle: FpType.bodyMd.copyWith(
+                              color: c.textTertiary,
+                            ),
                           ),
                         ),
                       ),
@@ -345,7 +341,7 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
             LogActionButton(
               label: 'UPDATE BUTTON',
               onPressed: (_dirty || _soundChanged) && !_submitting
-                  ? () => _save(context)
+                  ? () => _save(context, button)
                   : null,
             ),
           ],
@@ -355,24 +351,26 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
   }
 
   Future<void> _pickMeaning(BuildContext context) {
+    final concepts =
+        ref.read(buttonConceptsProvider).value ?? const <int, String>{};
     return showLogSheet(
       context,
       title: 'Meaning',
       options: <LogSheetOption>[
         LogSheetOption(
           label: 'None',
-          selected: _meaning == null,
+          selected: _conceptId == null,
           onSelected: () => setState(() {
-            _meaning = null;
+            _conceptId = null;
             _dirty = true;
           }),
         ),
-        for (final meaning in buttonMeanings)
+        for (final entry in concepts.entries)
           LogSheetOption(
-            label: meaning,
-            selected: _meaning == meaning,
+            label: entry.value,
+            selected: _conceptId == entry.key,
             onSelected: () => setState(() {
-              _meaning = meaning;
+              _conceptId = entry.key;
               _dirty = true;
             }),
           ),
@@ -396,14 +394,32 @@ class _ButtonEditScreenState extends ConsumerState<ButtonEditScreen> {
     }
   }
 
-  Future<void> _save(BuildContext context) async {
+  Future<void> _save(BuildContext context, Button button) async {
     setState(() => _submitting = true);
-    // `PATCH /api/v1/buttons/{id}` (§15) — a no-op. Fixtures only (PLAN.md).
-    await Future<void>.delayed(const Duration(milliseconds: 200));
+    final webhook = _webhook.text.trim();
+    final ok = await logWrite(
+      context,
+      () => ref
+          .read(hardwareRepositoryProvider)
+          .updateButton(
+            Button(
+              id: button.id,
+              boardId: button.boardId,
+              text: _word.text.trim(),
+              kind: button.kind,
+              note: _note.text.trim(),
+              introducedAt: _introducedAt,
+              conceptId: _conceptId,
+              audioId: _audioId,
+              webhookUrl: webhook.isEmpty ? null : webhook,
+            ),
+          ),
+    );
     if (!context.mounted) return;
     setState(() => _submitting = false);
-
-    logSay(context, '“${_word.text.trim()}” updated — phase 1 stores nothing.');
+    if (!ok) return;
+    ref.invalidate(boardProvider);
+    logSay(context, '“${_word.text.trim()}” updated.');
     Navigator.of(context).maybePop();
   }
 }

@@ -6,17 +6,14 @@
 /// enumeration. Every sentence here works for an address with an account and
 /// for one without.
 ///
-/// **Nothing was sent.** Phase 1 has no mail. The screen says so at the foot
-/// rather than only in this comment, on the same principle the rest of the app
-/// already follows — `ProductGlyph` "stays honest about being a stand-in", and
-/// `WELCOME`'s support bubble says phase 1 has no Intercom session.
-///
 /// The link in that mail opens Firebase Auth's hosted reset page, not a screen
-/// in this app, so this is the last screen of the flow.
+/// in this app, so this is the last screen of the flow. "Send another link"
+/// calls [AuthService.sendPasswordReset] again, with the same swallowing of
+/// `user-not-found` the form does.
 ///
 /// ## The resend, and the disabled treatment
 ///
-/// The resend cools down for [AuthFixture.resendCooldownSeconds]. While it is
+/// The resend cools down for [AuthRules.resendCooldownSeconds]. While it is
 /// cooling the control is **removed**, not greyed: `text.disabled` and
 /// `text.tertiary` are the same value, so a greyed link is a link. Components
 /// § Disabled states names "affordance removed, not recoloured" and "a reason,
@@ -25,26 +22,37 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
+import '../../auth/auth_service.dart';
 import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../hardware/hardware_ui.dart' show HardwareNotice;
 import '../log/log_controls.dart' show LogHairline, LogTextAction, logSay;
-import 'auth_fixture.dart';
+import 'auth_rules.dart';
 import 'auth_ui.dart';
 
-class CheckYourEmailScreen extends StatelessWidget {
+class CheckYourEmailScreen extends ConsumerWidget {
   const CheckYourEmailScreen({required this.email, super.key});
 
   /// The address the link went to. Empty when the screen was opened from the
   /// drawer's route index rather than from the reset form.
   final String email;
 
+  Future<void> _resend(BuildContext context, WidgetRef ref) async {
+    try {
+      await ref.read(authServiceProvider).sendPasswordReset(email);
+    } catch (e) {
+      if (!context.mounted || AuthFailure.of(e) == AuthFailure.rejected) return;
+      logSay(context, 'Could not send the link. Try again in a moment.');
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fpColors;
     final back = context.canPop() ? () => context.pop() : null;
 
@@ -60,7 +68,8 @@ class CheckYourEmailScreen extends StatelessWidget {
           HardwareNotice(
             icon: PhosphorIconsRegular.envelopeSimple,
             title: 'There is no address to confirm',
-            body: 'This screen reports on a reset link that has just been '
+            body:
+                'This screen reports on a reset link that has just been '
                 'sent, so it is normally reached from the reset form.',
             action: LogTextAction(
               label: 'Reset a password',
@@ -91,7 +100,7 @@ class CheckYourEmailScreen extends StatelessWidget {
         AuthAddressWell(email),
         const SizedBox(height: FpSpace.s6),
         Text(
-          'The link lasts ${AuthFixture.resetLinkLifetime} and can be used '
+          'The link lasts ${AuthRules.resetLinkLifetime} and can be used '
           'once. Until you use it, the old password still works.',
           style: FpType.bodySm.copyWith(color: c.textSecondary),
         ),
@@ -103,12 +112,9 @@ class CheckYourEmailScreen extends StatelessWidget {
         const SizedBox(height: FpSpace.s3),
         AuthResendControl(
           label: 'Send another link',
-          cooldownSeconds: AuthFixture.resendCooldownSeconds,
+          cooldownSeconds: AuthRules.resendCooldownSeconds,
           startCooling: true,
-          onResend: () => logSay(
-            context,
-            'Phase 1 sends no mail. Nothing went out.',
-          ),
+          onResend: () => _resend(context, ref),
         ),
         const SizedBox(height: FpSpace.s5),
         const LogHairline(),
@@ -119,14 +125,8 @@ class CheckYourEmailScreen extends StatelessWidget {
         ),
         LogTextAction(
           label: 'Ask for it again',
-          onTap: () => back == null
-              ? context.go(FpScreen.forgotPassword.path)
-              : back(),
-        ),
-        const SizedBox(height: FpSpace.s6),
-        const AuthPhaseNote(
-          text: 'Phase 1 sends no mail and has no account to send it about. '
-              'Nothing you typed left this device.',
+          onTap: () =>
+              back == null ? context.go(FpScreen.forgotPassword.path) : back(),
         ),
       ],
     );

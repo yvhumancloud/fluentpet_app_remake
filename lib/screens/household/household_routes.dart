@@ -36,12 +36,11 @@ import 'household_screen.dart';
 
 /// The Household area's contribution to `screenBuilders`.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    householdRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+householdRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
   FpScreen.household: (context, state) => const HouseholdScreen(),
   FpScreen.householdAdd: (context, state) => const HouseholdAddScreen(),
   FpScreen.householdEdit: (context, state) => HouseholdEditScreen(
-        pusherId: int.tryParse(state.uri.queryParameters['id'] ?? ''),
-      ),
-  FpScreen.householdMembers: (context, state) =>
-      const HouseholdMembersScreen(),
+    pusherId: int.tryParse(state.uri.queryParameters['id'] ?? ''),
+  ),
+  FpScreen.householdMembers: (context, state) => const HouseholdMembersScreen(),
 };

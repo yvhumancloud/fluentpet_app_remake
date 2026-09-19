@@ -17,20 +17,20 @@
 /// Two of the five take one, and both ride as query parameters on the
 /// generated path rather than as `state.extra` — the README's rule, because
 /// `extra` survives a push and evaporates on a deep link or a restore, which is
-/// the one case anybody tests it in. `VERIFY_EMAIL`'s `verified=1` is the kind
-/// of thing a link out of an email carries.
+/// the one case anybody tests it in.
 ///
-/// Every one of them is missable, and every screen has a designed state for
-/// being opened without it — the drawer's route index reaches all five with no
-/// query string at all, and none of them renders a blank.
+/// Both are missable, and both screens have a designed state for being opened
+/// without it — the drawer's route index reaches all five with no query string
+/// at all, and none of them renders a blank.
 ///
 /// | screen | parameters | absent |
 /// |---|---|---|
 /// | `CHECK_YOUR_EMAIL` | `email` | says the screen needs one, offers the form that supplies it |
-/// | `VERIFY_EMAIL` | `email`, `verified` | no email is the same notice; no `verified` is the waiting state |
+/// | `VERIFY_EMAIL` | `email` | the session's own address; without one, the same notice |
 ///
 /// There is no `SET_NEW_PASSWORD`: Firebase Auth hosts the password-reset page
-/// the email links to, so the app's part ends at `CHECK_YOUR_EMAIL`.
+/// the email links to, so the app's part ends at `CHECK_YOUR_EMAIL`. And there
+/// is no verified state: the router moves a verified session on by itself.
 library;
 
 import 'package:flutter/widgets.dart';
@@ -46,21 +46,15 @@ import 'verify_email_screen.dart';
 /// The five auth screens, keyed the way [FpScreen] keys everything else.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)> authRoutes =
     <FpScreen, Widget Function(BuildContext, GoRouterState)>{
-  FpScreen.signIn: (context, state) => const SignInScreen(),
-  FpScreen.signUp: (context, state) => const SignUpScreen(),
-  FpScreen.forgotPassword: (context, state) => const ForgotPasswordScreen(),
-  FpScreen.checkYourEmail: (context, state) => CheckYourEmailScreen(
+      FpScreen.signIn: (context, state) => const SignInScreen(),
+      FpScreen.signUp: (context, state) => const SignUpScreen(),
+      FpScreen.forgotPassword: (context, state) => const ForgotPasswordScreen(),
+      FpScreen.checkYourEmail: (context, state) => CheckYourEmailScreen(
         // Empty rather than null: the screen's own no-address state says
         // everything a null check here could, and it says it on screen rather
         // than in a crash. Same call the Hardware area makes for `BASE_EDIT`.
         email: state.uri.queryParameters['email'] ?? '',
       ),
-  FpScreen.verifyEmail: (context, state) => VerifyEmailScreen(
-        email: state.uri.queryParameters['email'] ?? '',
-        // Only the literal "1" verifies. A truthiness test over an arbitrary
-        // string would make `?verified=0` and `?verified=false` both mean
-        // verified, which is the classic way a query-parameter flag becomes a
-        // bug that only appears in a link somebody pasted.
-        verified: state.uri.queryParameters['verified'] == '1',
-      ),
-};
+      FpScreen.verifyEmail: (context, state) =>
+          VerifyEmailScreen(email: state.uri.queryParameters['email'] ?? ''),
+    };

@@ -44,7 +44,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../auth/auth_service.dart';
 import '../screens/activity/activity_routes.dart';
 import '../screens/auth/auth_routes.dart';
 import '../screens/buttons/buttons_routes.dart';
@@ -84,7 +86,7 @@ import 'tabs.dart';
 /// design system's `invented-screens.json` places them in. A builder cannot
 /// override it and must not try.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    screenBuilders = _merge(<Map<FpScreen, ScreenBuilder>>[
+screenBuilders = _merge(<Map<FpScreen, ScreenBuilder>>[
   activityRoutes,
   authRoutes,
   logRoutes,
@@ -113,8 +115,9 @@ Map<FpScreen, ScreenBuilder> _merge(List<Map<FpScreen, ScreenBuilder>> maps) {
     }
   }
   assert(() {
-    final missing =
-        FpScreen.values.where((s) => !merged.containsKey(s)).map((s) => s.key);
+    final missing = FpScreen.values
+        .where((s) => !merged.containsKey(s))
+        .map((s) => s.key);
     if (missing.isEmpty) return true;
     throw AssertionError(
       'No builder for ${missing.join(', ')}. These resolve to '
@@ -124,19 +127,31 @@ Map<FpScreen, ScreenBuilder> _merge(List<Map<FpScreen, ScreenBuilder>> maps) {
   return Map<FpScreen, ScreenBuilder>.unmodifiable(merged);
 }
 
-final GlobalKey<NavigatorState> rootNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
 
 final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
-  final router = buildRouter();
+  // Bumped on every auth change so GoRouter re-runs `redirect` — sign-out
+  // from Settings lands on WELCOME without any screen navigating there.
+  final refresh = ValueNotifier<int>(0);
+  ref.listen(authStateProvider, (_, __) => refresh.value++);
+  final auth = ref.read(authServiceProvider);
+  final router = buildRouter(
+    refreshListenable: refresh,
+    redirect: (context, state) => authRedirect(auth.current, state.uri.path),
+  );
   ref.onDispose(router.dispose);
+  ref.onDispose(refresh.dispose);
   return router;
 });
 
-GoRouter buildRouter({String? initialLocation}) {
-  final tabbed = <FpScreen>{
-    for (final tab in FpTab.values) ...tab.screens,
-  };
+GoRouter buildRouter({
+  String? initialLocation,
+  Listenable? refreshListenable,
+  GoRouterRedirect? redirect,
+}) {
+  final tabbed = <FpScreen>{for (final tab in FpTab.values) ...tab.screens};
 
   final modal = FpScreen.values
       .where((s) => !tabbed.contains(s))
@@ -149,6 +164,12 @@ GoRouter buildRouter({String? initialLocation}) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation ?? FpTab.activity.root.path,
+    refreshListenable: refreshListenable,
+    redirect: redirect,
+    // Screen names as breadcrumbs on every Sentry event. Root navigator only,
+    // so tab-branch pushes are not seen; the route that was current when an
+    // error hit still is.
+    observers: <NavigatorObserver>[SentryNavigatorObserver()],
     debugLogDiagnostics: false,
     routes: <RouteBase>[
       StatefulShellRoute.indexedStack(
@@ -174,8 +195,7 @@ GoRouter buildRouter({String? initialLocation}) {
     // was built this fell back to [PlaceholderScreen]; that would now show
     // "NOT BUILT YET" for a stale deep link, which is a different and wrong
     // statement.
-    errorBuilder: (context, state) =>
-        _screen(FpScreen.unknown, context, state),
+    errorBuilder: (context, state) => _screen(FpScreen.unknown, context, state),
   );
 }
 
@@ -183,7 +203,10 @@ Widget _screen(FpScreen screen, BuildContext context, GoRouterState state) =>
     screenBuilders[screen]?.call(context, state) ??
     PlaceholderScreen(screen: screen);
 
-GoRoute _stackRoute(FpScreen screen, {GlobalKey<NavigatorState>? parentNavigatorKey}) {
+GoRoute _stackRoute(
+  FpScreen screen, {
+  GlobalKey<NavigatorState>? parentNavigatorKey,
+}) {
   return GoRoute(
     path: screen.path,
     name: screen.key,

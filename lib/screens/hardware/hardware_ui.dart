@@ -113,10 +113,7 @@ class SectionHeading extends StatelessWidget {
         Expanded(
           child: Divider(color: c.borderSubtle, height: FpStroke.hairline),
         ),
-        if (end != null) ...<Widget>[
-          const SizedBox(width: FpSpace.s3),
-          end,
-        ],
+        if (end != null) ...<Widget>[const SizedBox(width: FpSpace.s3), end],
       ],
     );
   }
@@ -161,8 +158,9 @@ class FactRow extends StatelessWidget {
       label: label,
       child: Text(
         value,
-        style: (mono ? FpType.monoSm : FpType.bodySm)
-            .copyWith(color: tone ?? c.textPrimary),
+        style: (mono ? FpType.monoSm : FpType.bodySm).copyWith(
+          color: tone ?? c.textPrimary,
+        ),
       ),
     );
     if (onLongPress == null) return row;
@@ -238,8 +236,8 @@ class ButtonChip extends StatelessWidget {
     this.onLongPress,
     this.enabled = true,
     super.key,
-  })  : label = button.text,
-        kind = button.kind;
+  }) : label = button.text,
+       kind = button.kind;
 
   final String label;
   final ButtonKind kind;
@@ -331,10 +329,7 @@ class ButtonChip extends StatelessWidget {
               const SizedBox(width: FpSpace.s2),
             ],
           ],
-          Text(
-            label,
-            style: FpType.bodyMd.copyWith(color: foreground),
-          ),
+          Text(label, style: FpType.bodyMd.copyWith(color: foreground)),
         ],
       ),
     );
@@ -361,10 +356,10 @@ class ButtonChip extends StatelessWidget {
   }
 
   static String _kindWord(ButtonKind kind) => switch (kind) {
-        ButtonKind.connect => 'Connect Button',
-        ButtonKind.classic => 'Classic Button',
-        ButtonKind.inaudible => 'Inaudible Button',
-      };
+    ButtonKind.connect => 'Connect Button',
+    ButtonKind.classic => 'Classic Button',
+    ButtonKind.inaudible => 'Inaudible Button',
+  };
 }
 
 // ─────────────────────────── battery ───────────────────────────
@@ -381,7 +376,11 @@ class ButtonChip extends StatelessWidget {
 /// and there is no charging state in the design; a number that stopped meaning
 /// anything is worse than no number.
 class BatteryReadout extends StatelessWidget {
-  const BatteryReadout({required this.percent, this.compact = false, super.key});
+  const BatteryReadout({
+    required this.percent,
+    this.compact = false,
+    super.key,
+  });
 
   final int? percent;
 
@@ -647,8 +646,8 @@ class _HardwareTextFieldState extends State<HardwareTextField> {
     final Color border = hasError
         ? c.statusDangerBorder
         : _focus.hasFocus
-            ? c.borderFocus
-            : c.borderDefault;
+        ? c.borderFocus
+        : c.borderDefault;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,8 +690,7 @@ class _HardwareTextFieldState extends State<HardwareTextField> {
                     required int currentLength,
                     required bool isFocused,
                     required int? maxLength,
-                  }) =>
-                      null,
+                  }) => null,
                   decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
@@ -792,11 +790,7 @@ class HardwarePrimaryButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   if (glyph != null) ...<Widget>[
-                    PhosphorIcon(
-                      glyph,
-                      size: FpIconSize.md,
-                      color: foreground,
-                    ),
+                    PhosphorIcon(glyph, size: FpIconSize.md, color: foreground),
                     const SizedBox(width: FpSpace.s3),
                   ],
                   Text(
@@ -1091,31 +1085,6 @@ Future<bool> confirmDestructive({
   return result ?? false;
 }
 
-/// What a phase-1 write does instead of writing.
-///
-/// Every mutation on these four screens — delete a Base, save a Base, archive
-/// a Button, unlink a Button, open an external browser — is listed in §15 as a
-/// no-op. A control that silently does nothing is indistinguishable from a
-/// broken one, so each says so, once, in the same place and the same words.
-void showPhaseOneNotice(BuildContext context, String what) {
-  final c = context.fpColors;
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        backgroundColor: c.surfaceInverse,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FpRadius.md),
-        ),
-        content: Text(
-          '$what — phase 1 stores nothing.',
-          style: FpType.bodySm.copyWith(color: c.textInverse),
-        ),
-      ),
-    );
-}
-
 // ─────────────────────────── states ───────────────────────────
 
 /// The one loading treatment these screens use.
@@ -1284,8 +1253,9 @@ class MetaLine extends StatelessWidget {
             ),
           Text(
             facts[i].text,
-            style: (facts[i].mono ? FpType.monoSm : FpType.labelMd)
-                .copyWith(color: facts[i].tone ?? c.textTertiary),
+            style: (facts[i].mono ? FpType.monoSm : FpType.labelMd).copyWith(
+              color: facts[i].tone ?? c.textTertiary,
+            ),
           ),
         ],
       ],

@@ -79,15 +79,15 @@ class TimelineQuery {
 
   /// One Button, by id. [meaning] is its text — the word it speaks.
   const TimelineQuery.button({required int id, required String meaning})
-      : this._(facet: TimelineFacet.button, id: id, label: meaning);
+    : this._(facet: TimelineFacet.button, id: id, label: meaning);
 
   /// One Context, by id.
   const TimelineQuery.context({required int id, required String text})
-      : this._(facet: TimelineFacet.context, id: id, label: text);
+    : this._(facet: TimelineFacet.context, id: id, label: text);
 
   /// One Pusher, by id.
   const TimelineQuery.pusher({required int id, required String name})
-      : this._(facet: TimelineFacet.pusher, id: id, label: name);
+    : this._(facet: TimelineFacet.pusher, id: id, label: name);
 
   final TimelineFacet facet;
 
@@ -110,11 +110,11 @@ class TimelineQuery {
 
   /// The noun for this facet, as the empty state and the header use it.
   String get facetNoun => switch (facet) {
-        TimelineFacet.all || TimelineFacet.unassigned => 'Activity',
-        TimelineFacet.button => 'Button',
-        TimelineFacet.context => 'Context',
-        TimelineFacet.pusher => 'Pusher',
-      };
+    TimelineFacet.all || TimelineFacet.unassigned => 'Activity',
+    TimelineFacet.button => 'Button',
+    TimelineFacet.context => 'Context',
+    TimelineFacet.pusher => 'Pusher',
+  };
 
   @override
   bool operator ==(Object other) =>

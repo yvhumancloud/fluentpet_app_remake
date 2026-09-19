@@ -32,14 +32,14 @@ import 'classic_buttons_screen.dart';
 
 /// The Hardware tab's screens, keyed the way [FpScreen] keys everything else.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    hardwareRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+hardwareRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
   FpScreen.bases: (context, state) => const BasesScreen(),
   FpScreen.baseEdit: (context, state) => BaseEditScreen(
-        // Empty rather than null: the screen's not-found state already says
-        // everything a null check here could, and it says it on screen instead
-        // of in a crash.
-        serialNumber: state.uri.queryParameters['serialNumber'] ?? '',
-      ),
+    // Empty rather than null: the screen's not-found state already says
+    // everything a null check here could, and it says it on screen instead
+    // of in a crash.
+    serialNumber: state.uri.queryParameters['serialNumber'] ?? '',
+  ),
   FpScreen.baseEditInteractionTiming: (context, state) =>
       BaseEditInteractionTimingScreen(
         windowSeconds: int.tryParse(state.uri.queryParameters['seconds'] ?? ''),

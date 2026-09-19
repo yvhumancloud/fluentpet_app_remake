@@ -50,8 +50,8 @@ import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
 import '../hardware/hardware_ui.dart';
 import '../log/log_controls.dart';
-import 'household_fixture.dart';
 import 'household_metrics.dart';
+import 'household_options.dart';
 import 'household_ui.dart';
 
 class HouseholdEditScreen extends ConsumerStatefulWidget {
@@ -102,10 +102,17 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
     _isLearner = pusher.isLearner;
     _species = pusher.learnerType;
     _trainingStartDate = pusher.trainingStartedAt;
-    _birthDate = null;
-    _breed.clear();
-    _languages.clear();
-    _country = null;
+    _birthDate = pusher.birthDate;
+    _breed.text = pusher.subType ?? '';
+    _languages
+      ..clear()
+      ..addAll(
+        (pusher.language ?? '')
+            .split(',')
+            .map((l) => l.trim())
+            .where((l) => l.isNotEmpty),
+      );
+    _country = pusher.country;
     _dirty = false;
   }
 
@@ -124,53 +131,55 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
         context,
         c,
         title: 'This link is missing a Member',
-        body: 'There is no Household Member id on this link, so there is '
+        body:
+            'There is no Household Member id on this link, so there is '
             'nothing here to edit.',
       );
     }
 
     return switch (pushers) {
       AsyncData<List<Pusher>>(:final value) => () {
-          final pusher = _find(value, id);
-          if (pusher == null) {
-            return _notFound(
-              context,
-              c,
-              title: 'That Member is not here any more',
-              body: 'This Household does not have a Member with that id. '
-                  'They may have been removed, or the link that brought you '
-                  'here may be out of date.',
-            );
-          }
-          _loadFrom(pusher);
-          return _loaded(context, c, pusher);
-        }(),
+        final pusher = _find(value, id);
+        if (pusher == null) {
+          return _notFound(
+            context,
+            c,
+            title: 'That Member is not here any more',
+            body:
+                'This Household does not have a Member with that id. '
+                'They may have been removed, or the link that brought you '
+                'here may be out of date.',
+          );
+        }
+        _loadFrom(pusher);
+        return _loaded(context, c, pusher);
+      }(),
       AsyncError<List<Pusher>>() => _notFound(
-          context,
-          c,
-          title: 'Could not load this Member',
-          body: 'Go back to Household and pull down to try again.',
-          danger: true,
-        ),
+        context,
+        c,
+        title: 'Could not load this Member',
+        body: 'Go back to Household and pull down to try again.',
+        danger: true,
+      ),
       _ => Scaffold(
-          backgroundColor: c.surfaceCanvas,
-          body: FpOsChrome(
-            bottom: true,
-            child: Column(
-              children: <Widget>[
-                ScreenHeader(
-                  title: 'Edit Member',
-                  trailing: LogHeaderIconButton(
-                    icon: PhosphorIconsRegular.x,
-                    semanticLabel: 'Close',
-                    onTap: () => context.pop(),
-                  ),
+        backgroundColor: c.surfaceCanvas,
+        body: FpOsChrome(
+          bottom: true,
+          child: Column(
+            children: <Widget>[
+              ScreenHeader(
+                title: 'Edit Member',
+                trailing: LogHeaderIconButton(
+                  icon: PhosphorIconsRegular.x,
+                  semanticLabel: 'Close',
+                  onTap: () => context.pop(),
                 ),
-                const Expanded(child: HardwareLoading()),
-              ],
-            ),
+              ),
+              const Expanded(child: HardwareLoading()),
+            ],
           ),
         ),
+      ),
     };
   }
 
@@ -211,7 +220,9 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
                     : PhosphorIconsRegular.magnifyingGlass,
                 title: title,
                 body: body,
-                tone: danger ? HardwareNoticeTone.danger : HardwareNoticeTone.neutral,
+                tone: danger
+                    ? HardwareNoticeTone.danger
+                    : HardwareNoticeTone.neutral,
               ),
             ),
           ],
@@ -222,6 +233,8 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
 
   Widget _loaded(BuildContext context, FpColors c, Pusher pusher) {
     final now = ref.watch(nowProvider);
+    // Loaded here so the Species picker has its options when it opens.
+    ref.watch(learnerTypesProvider);
     return Scaffold(
       backgroundColor: c.surfaceCanvas,
       body: FpOsChrome(
@@ -252,10 +265,8 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
                     // change it.
                     Center(
                       child: HouseholdAvatarPicker(
-                        onTap: () => showPhaseOneNotice(
-                          context,
-                          'Photo not uploaded',
-                        ),
+                        onTap: () =>
+                            logSay(context, 'Photos arrive in a later build.'),
                       ),
                     ),
                     const SizedBox(height: FpSpace.s6),
@@ -296,7 +307,8 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
                       ),
                       const SizedBox(height: FpSpace.s2),
                       const HouseholdInfoNote(
-                        text: 'People with their own sign-in are managed '
+                        text:
+                            'People with their own sign-in are managed '
                             'under Household members.',
                       ),
                     ],
@@ -328,16 +340,37 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
     return _nameError == null && _speciesError == null;
   }
 
-  void _save() {
+  Future<void> _save() async {
     setState(() {
       _submitted = true;
-      final valid = _validate();
-      if (!valid) return;
-      // PATCH /api/v1/pushers/{id} is a §15 no-op — `HouseholdRepository` has
-      // no write method. The screen stays open, on the same reasoning
-      // `BASE_EDIT`'s SAVE gives for staying open on its own no-op.
-      showPhaseOneNotice(context, '${_name.text.trim()} not saved');
+      _validate();
     });
+    if (_nameError != null || _speciesError != null) return;
+    final id = _loadedFor;
+    if (id == null) return;
+    final types = ref.read(learnerTypesProvider).value ?? const <int, String>{};
+    final breed = _breed.text.trim();
+    final edited = Pusher(
+      id: id,
+      name: _name.text.trim(),
+      isHuman: !_isLearner,
+      learnerTypeId: _isLearner ? learnerTypeId(types, _species) : null,
+      subType: _isLearner && breed.isNotEmpty ? breed : null,
+      trainingStartedAt: _isLearner ? _trainingStartDate : null,
+      birthDate: _isLearner ? _birthDate : null,
+      language: _isLearner && _languages.isNotEmpty
+          ? _languages.join(', ')
+          : null,
+      country: _isLearner ? null : _country,
+    );
+    final ok = await logWrite(
+      context,
+      () => ref.read(householdRepositoryProvider).updatePusher(edited),
+    );
+    if (!ok || !mounted) return;
+    ref.invalidate(pushersProvider);
+    setState(() => _dirty = false);
+    if (context.canPop()) context.pop();
   }
 
   Future<void> _pickSpecies() async {
@@ -345,7 +378,7 @@ class _HouseholdEditScreenState extends ConsumerState<HouseholdEditScreen> {
       context: context,
       title: 'Species',
       options: <HardwareAction<String>>[
-        for (final option in householdSpeciesOptions)
+        for (final option in householdSpeciesOptions(ref))
           HardwareAction<String>(
             label: option,
             value: option,

@@ -49,11 +49,8 @@ class _FacetScreen extends ConsumerWidget {
     return FpOsChrome(
       child: ActivityTimeline(
         query: query,
-        header: (context, slice) => _FacetHeader(
-          query: query,
-          slice: slice,
-          countNoun: countNoun,
-        ),
+        header: (context, slice) =>
+            _FacetHeader(query: query, slice: slice, countNoun: countNoun),
       ),
     );
   }
@@ -79,7 +76,7 @@ class _FacetHeader extends StatelessWidget {
         // one (§13.2): a Button with four thousand presses must not push its
         // own noun off the line.
         : '${query.facetNoun} · '
-            '${FpFormat.largeCountOf(matched, countNoun, '${countNoun}es')}';
+              '${FpFormat.largeCountOf(matched, countNoun, '${countNoun}es')}';
 
     return ScreenHeader(
       // The facet's own word, in the same display type the timeline sets
@@ -104,9 +101,9 @@ class ButtonActivityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _FacetScreen(
-        query: TimelineQuery.button(id: buttonId, meaning: meaning),
-        countNoun: 'press',
-      );
+    query: TimelineQuery.button(id: buttonId, meaning: meaning),
+    countNoun: 'press',
+  );
 }
 
 /// `DASHBOARD_CONTEXT` — everything tagged with one Context.
@@ -122,7 +119,7 @@ class ContextActivityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _FacetScreen(
-        query: TimelineQuery.context(id: contextId, text: text),
-        countNoun: 'press',
-      );
+    query: TimelineQuery.context(id: contextId, text: text),
+    countNoun: 'press',
+  );
 }

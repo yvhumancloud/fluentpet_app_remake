@@ -22,6 +22,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
+import '../../data/api/api_client.dart' show apiErrorMessage;
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
@@ -370,10 +371,7 @@ class LogTextAction extends StatelessWidget {
                   PhosphorIcon(glyph, size: FpIconSize.sm, color: c.textBrand),
                   const SizedBox(width: FpSpace.s2),
                 ],
-                Text(
-                  label,
-                  style: FpType.labelLg.copyWith(color: c.textBrand),
-                ),
+                Text(label, style: FpType.labelLg.copyWith(color: c.textBrand)),
               ],
             ),
           ),
@@ -593,11 +591,7 @@ class LogButtonChip extends StatelessWidget {
 /// showing it as a small grey chip while composing and as display type
 /// afterwards would be two answers to one question.
 class LogWordToken extends StatelessWidget {
-  const LogWordToken({
-    required this.word,
-    required this.onRemove,
-    super.key,
-  });
+  const LogWordToken({required this.word, required this.onRemove, super.key});
 
   final String word;
   final VoidCallback onRemove;
@@ -659,8 +653,9 @@ class LogPressBoundary extends StatelessWidget {
           child: Text(
             '·',
             style: FpType.bodySm.copyWith(
-              color: c.textTertiary
-                  .withValues(alpha: FpMetrics.separatorOpacity),
+              color: c.textTertiary.withValues(
+                alpha: FpMetrics.separatorOpacity,
+              ),
             ),
           ),
         ),
@@ -737,8 +732,9 @@ Future<void> showLogSheet(
             ),
             child: Text(
               title,
-              style: FpType.labelSm
-                  .copyWith(color: sheetContext.fpColors.textTertiary),
+              style: FpType.labelSm.copyWith(
+                color: sheetContext.fpColors.textTertiary,
+              ),
             ),
           ),
           Flexible(
@@ -917,6 +913,25 @@ void logSay(BuildContext context, String message) {
         duration: FpDuration.slow * _snackBarBeats,
       ),
     );
+}
+
+/// Runs a write and says so if it failed. True when it went through.
+///
+/// One wrapper so every SAVE, archive and delete in the app reports the same
+/// way: the server's own message when it has one, [failed] otherwise. The
+/// caller decides what success looks like — a pop, a refresh, a snackbar.
+Future<bool> logWrite(
+  BuildContext context,
+  Future<void> Function() write, {
+  String failed = 'Could not save. Try again.',
+}) async {
+  try {
+    await write();
+    return true;
+  } catch (e) {
+    if (context.mounted) logSay(context, apiErrorMessage(e, failed));
+    return false;
+  }
 }
 
 /// How many `motion.slow` beats a snackbar stays up.

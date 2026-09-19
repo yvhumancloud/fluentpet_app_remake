@@ -68,13 +68,14 @@ class DeviceHealthPill extends StatelessWidget {
     this.syncing = false,
     this.onTap,
     super.key,
-  })  : paired = base != null,
-        online = base?.online ?? false,
-        battery = base == null ||
-                FpFormat.batteryLevel(base.batteryLevel) ==
-                    FpBatteryLevel.unknown
-            ? null
-            : base.batteryLevel;
+  }) : paired = base != null,
+       online = base?.online ?? false,
+       battery =
+           base == null ||
+               FpFormat.batteryLevel(base.batteryLevel) ==
+                   FpBatteryLevel.unknown
+           ? null
+           : base.batteryLevel;
 
   /// At or below this percent the pill goes to the warning tone.
   ///

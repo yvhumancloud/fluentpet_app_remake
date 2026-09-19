@@ -260,8 +260,7 @@ class _SectionState extends State<_Section> {
                     children: <Widget>[
                       Text(
                         widget.title,
-                        style:
-                            FpType.headingSm.copyWith(color: c.textPrimary),
+                        style: FpType.headingSm.copyWith(color: c.textPrimary),
                       ),
                       if (widget.active) ...<Widget>[
                         const SizedBox(width: FpSpace.s3),
@@ -312,7 +311,8 @@ class _TimeframeSection extends ConsumerWidget {
 
     return _Section(
       title: 'Timeframe',
-      active: draft.sinceDate != null ||
+      active:
+          draft.sinceDate != null ||
           draft.startDate != null ||
           draft.endDate != null,
       child: Column(
@@ -346,11 +346,9 @@ class _TimeframeSection extends ConsumerWidget {
                   // Start is capped by End, and neither may exceed today
                   // (`DateFilter.tsx:44-48`).
                   last: draft.endDate ?? asOf,
-                  onPicked: (date) =>
-                      notifier.set(draft.withRange(
-                    start: date,
-                    end: draft.endDate,
-                  )),
+                  onPicked: (date) => notifier.set(
+                    draft.withRange(start: date, end: draft.endDate),
+                  ),
                 ),
               ),
               const SizedBox(width: FpSpace.s3),
@@ -361,10 +359,9 @@ class _TimeframeSection extends ConsumerWidget {
                   asOf: asOf,
                   first: draft.startDate,
                   last: asOf,
-                  onPicked: (date) => notifier.set(draft.withRange(
-                    start: draft.startDate,
-                    end: date,
-                  )),
+                  onPicked: (date) => notifier.set(
+                    draft.withRange(start: draft.startDate, end: date),
+                  ),
                 ),
               ),
             ],
@@ -407,7 +404,8 @@ class _DateField extends StatelessWidget {
         final picked = await showDatePicker(
           context: context,
           initialDate: current ?? last,
-          firstDate: first ??
+          firstDate:
+              first ??
               DateTime(asOf.year - _yearsOfHistory, asOf.month, asOf.day),
           lastDate: last,
         );
@@ -498,9 +496,7 @@ class _ButtonsSection extends ConsumerWidget {
         // reason — which is what the RN sheet does by leaving its queries out
         // of the loading array.
         child: Text(
-          async.hasError
-              ? 'The Board did not load.'
-              : 'Loading Buttons…',
+          async.hasError ? 'The Board did not load.' : 'Loading Buttons…',
           style: FpType.bodyMd.copyWith(color: c.textTertiary),
         ),
       );
@@ -510,8 +506,9 @@ class _ButtonsSection extends ConsumerWidget {
     // Board when it does not. The RN expression drops **every** tag in the
     // second case; this one cannot.
     final active = board.activeButtons;
-    final inaudible =
-        active.where((b) => b.kind == ButtonKind.inaudible).toList();
+    final inaudible = active
+        .where((b) => b.kind == ButtonKind.inaudible)
+        .toList();
     final rest = active.where((b) => b.kind != ButtonKind.inaudible).toList()
       ..sort((a, b) => a.text.toLowerCase().compareTo(b.text.toLowerCase()));
     final ordered = <Button>[...inaudible, ...rest];
@@ -543,8 +540,9 @@ class _ButtonsSection extends ConsumerWidget {
                   onSelectAll: () => notifier.set(
                     draft.copyWith(buttonMeanings: List<String>.of(meanings)),
                   ),
-                  onClear: () => notifier
-                      .set(draft.copyWith(buttonMeanings: const <String>[])),
+                  onClear: () => notifier.set(
+                    draft.copyWith(buttonMeanings: const <String>[]),
+                  ),
                 ),
                 const SizedBox(height: FpSpace.s4),
                 Wrap(
@@ -582,9 +580,7 @@ class _ContextsSection extends ConsumerWidget {
         title: 'Context',
         active: draft.contextIds.isNotEmpty,
         child: Text(
-          async.hasError
-              ? 'The Contexts did not load.'
-              : 'Loading Contexts…',
+          async.hasError ? 'The Contexts did not load.' : 'Loading Contexts…',
           style: FpType.bodyMd.copyWith(color: c.textTertiary),
         ),
       );
@@ -665,9 +661,7 @@ class _BasesSection extends ConsumerWidget {
                     match: draft.searchType.bases,
                     onMatch: (m) => notifier.set(draft.withBaseMatch(m)),
                     onSelectAll: () => notifier.set(
-                      draft.copyWith(
-                        baseIds: list.map((b) => b.id).toList(),
-                      ),
+                      draft.copyWith(baseIds: list.map((b) => b.id).toList()),
                     ),
                     onClear: () =>
                         notifier.set(draft.copyWith(baseIds: const <int>[])),
@@ -753,7 +747,8 @@ class _MoreFiltersSection extends ConsumerWidget {
 
     return _Section(
       title: 'More filters',
-      active: draft.searchText != null ||
+      active:
+          draft.searchText != null ||
           draft.eventNotes != ShowHideOnly.show ||
           draft.entriesWithNotes != ShowHideOnly.show ||
           draft.flaggedEntries != ShowHideOnly.show ||
@@ -776,8 +771,7 @@ class _MoreFiltersSection extends ConsumerWidget {
             title: 'Entries with notes',
             noun: 'annotated entries',
             value: draft.entriesWithNotes,
-            onChanged: (v) =>
-                notifier.set(draft.copyWith(entriesWithNotes: v)),
+            onChanged: (v) => notifier.set(draft.copyWith(entriesWithNotes: v)),
           ),
           _TriState(
             title: 'Flagged entries',
@@ -791,8 +785,7 @@ class _MoreFiltersSection extends ConsumerWidget {
               options: ButtonPressesFilter.values,
               labels: buttonPressesLabel,
               value: draft.buttonPresses,
-              onChanged: (v) =>
-                  notifier.set(draft.copyWith(buttonPresses: v)),
+              onChanged: (v) => notifier.set(draft.copyWith(buttonPresses: v)),
             ),
           ),
         ],
@@ -849,11 +842,17 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FpRadius.sm),
-          borderSide: BorderSide(color: c.borderSubtle, width: FpStroke.hairline),
+          borderSide: BorderSide(
+            color: c.borderSubtle,
+            width: FpStroke.hairline,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FpRadius.sm),
-          borderSide: BorderSide(color: c.borderSubtle, width: FpStroke.hairline),
+          borderSide: BorderSide(
+            color: c.borderSubtle,
+            width: FpStroke.hairline,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FpRadius.sm),

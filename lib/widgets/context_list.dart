@@ -21,7 +21,7 @@ class ContextList extends StatelessWidget {
 
   /// The same list, taken straight off an [Interaction].
   ContextList.of(Iterable<InteractionContext> contexts, {super.key})
-      : contexts = contexts.map((ctx) => ctx.text).toList(growable: false);
+    : contexts = contexts.map((ctx) => ctx.text).toList(growable: false);
 
   final List<String> contexts;
 
@@ -45,8 +45,9 @@ class ContextList extends StatelessWidget {
                   TextSpan(
                     text: ' · ',
                     style: style.copyWith(
-                      color: c.textTertiary
-                          .withValues(alpha: FpMetrics.separatorOpacity),
+                      color: c.textTertiary.withValues(
+                        alpha: FpMetrics.separatorOpacity,
+                      ),
                     ),
                   ),
                 TextSpan(text: contexts[i]),

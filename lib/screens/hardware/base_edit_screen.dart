@@ -44,6 +44,7 @@ import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
+import '../log/log_controls.dart' show logSay, logWrite;
 import 'hardware_metrics.dart';
 import 'hardware_providers.dart';
 import 'hardware_ui.dart';
@@ -125,40 +126,44 @@ class _BaseEditScreenState extends ConsumerState<BaseEditScreen> {
     final base = ref.watch(baseBySerialProvider(widget.serialNumber));
 
     return switch (base) {
-      AsyncData<Base?>(value: final found) when found != null =>
-        _loaded(context, c, found),
+      AsyncData<Base?>(value: final found) when found != null => _loaded(
+        context,
+        c,
+        found,
+      ),
       AsyncData<Base?>() => _missing(
-          context,
-          c,
-          icon: PhosphorIconsRegular.magnifyingGlass,
-          title: 'That Base is not here any more',
-          body: 'Serial ${widget.serialNumber} is not in this Household. It '
-              'may have been deleted, or the link that brought you here may be '
-              'out of date.',
-          tone: HardwareNoticeTone.neutral,
-        ),
+        context,
+        c,
+        icon: PhosphorIconsRegular.magnifyingGlass,
+        title: 'That Base is not here any more',
+        body:
+            'Serial ${widget.serialNumber} is not in this Household. It '
+            'may have been deleted, or the link that brought you here may be '
+            'out of date.',
+        tone: HardwareNoticeTone.neutral,
+      ),
       AsyncError<Base?>() => _missing(
-          context,
-          c,
-          icon: PhosphorIconsRegular.warningOctagon,
-          title: 'Could not load this Base',
-          body: 'Go back to Hardware and pull down to try again.',
-          tone: HardwareNoticeTone.danger,
-        ),
+        context,
+        c,
+        icon: PhosphorIconsRegular.warningOctagon,
+        title: 'Could not load this Base',
+        body: 'Go back to Hardware and pull down to try again.',
+        tone: HardwareNoticeTone.danger,
+      ),
       _ => Scaffold(
-          backgroundColor: c.surfaceCanvas,
-          body: FpOsChrome(
-            child: Column(
-              children: <Widget>[
-                ScreenHeader(
-                  title: 'Base',
-                  onBack: () => Navigator.of(context).maybePop(),
-                ),
-                const Expanded(child: HardwareLoading()),
-              ],
-            ),
+        backgroundColor: c.surfaceCanvas,
+        body: FpOsChrome(
+          child: Column(
+            children: <Widget>[
+              ScreenHeader(
+                title: 'Base',
+                onBack: () => Navigator.of(context).maybePop(),
+              ),
+              const Expanded(child: HardwareLoading()),
+            ],
           ),
         ),
+      ),
     };
   }
 
@@ -282,7 +287,8 @@ class _BaseEditScreenState extends ConsumerState<BaseEditScreen> {
       children: <Widget>[
         _FieldLabel(
           label: 'Base name',
-          hint: 'What this Base is called in the app. The room it lives in is '
+          hint:
+              'What this Base is called in the app. The room it lives in is '
               'usually the useful answer.',
         ),
         const SizedBox(height: FpSpace.s3),
@@ -367,7 +373,7 @@ class _BaseEditScreenState extends ConsumerState<BaseEditScreen> {
                   seconds == FpFormat.groupingWindowMinSeconds
                       ? 'Every press is recorded as its own Interaction.'
                       : 'Presses less than ${FpFormat.groupingWindow(seconds)} '
-                          'apart are recorded as one Interaction.',
+                            'apart are recorded as one Interaction.',
                   style: FpType.bodySm.copyWith(color: c.textSecondary),
                 ),
               ),
@@ -470,7 +476,8 @@ class _BaseEditScreenState extends ConsumerState<BaseEditScreen> {
     final choice = await showHardwareActions<_PusherChoice>(
       context: context,
       title: 'Default Presser',
-      message: 'Presses this Base cannot attribute are recorded as this '
+      message:
+          'Presses this Base cannot attribute are recorded as this '
           'Pusher.',
       options: <HardwareAction<_PusherChoice>>[
         // "None" leads the list, exactly as the RN modal's synthetic entry
@@ -503,11 +510,25 @@ class _BaseEditScreenState extends ConsumerState<BaseEditScreen> {
     });
   }
 
-  void _save(Base base) {
-    // PATCH /api/v1/bases/{serial} is a §15 no-op. The RN screen pops on
-    // success; this one stays, because popping after a write that did not
-    // happen would report success the app cannot claim.
-    showPhaseOneNotice(context, '${base.displayName} not saved');
+  /// `PATCH /bases/{serial}`, then pop, as the RN screen does.
+  Future<void> _save(Base base) async {
+    final name = _name.text.trim();
+    final edited = Base(
+      id: base.id,
+      serialNumber: base.serialNumber,
+      batteryLevel: base.batteryLevel,
+      lastOnlineAt: base.lastOnlineAt,
+      name: name.isEmpty ? null : name,
+      groupInteractionsWithinSeconds: int.parse(_timing.text.trim()),
+      defaultPusher: _pusherChosen ? _pusher : base.defaultPusher,
+    );
+    final ok = await logWrite(
+      context,
+      () => ref.read(hardwareRepositoryProvider).updateBase(edited),
+    );
+    if (!ok || !mounted) return;
+    refreshHardware(ref);
+    if (context.canPop()) context.pop();
   }
 }
 
@@ -625,7 +646,8 @@ class _Diagnostics extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fpColors;
-    final linked = ref.watch(linkedButtonsProvider).value?[base.serialNumber] ??
+    final linked =
+        ref.watch(linkedButtonsProvider).value?[base.serialNumber] ??
         const <LinkedButton>[];
 
     return Column(
@@ -649,7 +671,11 @@ class _Diagnostics extends ConsumerWidget {
                 style: FpType.bodySm.copyWith(color: c.textTertiary),
               ),
               const SizedBox(height: FpSpace.s4),
-              FactRow(label: 'bat_level', value: '${base.batteryLevel}', mono: true),
+              FactRow(
+                label: 'bat_level',
+                value: '${base.batteryLevel}',
+                mono: true,
+              ),
               FactRow(
                 label: 'fw_ver',
                 value: base.firmwareVersion.isEmpty
@@ -675,10 +701,7 @@ class _Diagnostics extends ConsumerWidget {
                   style: FpType.monoSm.copyWith(color: c.textPrimary),
                 ),
               if (linked.isEmpty)
-                Text(
-                  '—',
-                  style: FpType.monoSm.copyWith(color: c.textTertiary),
-                ),
+                Text('—', style: FpType.monoSm.copyWith(color: c.textTertiary)),
             ],
           ),
         ),
@@ -733,11 +756,11 @@ class _LinkedButtons extends ConsumerWidget {
               onQueryChanged: onQueryChanged,
             ),
           AsyncError<Map<String, List<LinkedButton>>>() => HardwareNotice(
-              icon: PhosphorIconsRegular.warningOctagon,
-              title: 'Could not load this Base’s Buttons',
-              body: 'Pull down to try again.',
-              tone: HardwareNoticeTone.danger,
-            ),
+            icon: PhosphorIconsRegular.warningOctagon,
+            title: 'Could not load this Base’s Buttons',
+            body: 'Pull down to try again.',
+            tone: HardwareNoticeTone.danger,
+          ),
           // The RN list renders its search and sort controls over an empty
           // list while the query is in flight (`BaseButtonList.tsx:122`), so
           // the screen looks like a Base with no Buttons until the data
@@ -772,7 +795,8 @@ class _LinkedList extends ConsumerWidget {
       return const HardwareNotice(
         icon: PhosphorIconsRegular.circlesThree,
         title: 'No linked Buttons',
-        body: 'Nothing is paired to this Base yet. Pair a Connect Button and '
+        body:
+            'Nothing is paired to this Base yet. Pair a Connect Button and '
             'its presses arrive here without anyone logging them.',
       );
     }
@@ -792,8 +816,7 @@ class _LinkedList extends ConsumerWidget {
       ...unknown,
     ];
 
-    final matched =
-        sorted.where((r) => buttonMatches(r.label, query)).toList();
+    final matched = sorted.where((r) => buttonMatches(r.label, query)).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,12 +834,12 @@ class _LinkedList extends ConsumerWidget {
           HardwareNotice(
             icon: PhosphorIconsRegular.magnifyingGlass,
             title: 'No linked Button starts with “${query.trim()}”',
-            body: '${FpFormat.countOf(rows.length, 'Button')} '
+            body:
+                '${FpFormat.countOf(rows.length, 'Button')} '
                 '${rows.length == 1 ? 'is' : 'are'} linked to this Base.',
           )
         else
-          for (final row in matched)
-            _LinkedButtonRow(base: base, row: row),
+          for (final row in matched) _LinkedButtonRow(base: base, row: row),
       ],
     );
   }
@@ -928,7 +951,8 @@ class _LinkedButtonRow extends ConsumerWidget {
       case _LinkedAction.edit:
         final query = <String>[
           'buttonId=${button.id}',
-          if (button.batteryLevel != null) 'batteryLevel=${button.batteryLevel}',
+          if (button.batteryLevel != null)
+            'batteryLevel=${button.batteryLevel}',
         ].join('&');
         context.push('${FpScreen.buttonEdit.path}?$query');
       case _LinkedAction.merge:
@@ -941,10 +965,15 @@ class _LinkedButtonRow extends ConsumerWidget {
           confirmLabel: 'Unlink',
         );
         if (!context.mounted || !confirmed) return;
-        // POST /api/v1/buttons/{id}/unlink is a §15 no-op. The RN screen
-        // then sent the user to RESYNC_BASE; the PRD's device script picks
-        // the change up from `GET /device/desired`, so nothing follows.
-        showPhaseOneNotice(context, '“${button.text}” not unlinked');
+        // The RN screen then sent the user to RESYNC_BASE; the PRD's device
+        // script picks the change up from `GET /device/desired`, so nothing
+        // follows but a refresh.
+        final ok = await logWrite(
+          context,
+          () => ref.read(hardwareRepositoryProvider).unlinkButton(button),
+          failed: 'Could not unlink the Button. Try again.',
+        );
+        if (ok) refreshHardware(ref);
     }
   }
 }
@@ -971,13 +1000,10 @@ class _VersionChip extends StatelessWidget {
     final (Color tone, IconData icon) = switch (state) {
       ButtonFirmware.latest => (c.statusSuccessFg, PhosphorIconsRegular.check),
       ButtonFirmware.outdated => (
-          c.statusWarningFg,
-          PhosphorIconsRegular.arrowCircleUp
-        ),
-      ButtonFirmware.unknown => (
-          c.textTertiary,
-          PhosphorIconsRegular.question
-        ),
+        c.statusWarningFg,
+        PhosphorIconsRegular.arrowCircleUp,
+      ),
+      ButtonFirmware.unknown => (c.textTertiary, PhosphorIconsRegular.question),
     };
 
     return Semantics(
@@ -1023,28 +1049,22 @@ class _VersionChip extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(FpRadius.lg),
           ),
-          title: Text(
-            switch (state) {
-              ButtonFirmware.latest => 'Up to date',
-              ButtonFirmware.outdated => 'Outdated firmware',
-              ButtonFirmware.unknown => 'Firmware not recognised',
-            },
-            style: FpType.headingSm.copyWith(color: dc.textPrimary),
-          ),
-          content: Text(
-            switch (state) {
-              ButtonFirmware.latest =>
-                'This Button is running the latest firmware ($label).',
-              ButtonFirmware.outdated =>
-                'This Button is running $label, which is out of date. '
-                    'Re-linking it to the Base usually updates it.',
-              ButtonFirmware.unknown =>
-                'This Button reports $wireVersion, which this version of the '
-                    'app does not have a name for. It may be newer than the '
-                    'app.',
-            },
-            style: FpType.bodyMd.copyWith(color: dc.textSecondary),
-          ),
+          title: Text(switch (state) {
+            ButtonFirmware.latest => 'Up to date',
+            ButtonFirmware.outdated => 'Outdated firmware',
+            ButtonFirmware.unknown => 'Firmware not recognised',
+          }, style: FpType.headingSm.copyWith(color: dc.textPrimary)),
+          content: Text(switch (state) {
+            ButtonFirmware.latest =>
+              'This Button is running the latest firmware ($label).',
+            ButtonFirmware.outdated =>
+              'This Button is running $label, which is out of date. '
+                  'Re-linking it to the Base usually updates it.',
+            ButtonFirmware.unknown =>
+              'This Button reports $wireVersion, which this version of the '
+                  'app does not have a name for. It may be newer than the '
+                  'app.',
+          }, style: FpType.bodyMd.copyWith(color: dc.textSecondary)),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -1066,7 +1086,8 @@ class _VersionChip extends StatelessWidget {
       },
     );
     if (!context.mounted || learnMore != true) return;
-    showPhaseOneNotice(context, 'support.fluent.pet not opened');
+    // ponytail: no url_launcher yet — the address is said, not opened.
+    logSay(context, 'See support.fluent.pet for the full guide.');
   }
 }
 

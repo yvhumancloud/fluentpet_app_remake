@@ -35,6 +35,6 @@ import 'log_screen.dart';
 
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)> logRoutes =
     <FpScreen, Widget Function(BuildContext, GoRouterState)>{
-  FpScreen.log: (context, state) => const LogScreen(),
-  FpScreen.logDetails: (context, state) => const LogDetailsScreen(),
-};
+      FpScreen.log: (context, state) => const LogScreen(),
+      FpScreen.logDetails: (context, state) => const LogDetailsScreen(),
+    };

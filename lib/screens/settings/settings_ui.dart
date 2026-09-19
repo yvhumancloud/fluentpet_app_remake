@@ -2,7 +2,7 @@
 ///
 /// Two kits already cover most of a settings list: `lib/screens/hardware/
 /// hardware_ui.dart` (`HardwareCard`, `SectionHeading`, `MetaLine`,
-/// `ProductGlyph`, `showPhaseOneNotice`) and `lib/screens/log/log_controls.dart`
+/// `ProductGlyph`) and `lib/screens/log/log_controls.dart`
 /// (`LogSection`, `LogHairline`, `LogSelectRow`, `LogCheckRow`,
 /// `LogActionButton`, `LogActionBar`, `LogHeaderIconButton`, `LogEmptyState`,
 /// `LogTextAction`, `showLogSheet`, `logConfirm`, `logSay`). Every screen in
@@ -132,8 +132,7 @@ class SettingsMultilineField extends StatefulWidget {
   final int minLines;
 
   @override
-  State<SettingsMultilineField> createState() =>
-      _SettingsMultilineFieldState();
+  State<SettingsMultilineField> createState() => _SettingsMultilineFieldState();
 }
 
 class _SettingsMultilineFieldState extends State<SettingsMultilineField> {

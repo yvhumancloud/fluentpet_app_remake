@@ -32,10 +32,7 @@ class NoteBlock extends StatelessWidget {
           left: BorderSide(color: c.borderDefault, width: FpStroke.thick),
         ),
       ),
-      child: Text(
-        text,
-        style: FpType.bodySm.copyWith(color: c.textSecondary),
-      ),
+      child: Text(text, style: FpType.bodySm.copyWith(color: c.textSecondary)),
     );
   }
 }

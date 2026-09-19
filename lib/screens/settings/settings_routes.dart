@@ -17,9 +17,8 @@ import 'unknown_screen.dart';
 
 /// The Settings area's screens, keyed the way [FpScreen] keys everything else.
 final Map<FpScreen, Widget Function(BuildContext, GoRouterState)>
-    settingsRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
+settingsRoutes = <FpScreen, Widget Function(BuildContext, GoRouterState)>{
   FpScreen.settings: (context, state) => const SettingsScreen(),
-  FpScreen.unknown: (context, state) => UnknownScreen(
-        attemptedPath: state.uri.toString(),
-      ),
+  FpScreen.unknown: (context, state) =>
+      UnknownScreen(attemptedPath: state.uri.toString()),
 };

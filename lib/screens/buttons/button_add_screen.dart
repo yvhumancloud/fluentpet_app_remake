@@ -22,8 +22,8 @@
 /// required field from being crowded by five optional ones.
 ///
 /// Fixtures only (PLAN.md): SAVE never calls `POST /api/v1/buttons`. It
-/// says so through [logSay] and pops, the same phase-1 pattern
-/// `lib/screens/hardware/hardware_ui.dart`'s `showPhaseOneNotice` uses.
+/// says so through [logSay] and pops, the same pattern
+/// `lib/screens/hardware/hardware_ui.dart` uses.
 library;
 
 import 'package:flutter/material.dart';
@@ -31,12 +31,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../data/providers.dart';
+import '../../domain/domain.dart';
 import '../../router/screens.g.dart';
 import '../../theme/fp_context.dart';
 import '../../theme/generated/fp_tokens.dart';
 import '../../widgets/widgets.dart';
 import '../log/log_controls.dart';
-import 'buttons_fixture.dart';
 import 'buttons_ui.dart';
 
 class ButtonAddScreen extends ConsumerStatefulWidget {
@@ -59,12 +59,13 @@ class ButtonAddScreen extends ConsumerStatefulWidget {
 }
 
 class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
-  late final TextEditingController _word =
-      TextEditingController(text: widget.prepopulatedName ?? '');
+  late final TextEditingController _word = TextEditingController(
+    text: widget.prepopulatedName ?? '',
+  );
   late final TextEditingController _webhook = TextEditingController();
   final TextEditingController _note = TextEditingController();
 
-  String? _meaning;
+  int? _conceptId;
   DateTime _introducedAt = DateTime.now();
   bool _touchedWord = false;
   bool _submitting = false;
@@ -163,9 +164,12 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
                           label: 'Meaning',
                           onTap: () => _pickMeaning(context),
                           child: Text(
-                            _meaning ?? 'Button Meaning',
+                            ref
+                                    .watch(buttonConceptsProvider)
+                                    .value?[_conceptId] ??
+                                'Button Meaning',
                             style: FpType.bodyMd.copyWith(
-                              color: _meaning == null
+                              color: _conceptId == null
                                   ? c.textTertiary
                                   : c.textPrimary,
                             ),
@@ -182,8 +186,9 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
                                 onTap: () => _pickDate(context),
                                 child: Text(
                                   FpFormat.dayAndMonth(_introducedAt),
-                                  style: FpType.bodyMd
-                                      .copyWith(color: c.textPrimary),
+                                  style: FpType.bodyMd.copyWith(
+                                    color: c.textPrimary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -193,8 +198,9 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
                                 label: 'Button Type',
                                 child: Text(
                                   'Classic',
-                                  style: FpType.bodyMd
-                                      .copyWith(color: c.textTertiary),
+                                  style: FpType.bodyMd.copyWith(
+                                    color: c.textTertiary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -216,8 +222,9 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
                           Text(
                             'Enter an HTTP URL to POST, when this button is '
                             'pressed.',
-                            style:
-                                FpType.labelMd.copyWith(color: c.textTertiary),
+                            style: FpType.labelMd.copyWith(
+                              color: c.textTertiary,
+                            ),
                           ),
                         ],
                         const SizedBox(height: FpSpace.s5),
@@ -231,8 +238,7 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
                             padding: const EdgeInsets.all(FpSpace.s4),
                             decoration: BoxDecoration(
                               color: c.surfaceSunken,
-                              borderRadius:
-                                  BorderRadius.circular(FpRadius.md),
+                              borderRadius: BorderRadius.circular(FpRadius.md),
                               border: Border.all(
                                 color: c.borderSubtle,
                                 width: FpStroke.hairline,
@@ -242,18 +248,19 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
                               controller: _note,
                               maxLines: null,
                               keyboardType: TextInputType.multiline,
-                              textCapitalization:
-                                  TextCapitalization.sentences,
-                              style:
-                                  FpType.bodyMd.copyWith(color: c.textPrimary),
+                              textCapitalization: TextCapitalization.sentences,
+                              style: FpType.bodyMd.copyWith(
+                                color: c.textPrimary,
+                              ),
                               cursorColor: c.textBrand,
                               decoration: InputDecoration(
                                 isDense: true,
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.zero,
                                 hintText: 'Add more detail',
-                                hintStyle: FpType.bodyMd
-                                    .copyWith(color: c.textTertiary),
+                                hintStyle: FpType.bodyMd.copyWith(
+                                  color: c.textTertiary,
+                                ),
                               ),
                             ),
                           ),
@@ -281,20 +288,22 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
   }
 
   Future<void> _pickMeaning(BuildContext context) {
+    final concepts =
+        ref.read(buttonConceptsProvider).value ?? const <int, String>{};
     return showLogSheet(
       context,
       title: 'Meaning',
       options: <LogSheetOption>[
         LogSheetOption(
           label: 'None',
-          selected: _meaning == null,
-          onSelected: () => setState(() => _meaning = null),
+          selected: _conceptId == null,
+          onSelected: () => setState(() => _conceptId = null),
         ),
-        for (final meaning in buttonMeanings)
+        for (final entry in concepts.entries)
           LogSheetOption(
-            label: meaning,
-            selected: _meaning == meaning,
-            onSelected: () => setState(() => _meaning = meaning),
+            label: entry.value,
+            selected: _conceptId == entry.key,
+            onSelected: () => setState(() => _conceptId = entry.key),
           ),
       ],
     );
@@ -315,21 +324,30 @@ class _ButtonAddScreenState extends ConsumerState<ButtonAddScreen> {
     setState(() => _touchedWord = true);
     if (_word.text.trim().isEmpty || _webhookError != null) return;
 
-    // `boardId ?? board?.id` (`ButtonAdd.tsx:74`) — a Board to attach to is
-    // always available once the fixture has loaded.
-    final boardId = widget.boardId ?? loadedBoardId ?? fixtureBoardId;
-
     setState(() => _submitting = true);
-    // `POST /api/v1/buttons` (§15) — a no-op here. Fixtures only (PLAN.md).
-    await Future<void>.delayed(const Duration(milliseconds: 200));
+    final webhook = _webhook.text.trim();
+    final ok = await logWrite(
+      context,
+      () => ref
+          .read(hardwareRepositoryProvider)
+          .createButton(
+            Button(
+              id: 0,
+              boardId: widget.boardId ?? loadedBoardId ?? 0,
+              text: _word.text.trim(),
+              kind: ButtonKind.classic,
+              note: _note.text.trim(),
+              introducedAt: _introducedAt,
+              conceptId: _conceptId,
+              webhookUrl: webhook.isEmpty ? null : webhook,
+            ),
+          ),
+    );
     if (!context.mounted) return;
     setState(() => _submitting = false);
-
-    logSay(
-      context,
-      '“${_word.text.trim()}” added to Board $boardId — phase 1 stores '
-      'nothing.',
-    );
+    if (!ok) return;
+    ref.invalidate(boardProvider);
+    logSay(context, '“${_word.text.trim()}” added to the Board.');
     Navigator.of(context).maybePop();
   }
 }

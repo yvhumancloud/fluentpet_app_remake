@@ -38,6 +38,7 @@ enum FpScreen {
     navigator: 'AUTHENTICATION',
     invented: false,
   ),
+
   /// `src/Home/BaseRegistration/BaseRegistration.tsx`
   baseRegistration(
     key: 'BASE_REGISTRATION',
@@ -48,6 +49,7 @@ enum FpScreen {
     navigator: 'BASE_REGISTRATION',
     invented: false,
   ),
+
   /// `src/Home/Base/BaseEditScreen.tsx`
   baseEdit(
     key: 'BASE_EDIT',
@@ -58,6 +60,7 @@ enum FpScreen {
     navigator: 'BASE',
     invented: false,
   ),
+
   /// `src/Home/Base/ClassicButtonsScreen.tsx`
   classicButtons(
     key: 'CLASSIC_BUTTONS',
@@ -68,6 +71,7 @@ enum FpScreen {
     navigator: 'BASE',
     invented: false,
   ),
+
   /// `src/Home/Base/BaseEditInteractionTimingScreen.tsx`
   baseEditInteractionTiming(
     key: 'BASE_EDIT_INTERACTION_TIMING',
@@ -78,6 +82,7 @@ enum FpScreen {
     navigator: 'BASE',
     invented: false,
   ),
+
   /// `src/Home/Base/BasesScreen.tsx`
   bases(
     key: 'BASES',
@@ -88,6 +93,7 @@ enum FpScreen {
     navigator: 'BASE',
     invented: false,
   ),
+
   /// `src/Home/ButtonAdd/ButtonAdd.tsx`
   buttonAdd(
     key: 'BUTTON_ADD',
@@ -98,6 +104,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `src/Home/ButtonConversion/ButtonConversionScreen.tsx`
   buttonConversion(
     key: 'BUTTON_CONVERSION',
@@ -108,6 +115,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `src/Home/ButtonEdit/ButtonEdit.tsx`
   buttonEdit(
     key: 'BUTTON_EDIT',
@@ -118,6 +126,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `src/Home/Dashboard/Dashboard.tsx`
   dashboard(
     key: 'DASHBOARD',
@@ -128,6 +137,7 @@ enum FpScreen {
     navigator: 'ACTIVITY',
     invented: false,
   ),
+
   /// `src/Home/Dashboard/DashboardButton.tsx`
   dashboardButton(
     key: 'DASHBOARD_BUTTON',
@@ -138,6 +148,7 @@ enum FpScreen {
     navigator: 'ACTIVITY',
     invented: false,
   ),
+
   /// `src/Home/Dashboard/DashboardContext.tsx`
   dashboardContext(
     key: 'DASHBOARD_CONTEXT',
@@ -148,6 +159,7 @@ enum FpScreen {
     navigator: 'ACTIVITY',
     invented: false,
   ),
+
   /// `src/Home/DashboardFilters/DashboardFilters.tsx`
   dashboardFilters(
     key: 'DASHBOARD_FILTERS',
@@ -158,6 +170,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `src/Home/Dashboard/DashboardPusher.tsx`
   dashboardPusher(
     key: 'DASHBOARD_PUSHER',
@@ -168,6 +181,7 @@ enum FpScreen {
     navigator: 'ACTIVITY',
     invented: false,
   ),
+
   /// `src/Home/Household/Household.tsx`
   household(
     key: 'HOUSEHOLD',
@@ -178,6 +192,7 @@ enum FpScreen {
     navigator: 'HOUSEHOLD',
     invented: false,
   ),
+
   /// `src/Home/HouseholdAdd/HouseholdAdd.tsx`
   householdAdd(
     key: 'HOUSEHOLD_ADD',
@@ -188,6 +203,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `src/Home/HouseholdEdit/HouseholdEdit.tsx`
   householdEdit(
     key: 'HOUSEHOLD_EDIT',
@@ -198,6 +214,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `no RN original — SharedHouseholdSettings.tsx lived inside SETTINGS`
   householdMembers(
     key: 'HOUSEHOLD_MEMBERS',
@@ -208,6 +225,7 @@ enum FpScreen {
     navigator: 'HOME_NAV',
     invented: true,
   ),
+
   /// `src/Home/Log/LogScreen.tsx`
   log(
     key: 'LOG',
@@ -218,6 +236,7 @@ enum FpScreen {
     navigator: 'MODAL',
     invented: false,
   ),
+
   /// `src/Home/LogDetails/LogDetailsNewScreen.tsx`
   logDetails(
     key: 'LOG_DETAILS',
@@ -228,6 +247,7 @@ enum FpScreen {
     navigator: 'LOG_DETAILS',
     invented: false,
   ),
+
   /// `src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx`
   logDetailsEditButtons(
     key: 'LOG_DETAILS_EDIT_BUTTONS',
@@ -238,6 +258,7 @@ enum FpScreen {
     navigator: 'LOG_DETAILS',
     invented: false,
   ),
+
   /// `src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx`
   logDetailsEditPusher(
     key: 'LOG_DETAILS_EDIT_PUSHER',
@@ -248,6 +269,7 @@ enum FpScreen {
     navigator: 'LOG_DETAILS',
     invented: false,
   ),
+
   /// `src/Home/LogDetails/LogDetailsEditScreen.tsx`
   logEntryEdit(
     key: 'LOG_ENTRY_EDIT',
@@ -258,6 +280,7 @@ enum FpScreen {
     navigator: 'LOG_ENTRY_EDIT',
     invented: false,
   ),
+
   /// `src/Home/LogEntryEditButtons/LogEntryEditButtons.tsx`
   logEntryEditButtons(
     key: 'LOG_ENTRY_EDIT_BUTTONS',
@@ -268,6 +291,7 @@ enum FpScreen {
     navigator: 'LOG_ENTRY_EDIT',
     invented: false,
   ),
+
   /// `src/Home/LogEntryEditPusher/LogEntryEditPusher.tsx`
   logEntryEditPusher(
     key: 'LOG_ENTRY_EDIT_PUSHER',
@@ -278,6 +302,7 @@ enum FpScreen {
     navigator: 'LOG_ENTRY_EDIT',
     invented: false,
   ),
+
   /// `src/Home/Settings/Settings.tsx`
   settings(
     key: 'SETTINGS',
@@ -288,6 +313,7 @@ enum FpScreen {
     navigator: 'HOME_NAV',
     invented: false,
   ),
+
   /// `unimplemented in the RN app`
   unknown(
     key: 'UNKNOWN',
@@ -298,6 +324,7 @@ enum FpScreen {
     navigator: null,
     invented: true,
   ),
+
   /// `no RN original — designed for this app`
   signIn(
     key: 'SIGN_IN',
@@ -308,6 +335,7 @@ enum FpScreen {
     navigator: 'AUTHENTICATION',
     invented: true,
   ),
+
   /// `no RN original — designed for this app`
   signUp(
     key: 'SIGN_UP',
@@ -318,6 +346,7 @@ enum FpScreen {
     navigator: 'AUTHENTICATION',
     invented: true,
   ),
+
   /// `no RN original — designed for this app`
   forgotPassword(
     key: 'FORGOT_PASSWORD',
@@ -328,6 +357,7 @@ enum FpScreen {
     navigator: 'AUTHENTICATION',
     invented: true,
   ),
+
   /// `no RN original — designed for this app`
   checkYourEmail(
     key: 'CHECK_YOUR_EMAIL',
@@ -338,6 +368,7 @@ enum FpScreen {
     navigator: 'AUTHENTICATION',
     invented: true,
   ),
+
   /// `no RN original — designed for this app`
   verifyEmail(
     key: 'VERIFY_EMAIL',
@@ -347,8 +378,7 @@ enum FpScreen {
     presentation: FpPresentation.stack,
     navigator: 'AUTHENTICATION',
     invented: true,
-  ),
-  ;
+  );
 
   const FpScreen({
     required this.key,
