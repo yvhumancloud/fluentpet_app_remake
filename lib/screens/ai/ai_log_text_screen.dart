@@ -42,7 +42,7 @@ class AiLogTextScreen extends ConsumerStatefulWidget {
 class _AiLogTextScreenState extends ConsumerState<AiLogTextScreen> {
   final TextEditingController _text = TextEditingController();
   bool _pending = false;
-  AiDraft? _draft;
+  LogTextOut? _draft;
   Interaction? _preview;
   AiFailure? _failure;
 
@@ -63,7 +63,11 @@ class _AiLogTextScreenState extends ConsumerState<AiLogTextScreen> {
       _preview = null;
     });
     try {
-      final draft = await ref.read(aiClientProvider).logText(text);
+      final draft =
+          (await ref
+                  .read(aiApiProvider)
+                  .logText(logTextIn: LogTextIn((b) => b.text = text)))
+              .data!;
       if (!mounted) return;
       setState(() {
         _draft = draft;
@@ -79,7 +83,8 @@ class _AiLogTextScreenState extends ConsumerState<AiLogTextScreen> {
 
   /// Ids → the domain objects the Log draft holds. A Pusher the model did
   /// not name is the first Learner, which is what `LOG` pre-selects too.
-  Interaction? _resolve(AiDraft draft) {
+  Interaction? _resolve(LogTextOut out) {
+    final draft = out.draft;
     final pushers = ref.read(pushersProvider).value ?? const <Pusher>[];
     final board = ref.read(boardProvider).value?.buttons ?? const <Button>[];
     final contexts =
@@ -91,14 +96,14 @@ class _AiLogTextScreenState extends ConsumerState<AiLogTextScreen> {
     return Interaction(
       id: 0,
       interactionId: 0,
-      occurredAt: draft.occurredAt ?? DateTime.now(),
+      occurredAt: draft.occurredAt.toLocal(),
       pusher: pusher,
       buttons: <Button>[
-        for (final id in draft.buttonIds)
+        for (final id in draft.buttonIds ?? const <int>[])
           ?board.where((b) => b.id == id).firstOrNull,
       ],
       contexts: <InteractionContext>[
-        for (final id in draft.contextIds)
+        for (final id in draft.contextIds ?? const <int>[])
           ?contexts.where((x) => x.id == id).firstOrNull,
       ],
       origin: InteractionOrigin.app,
@@ -252,7 +257,7 @@ class _AiLogTextScreenState extends ConsumerState<AiLogTextScreen> {
 class _DraftCard extends StatelessWidget {
   const _DraftCard({required this.draft, required this.preview});
 
-  final AiDraft draft;
+  final LogTextOut draft;
   final Interaction? preview;
 
   @override

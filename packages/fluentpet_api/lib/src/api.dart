@@ -9,6 +9,7 @@ import 'package:fluentpet_api/src/auth/api_key_auth.dart';
 import 'package:fluentpet_api/src/auth/basic_auth.dart';
 import 'package:fluentpet_api/src/auth/bearer_auth.dart';
 import 'package:fluentpet_api/src/auth/oauth.dart';
+import 'package:fluentpet_api/src/api/ai_api.dart';
 import 'package:fluentpet_api/src/api/audios_api.dart';
 import 'package:fluentpet_api/src/api/bases_api.dart';
 import 'package:fluentpet_api/src/api/buttons_api.dart';
@@ -140,6 +141,12 @@ class FluentpetApi {
           .apiKeys
           .remove(name);
     }
+  }
+
+  /// Get AiApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  AiApi getAiApi() {
+    return AiApi(dio, serializers);
   }
 
   /// Get AudiosApi instance, base route and serializer can be overridden by a given but be careful,

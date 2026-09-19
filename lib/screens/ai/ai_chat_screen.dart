@@ -241,12 +241,12 @@ class _PromptChip extends StatelessWidget {
 class _Bubble extends StatelessWidget {
   const _Bubble({required this.message});
 
-  final AiMessage message;
+  final ChatMessage message;
 
   @override
   Widget build(BuildContext context) {
     final c = context.fpColors;
-    final mine = message.role == AiRole.user;
+    final mine = message.role == ChatMessageRoleEnum.user;
     return Padding(
       padding: const EdgeInsets.only(bottom: FpSpace.s3),
       child: Row(

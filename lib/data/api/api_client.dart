@@ -48,6 +48,10 @@ final Provider<FluentpetApi> apiProvider = Provider<FluentpetApi>((ref) {
           final token = await auth.idToken();
           if (token != null) options.headers['Authorization'] = 'Bearer $token';
           if (loginAs != null) options.headers['X-Login-As'] = loginAs;
+          // The model reads the log before answering; measured 35–140s.
+          if (options.path.startsWith('/api/v1/ai/')) {
+            options.receiveTimeout = const Duration(minutes: 3);
+          }
           handler.next(options);
         },
       ),

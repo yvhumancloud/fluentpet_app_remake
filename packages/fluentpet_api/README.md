@@ -47,14 +47,14 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:fluentpet_api/fluentpet_api.dart';
 
 
-final api = FluentpetApi().getAudiosApi();
-final int audioId = 56; // int | 
+final api = FluentpetApi().getAiApi();
+final ChatIn chatIn = ; // ChatIn | 
 
 try {
-    final response = await api.audioUrl(audioId);
+    final response = await api.chat(chatIn);
     print(response);
 } on DioException catch (e) {
-    print("Exception when calling AudiosApi->audioUrl: $e\n");
+    print("Exception when calling AiApi->chat: $e\n");
 }
 
 ```
@@ -65,6 +65,8 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*AiApi*](doc/AiApi.md) | [**chat**](doc/AiApi.md#chat) | **POST** /api/v1/ai/chat | Chat
+[*AiApi*](doc/AiApi.md) | [**logText**](doc/AiApi.md#logtext) | **POST** /api/v1/ai/log-text | Log Text
 [*AudiosApi*](doc/AudiosApi.md) | [**audioUrl**](doc/AudiosApi.md#audiourl) | **GET** /api/v1/audios/{audio_id}/url | Audio Url
 [*AudiosApi*](doc/AudiosApi.md) | [**deleteAudio**](doc/AudiosApi.md#deleteaudio) | **DELETE** /api/v1/audios/{audio_id} | Delete Audio
 [*AudiosApi*](doc/AudiosApi.md) | [**listAudios**](doc/AudiosApi.md#listaudios) | **GET** /api/v1/audios | List Audios
@@ -136,6 +138,9 @@ Class | Method | HTTP request | Description
  - [ButtonOut](doc/ButtonOut.md)
  - [ButtonPatch](doc/ButtonPatch.md)
  - [ButtonRef](doc/ButtonRef.md)
+ - [ChatIn](doc/ChatIn.md)
+ - [ChatMessage](doc/ChatMessage.md)
+ - [ChatOut](doc/ChatOut.md)
  - [Combination](doc/Combination.md)
  - [ContextCreate](doc/ContextCreate.md)
  - [ContextOut](doc/ContextOut.md)
@@ -155,6 +160,8 @@ Class | Method | HTTP request | Description
  - [LearnerTypeOut](doc/LearnerTypeOut.md)
  - [LinkedButtonOut](doc/LinkedButtonOut.md)
  - [LocationInner](doc/LocationInner.md)
+ - [LogTextIn](doc/LogTextIn.md)
+ - [LogTextOut](doc/LogTextOut.md)
  - [MeOut](doc/MeOut.md)
  - [MePatch](doc/MePatch.md)
  - [NoteIn](doc/NoteIn.md)

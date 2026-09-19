@@ -21,6 +21,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ButtonOut.serializer)
       ..add(ButtonPatch.serializer)
       ..add(ButtonRef.serializer)
+      ..add(ChatIn.serializer)
+      ..add(ChatMessage.serializer)
+      ..add(ChatMessageRoleEnum.serializer)
+      ..add(ChatOut.serializer)
       ..add(Combination.serializer)
       ..add(ContextCreate.serializer)
       ..add(ContextCreateAppliesToEnum.serializer)
@@ -42,6 +46,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(LearnerTypeOut.serializer)
       ..add(LinkedButtonOut.serializer)
       ..add(LocationInner.serializer)
+      ..add(LogTextIn.serializer)
+      ..add(LogTextOut.serializer)
       ..add(MeOut.serializer)
       ..add(MePatch.serializer)
       ..add(NoteIn.serializer)
@@ -81,6 +87,9 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(ButtonRef)]),
           () => ListBuilder<ButtonRef>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(ChatMessage)]),
+          () => ListBuilder<ChatMessage>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(InvitationOut)]),
           () => ListBuilder<InvitationOut>())
       ..addBuilderFactory(
@@ -113,6 +122,9 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(InvitationOut)]),
           () => ListBuilder<InvitationOut>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TextCount)]),
           () => ListBuilder<TextCount>())

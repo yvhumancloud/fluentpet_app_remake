@@ -4,6 +4,7 @@ README.md
 analysis_options.yaml
 lib/fluentpet_api.dart
 lib/src/api.dart
+lib/src/api/ai_api.dart
 lib/src/api/audios_api.dart
 lib/src/api/bases_api.dart
 lib/src/api/buttons_api.dart
@@ -36,6 +37,9 @@ lib/src/model/button_merge.dart
 lib/src/model/button_out.dart
 lib/src/model/button_patch.dart
 lib/src/model/button_ref.dart
+lib/src/model/chat_in.dart
+lib/src/model/chat_message.dart
+lib/src/model/chat_out.dart
 lib/src/model/combination.dart
 lib/src/model/context_create.dart
 lib/src/model/context_out.dart
@@ -56,6 +60,8 @@ lib/src/model/items_inner.dart
 lib/src/model/learner_type_out.dart
 lib/src/model/linked_button_out.dart
 lib/src/model/location_inner.dart
+lib/src/model/log_text_in.dart
+lib/src/model/log_text_out.dart
 lib/src/model/me_out.dart
 lib/src/model/me_patch.dart
 lib/src/model/note_in.dart

@@ -27,6 +27,9 @@ import 'package:fluentpet_api/src/model/button_merge.dart';
 import 'package:fluentpet_api/src/model/button_out.dart';
 import 'package:fluentpet_api/src/model/button_patch.dart';
 import 'package:fluentpet_api/src/model/button_ref.dart';
+import 'package:fluentpet_api/src/model/chat_in.dart';
+import 'package:fluentpet_api/src/model/chat_message.dart';
+import 'package:fluentpet_api/src/model/chat_out.dart';
 import 'package:fluentpet_api/src/model/combination.dart';
 import 'package:fluentpet_api/src/model/context_create.dart';
 import 'package:fluentpet_api/src/model/context_out.dart';
@@ -46,6 +49,8 @@ import 'package:fluentpet_api/src/model/items_inner.dart';
 import 'package:fluentpet_api/src/model/learner_type_out.dart';
 import 'package:fluentpet_api/src/model/linked_button_out.dart';
 import 'package:fluentpet_api/src/model/location_inner.dart';
+import 'package:fluentpet_api/src/model/log_text_in.dart';
+import 'package:fluentpet_api/src/model/log_text_out.dart';
 import 'package:fluentpet_api/src/model/me_out.dart';
 import 'package:fluentpet_api/src/model/me_patch.dart';
 import 'package:fluentpet_api/src/model/note_in.dart';
@@ -90,6 +95,9 @@ part 'serializers.g.dart';
   ButtonOut,
   ButtonPatch,
   ButtonRef,
+  ChatIn,
+  ChatMessage,
+  ChatOut,
   Combination,
   ContextCreate,
   ContextOut,
@@ -109,6 +117,8 @@ part 'serializers.g.dart';
   LearnerTypeOut,
   LinkedButtonOut,
   LocationInner,
+  LogTextIn,
+  LogTextOut,
   MeOut,
   MePatch,
   NoteIn,
@@ -143,6 +153,42 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<PressOut>(),
       )
       ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(UserOut)]),
+        () => ListBuilder<UserOut>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(ChatMessage)]),
+        () => ListBuilder<ChatMessage>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(TextCount)]),
+        () => ListBuilder<TextCount>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(InteractionOut)]),
+        () => ListBuilder<InteractionOut>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AudioOut)]),
+        () => ListBuilder<AudioOut>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(LocationInner)]),
+        () => ListBuilder<LocationInner>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(BaseOut)]),
+        () => ListBuilder<BaseOut>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(PusherDetailOut)]),
+        () => ListBuilder<PusherDetailOut>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(LearnerTypeOut)]),
+        () => ListBuilder<LearnerTypeOut>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(ButtonConceptOut)]),
         () => ListBuilder<ButtonConceptOut>(),
       )
@@ -163,16 +209,8 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<HourStat>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(UserOut)]),
-        () => ListBuilder<UserOut>(),
-      )
-      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(LinkedButtonOut)]),
         () => ListBuilder<LinkedButtonOut>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(TextCount)]),
-        () => ListBuilder<TextCount>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(InvitationOut)]),
@@ -187,28 +225,8 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<DayStat>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(InteractionOut)]),
-        () => ListBuilder<InteractionOut>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(AudioOut)]),
-        () => ListBuilder<AudioOut>(),
-      )
-      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(int)]),
         () => ListBuilder<int>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(LocationInner)]),
-        () => ListBuilder<LocationInner>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(BaseOut)]),
-        () => ListBuilder<BaseOut>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(PusherDetailOut)]),
-        () => ListBuilder<PusherDetailOut>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(ContextOut)]),
@@ -228,8 +246,8 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<ValidationError>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(LearnerTypeOut)]),
-        () => ListBuilder<LearnerTypeOut>(),
+        const FullType(BuiltList, [FullType(String)]),
+        () => ListBuilder<String>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),

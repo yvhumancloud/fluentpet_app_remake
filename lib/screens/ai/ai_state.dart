@@ -57,13 +57,13 @@ Future<void> openAi(
 
 class AiChatState {
   const AiChatState({
-    this.messages = const <AiMessage>[],
+    this.messages = const <ChatMessage>[],
     this.pending = false,
     this.remainingToday,
     this.failure,
   });
 
-  final List<AiMessage> messages;
+  final List<ChatMessage> messages;
 
   /// A reply is on its way.
   final bool pending;
@@ -75,7 +75,7 @@ class AiChatState {
   final AiFailure? failure;
 
   AiChatState copyWith({
-    List<AiMessage>? messages,
+    List<ChatMessage>? messages,
     bool? pending,
     int? remainingToday,
     AiFailure? failure,
@@ -101,9 +101,13 @@ class AiChatNotifier extends Notifier<AiChatState> {
     final content = text.trim();
     if (content.isEmpty || state.pending) return;
     state = state.copyWith(
-      messages: <AiMessage>[
+      messages: <ChatMessage>[
         ...state.messages,
-        AiMessage(role: AiRole.user, content: content),
+        ChatMessage(
+          (b) => b
+            ..role = ChatMessageRoleEnum.user
+            ..content = content,
+        ),
       ],
       pending: true,
       clearFailure: true,
@@ -127,11 +131,19 @@ class AiChatNotifier extends Notifier<AiChatState> {
         ? state.messages.sublist(state.messages.length - aiMaxThread)
         : state.messages;
     try {
-      final reply = await ref.read(aiClientProvider).chat(thread);
+      final reply =
+          (await ref
+                  .read(aiApiProvider)
+                  .chat(chatIn: ChatIn((b) => b.messages.replace(thread))))
+              .data!;
       state = state.copyWith(
-        messages: <AiMessage>[
+        messages: <ChatMessage>[
           ...state.messages,
-          AiMessage(role: AiRole.assistant, content: reply.reply),
+          ChatMessage(
+            (b) => b
+              ..role = ChatMessageRoleEnum.assistant
+              ..content = reply.reply,
+          ),
         ],
         pending: false,
         remainingToday: reply.remainingToday,
